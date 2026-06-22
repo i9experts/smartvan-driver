@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/network/api_service.dart';
+import '../../alerts/screens/alerts_screen.dart';
+import '../../profile/screens/profile_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -41,10 +43,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _loadTrips() async {
     try {
-      final response = await ApiService.get('/Trip/getDriverTrips');
+      final response = await ApiService.get('/trips/getDriverTrips');
       if (response.statusCode == 200) {
         final raw = response.data;
-        setState(() => _trips = raw['data'] ?? raw ?? []);
+        final data = raw['data'] ?? raw ?? [];
+        setState(() => _trips = data is List ? data : []);
       }
     } catch (e) {}
   }
@@ -53,7 +56,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Logout',
             style: TextStyle(
                 fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
@@ -108,9 +112,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       case 0:
         return _buildHome();
       case 1:
-        return _buildAlertsPlaceholder();
+        return const AlertsScreen();
       case 2:
-        return _buildProfilePlaceholder();
+        return const ProfileScreen();
       default:
         return _buildHome();
     }
@@ -156,7 +160,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                  color: const Color(0xFFFFB800), width: 2.5),
+                                  color: const Color(0xFFFFB800),
+                                  width: 2.5),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.2),
@@ -198,7 +203,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ],
                             ),
                           ),
-                          // Notification bell
                           Container(
                             width: 42,
                             height: 42,
@@ -216,7 +220,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // Logout
                           Container(
                             width: 42,
                             height: 42,
@@ -238,32 +241,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     // Location pill
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.location_on,
-                                color: Color(0xFFFFB800), size: 16),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                location,
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                  fontFamily: 'Poppins',
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.location_on,
+                                  color: Color(0xFFFFB800), size: 16),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  location,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -274,25 +280,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
                       child: Row(
                         children: [
-                          _buildStatChip(
-                              Icons.directions_bus_outlined,
-                              '${_trips.length}',
-                              'Trips Today'),
+                          _buildStatChip(Icons.directions_bus_outlined,
+                              '${_trips.length}', 'Trips Today'),
                           const SizedBox(width: 12),
-                          _buildStatChip(
-                              Icons.people_outline,
-                              _trips.isEmpty ? '0' : '—',
+                          _buildStatChip(Icons.people_outline, '—',
                               'Passengers'),
                           const SizedBox(width: 12),
                           _buildStatChip(
                               Icons.check_circle_outline,
-                              _trips.where((t) =>
-                                          (t['status'] ?? '')
-                                              .toString()
-                                              .toLowerCase() ==
-                                          'completed')
-                                      .length
-                                      .toString(),
+                              _trips
+                                  .where((t) =>
+                                      (t['status'] ?? '')
+                                          .toString()
+                                          .toLowerCase() ==
+                                      'end')
+                                  .length
+                                  .toString(),
                               'Completed'),
                         ],
                       ),
@@ -304,7 +307,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             const SizedBox(height: 24),
 
-            // Today's Trips Section
+            // Today's Trips
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -366,7 +369,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildStatChip(IconData icon, String value, String label) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        padding:
+            const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.12),
           borderRadius: BorderRadius.circular(14),
@@ -475,7 +479,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 20),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
               color: const Color(0xFFFFB800).withOpacity(0.1),
               borderRadius: BorderRadius.circular(30),
@@ -514,8 +519,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         trip['startTime'] ?? trip['tripStartTime'] ?? '—';
     final String status = trip['status'] ?? 'pending';
     final bool isActive = status.toLowerCase() == 'active' ||
-        status.toLowerCase() == 'ongoing';
-    final bool isCompleted = status.toLowerCase() == 'completed';
+        status.toLowerCase() == 'ongoing' ||
+        status.toLowerCase() == 'start';
+    final bool isCompleted = status.toLowerCase() == 'end' ||
+        status.toLowerCase() == 'completed';
 
     Color statusColor = const Color(0xFFFFB800);
     String statusText = 'Starting';
@@ -548,7 +555,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: isCompleted
-                    ? [const Color(0xFF8A94A6), const Color(0xFF8A94A6)]
+                    ? [
+                        const Color(0xFF8A94A6),
+                        const Color(0xFF8A94A6)
+                      ]
                     : isActive
                         ? [
                             const Color(0xFF27AE60),
@@ -565,7 +575,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -628,11 +637,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // Info chips
                 Row(
                   children: [
-                    _buildInfoChip(Icons.calendar_today_outlined, date),
+                    _buildInfoChip(
+                        Icons.calendar_today_outlined, date),
                     const SizedBox(width: 8),
                     _buildInfoChip(Icons.wb_sunny_outlined, shift),
                     const SizedBox(width: 8),
@@ -640,8 +648,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // View Trip Button
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -693,7 +699,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildInfoChip(IconData icon, String text) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
           color: const Color(0xFFF0F3FF),
           borderRadius: BorderRadius.circular(8),
@@ -718,26 +725,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildAlertsPlaceholder() {
-    return const Center(
-      child: Text('Alerts Coming Soon',
-          style: TextStyle(
-              fontSize: 18,
-              color: Color(0xFF1B2B6B),
-              fontFamily: 'Poppins')),
-    );
-  }
-
-  Widget _buildProfilePlaceholder() {
-    return const Center(
-      child: Text('Profile Coming Soon',
-          style: TextStyle(
-              fontSize: 18,
-              color: Color(0xFF1B2B6B),
-              fontFamily: 'Poppins')),
     );
   }
 
