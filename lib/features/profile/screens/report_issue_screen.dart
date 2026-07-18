@@ -58,21 +58,23 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
 
     setState(() => _isSaving = true);
     try {
-      await ApiService.post('/report/createReport', {
+      await ApiService.post('/report/addReportByDriver', {
         'issueType': _selectedIssueType,
         'description': _descriptionController.text.trim(),
       });
-      setState(() => _showSuccess = true);
+      if (mounted) setState(() => _showSuccess = true);
     } catch (e) {
+      // Was previously showing "Report submitted!" here regardless of the
+      // actual outcome — every report silently failed (wrong endpoint URL)
+      // while telling the driver it had gone through.
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Report submitted!'),
-            backgroundColor: Color(0xFF27AE60),
+          SnackBar(
+            content: Text('Failed to submit report: $e'),
+            backgroundColor: const Color(0xFFFF4B4B),
             behavior: SnackBarBehavior.floating,
           ),
         );
-        setState(() => _showSuccess = true);
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
