@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_constants.dart';
 import '../router/app_router.dart';
@@ -12,13 +13,25 @@ class ApiService {
       receiveTimeout: const Duration(seconds: 30),
       headers: {'Content-Type': 'application/json'},
     ),
-  )..interceptors.add(
+  )
+    ..interceptors.add(
       InterceptorsWrapper(
+        onRequest: (options, handler) {
+          debugPrint('[API] -> ${options.method} ${options.path}');
+          handler.next(options);
+        },
+        onResponse: (response, handler) {
+          debugPrint('[API] <- ${response.statusCode} ${response.requestOptions.path}');
+          handler.next(response);
+        },
         onError: (error, handler) async {
+          debugPrint(
+              '[API] !! ERROR ${error.response?.statusCode} ${error.requestOptions.path} — ${error.response?.data}');
           // Session expired/invalid — no screen was handling this before,
           // so a driver mid-shift would just see raw errors on every
           // request instead of a clean prompt to log back in.
           if (error.response?.statusCode == 401) {
+            debugPrint('[API] 401 received — clearing token and redirecting to /login');
             final prefs = await SharedPreferences.getInstance();
             await prefs.remove(AppConstants.tokenKey);
             appRouter.go('/login');
