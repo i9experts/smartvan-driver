@@ -22,11 +22,15 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
 
   Future<void> _loadAlerts() async {
     try {
-      final response = await ApiService.get('/alert/getAlert');
+      final response = await ApiService.get('/alert/getNotificationForDriver');
       if (response.statusCode == 200) {
         final raw = response.data;
-        setState(
-            () => _alerts = raw is List ? raw : (raw['alerts'] ?? raw['data'] ?? []));
+        final data = raw is Map ? raw['data'] : null;
+        setState(() => _alerts = raw is List
+            ? raw
+            : (data is List
+                ? data
+                : (data is Map ? (data['notifications'] ?? []) : [])));
       }
     } catch (e) {
     } finally {
