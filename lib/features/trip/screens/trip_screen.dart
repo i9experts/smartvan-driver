@@ -31,6 +31,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   int _totalPassengers = 0;
   Map<String, dynamic>? _profile;
   StreamSubscription<loc.LocationData>? _positionStream;
+  final loc.Location _location = loc.Location();
 
   String get _tripId => (widget.trip['_id'] ?? widget.trip['id']).toString();
 
@@ -52,10 +53,24 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   @override
   void dispose() {
     _positionStream?.cancel();
+    _disableBackgroundModeSafely();
     _socket?.disconnect();
     _socket?.dispose();
     _mapController?.dispose();
     super.dispose();
+  }
+
+  /// Fire-and-forget helper — dispose() can't be async, and
+  /// enableBackgroundMode's Future<bool> return type doesn't play nicely
+  /// with a bare .catchError, so this wraps it in a proper try/catch.
+  void _disableBackgroundModeSafely() {
+    () async {
+      try {
+        await _location.enableBackgroundMode(enable: false);
+      } catch (_) {
+        // Non-fatal — screen is going away either way.
+      }
+    }();
   }
 
   Future<void> _loadProfile() async {
@@ -131,7 +146,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   /// - emits `updateLocation` over the socket for real-time parent tracking
   /// - posts to /trips/updateLocation/:tripId for geofence push alerts
   Future<void> _startLocationSharing() async {
-    final location = loc.Location();
+    final location = _location;
 
     bool serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
@@ -164,6 +179,25 @@ class _TripScreenState extends ConsumerState<TripScreen> {
         );
       }
       return;
+    }
+
+    // Without this, Android throttles or kills the location stream the
+    // moment the app isn't in the foreground (screen locks, driver switches
+    // to a maps app, etc.) — which happens constantly during a real trip.
+    // This starts a proper Android foreground service (with the required
+    // persistent notification) so GPS sharing keeps running regardless.
+    try {
+      await location.changeNotificationOptions(
+        title: 'SmartVan — Trip in progress',
+        subtitle: 'Sharing your location with parents and school',
+        onTapBringToFront: true,
+      );
+      await location.enableBackgroundMode(enable: true);
+    } catch (e) {
+      // Non-fatal: on some OEM Android builds / older OS versions this can
+      // fail even with the right permissions. Foreground-only tracking
+      // still works via the stream below, just won't survive backgrounding.
+      debugPrint('enableBackgroundMode failed: $e');
     }
 
     await location.changeSettings(
@@ -251,6 +285,11 @@ class _TripScreenState extends ConsumerState<TripScreen> {
         await ApiService.post('/trips/endTrip', {'tripId': tripId});
         await _positionStream?.cancel();
         _positionStream = null;
+        try {
+          await _location.enableBackgroundMode(enable: false);
+        } catch (_) {
+          // Non-fatal — dispose() will also attempt this as a backstop.
+        }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
