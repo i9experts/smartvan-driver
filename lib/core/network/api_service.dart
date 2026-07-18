@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_constants.dart';
+import '../router/app_router.dart';
 
 class ApiService {
   static final Dio _dio = Dio(
@@ -11,7 +12,21 @@ class ApiService {
       receiveTimeout: const Duration(seconds: 30),
       headers: {'Content-Type': 'application/json'},
     ),
-  );
+  )..interceptors.add(
+      InterceptorsWrapper(
+        onError: (error, handler) async {
+          // Session expired/invalid — no screen was handling this before,
+          // so a driver mid-shift would just see raw errors on every
+          // request instead of a clean prompt to log back in.
+          if (error.response?.statusCode == 401) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.remove(AppConstants.tokenKey);
+            appRouter.go('/login');
+          }
+          handler.next(error);
+        },
+      ),
+    );
 
   static Future<SharedPreferences> getPrefs() async {
     return await SharedPreferences.getInstance();
