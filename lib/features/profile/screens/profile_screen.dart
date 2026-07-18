@@ -81,6 +81,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final String email = _profile?['email'] ?? '';
     final String phone = _profile?['phoneNo'] ?? '—';
     final String address = _profile?['address'] ?? '—';
+    final String altPhone = _profile?['alternatePhoneNo'] ?? '';
+    final String nic = _profile?['NIC'] ?? '';
     final String? image = _profile?['image'];
 
     return Scaffold(
@@ -193,6 +195,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               Icons.email_outlined, 'Email', email),
                           _buildInfoRow(
                               Icons.phone_outlined, 'Phone', phone),
+                          if (altPhone.isNotEmpty)
+                            _buildInfoRow(Icons.phone_callback_outlined,
+                                'Alternate Phone', altPhone),
+                          if (nic.isNotEmpty)
+                            _buildInfoRow(
+                                Icons.badge_outlined, 'CNIC', nic),
                           _buildInfoRow(
                               Icons.home_outlined, 'Address', address),
                         ]),

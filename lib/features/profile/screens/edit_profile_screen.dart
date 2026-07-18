@@ -18,6 +18,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _phoneController = TextEditingController();
   final _altPhoneController = TextEditingController();
   final _addressController = TextEditingController();
+  final _nicController = TextEditingController();
   bool _isLoading = true;
   bool _isSaving = false;
   File? _selectedImage;
@@ -35,6 +36,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _phoneController.dispose();
     _altPhoneController.dispose();
     _addressController.dispose();
+    _nicController.dispose();
     super.dispose();
   }
 
@@ -50,6 +52,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           _phoneController.text = data['phoneNo'] ?? '';
           _altPhoneController.text = data['alternatePhoneNo'] ?? '';
           _addressController.text = data['address'] ?? '';
+          _nicController.text = data['NIC'] ?? '';
         });
       }
     } catch (e) {
@@ -75,6 +78,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         'phoneNo': _phoneController.text.trim(),
         'alternatePhoneNo': _altPhoneController.text.trim(),
         'address': _addressController.text.trim(),
+        'NIC': _nicController.text.trim(),
         'userType': 'driver',
       });
       if (mounted) {
@@ -231,6 +235,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         _buildField('Address', _addressController,
                             Icons.home_outlined,
                             maxLines: 2),
+                        const SizedBox(height: 16),
+                        _buildField('CNIC Number', _nicController,
+                            Icons.badge_outlined,
+                            keyboardType: TextInputType.text),
                         const SizedBox(height: 32),
 
                         SizedBox(

@@ -14,27 +14,27 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _emailController = TextEditingController();
+  final _loginIdController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _loginIdController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _login() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+    if (_loginIdController.text.isEmpty || _passwordController.text.isEmpty) {
       _showError('Please fill in all fields');
       return;
     }
     setState(() => _isLoading = true);
     try {
       final response = await ApiService.post('/auth/login', {
-        'email': _emailController.text.trim(),
+        'loginId': _loginIdController.text.trim(),
         'password': _passwordController.text,
         'userType': 'driver',
       });
@@ -170,7 +170,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 28),
-                        const Text('Email Address',
+                        const Text('Phone Number or CNIC',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -179,15 +179,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             )),
                         const SizedBox(height: 8),
                         TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
+                          controller: _loginIdController,
+                          keyboardType: TextInputType.text,
                           decoration: InputDecoration(
-                            hintText: 'Enter your email',
+                            hintText: 'e.g. 03211181555 or your CNIC',
                             hintStyle: const TextStyle(
                                 color: Color(0xFF8A94A6),
                                 fontSize: 14,
                                 fontFamily: 'Poppins'),
-                            prefixIcon: const Icon(Icons.email_outlined,
+                            prefixIcon: const Icon(Icons.phone_outlined,
                                 color: Color(0xFF1B2B6B)),
                             filled: true,
                             fillColor: Colors.white,

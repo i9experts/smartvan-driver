@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/network/api_service.dart';
 import '../../alerts/screens/alerts_screen.dart';
@@ -18,6 +19,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
   Map<String, dynamic>? _profile;
   List<dynamic> _trips = [];
+  List<dynamic> _myRoutes = [];
   bool _isLoading = true;
 
   @override
@@ -27,8 +29,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _loadData() async {
-    await Future.wait([_loadProfile(), _loadTrips()]);
+    await Future.wait([_loadProfile(), _loadTrips(), _loadMyRoutes()]);
     if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _loadMyRoutes() async {
+    try {
+      final response = await ApiService.get('/route/getAssignedTripByDriver');
+      if (response.statusCode == 200) {
+        final raw = response.data;
+        final data = raw['data'];
+        setState(() => _myRoutes = data is List ? data : []);
+      }
+    } catch (e) {
+      // No van assigned / no routes today / driver inactive — all handled
+      // as "nothing to show" rather than a crash. The empty state below
+      // covers this gracefully.
+      setState(() => _myRoutes = []);
+    }
   }
 
   Future<void> _loadProfile() async {
@@ -283,7 +301,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           _buildStatChip(Icons.directions_bus_outlined,
                               '${_trips.length}', 'Trips Today'),
                           const SizedBox(width: 12),
-                          _buildStatChip(Icons.people_outline, '—',
+                          _buildStatChip(
+                              Icons.people_outline,
+                              '${_totalPassengerCount()}',
                               'Passengers'),
                           const SizedBox(width: 12),
                           _buildStatChip(
@@ -304,6 +324,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
             ),
+
+            const SizedBox(height: 24),
+
+            // My Route Today — schedule + passengers, independent of
+            // whether a trip has actually been started yet.
+            if (_myRoutes.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'My Route Today',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A1A2E),
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ..._myRoutes.map((route) => _buildRouteCard(route)),
+                  ],
+                ),
+              ),
 
             const SizedBox(height: 24),
 
@@ -362,6 +407,345 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: 24),
           ],
         ),
+      ),
+    );
+  }
+
+  String _formatTime12Hour(DateTime dt) {
+    final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final period = dt.hour < 12 ? 'AM' : 'PM';
+    return '$hour12:$minute $period';
+  }
+
+  int _totalPassengerCount() {
+    final ids = <String>{};
+    for (final route in _myRoutes) {
+      final passengers = (route['passengers'] as List?) ?? [];
+      for (final p in passengers) {
+        final id = p['kidId']?.toString();
+        if (id != null) ids.add(id);
+      }
+    }
+    return ids.length;
+  }
+
+  bool _startingRouteId = false;
+  String? _startingRoute;
+
+  Future<void> _startTripFromRoute(Map<String, dynamic> route) async {
+    final routeId = route['routeId']?.toString();
+    if (routeId == null) return;
+    setState(() {
+      _startingRouteId = true;
+      _startingRoute = routeId;
+    });
+    try {
+      final response = await ApiService.post('/trips/startTrip', {
+        'routeId': routeId,
+        'type': route['tripType'] ?? 'pick',
+      });
+      final data = response.data['data'];
+      await _loadData();
+      if (mounted && data != null) {
+        context.go('/trip', extra: data);
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data?['message']?.toString() ??
+          'Failed to start trip. Please try again.';
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: const Color(0xFFFF4B4B),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to start trip. Please try again.'),
+            backgroundColor: Color(0xFFFF4B4B),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _startingRouteId = false;
+          _startingRoute = null;
+        });
+      }
+    }
+  }
+
+  Widget _buildRouteCard(Map<String, dynamic> route) {
+    final passengers = (route['passengers'] as List?) ?? [];
+    final tripStarted = route['TripStarted'] == true;
+    // Backend stores startTime as a proper UTC instant — must convert to
+    // local time before reading hour/minute, otherwise this shows the
+    // wrong clock time (this was the bug behind the "15:00 instead of
+    // 8:00 AM" display).
+    final startTimeRaw = route['startTime'] != null
+        ? DateTime.tryParse(route['startTime'].toString())?.toLocal()
+        : null;
+    final startTimeText = startTimeRaw != null
+        ? _formatTime12Hour(startTimeRaw)
+        : '—';
+
+    // Mirrors the backend's 1-hour start window so the driver understands
+    // *why* the button might be disabled, instead of it just failing silently.
+    bool withinWindow = true;
+    if (startTimeRaw != null) {
+      final now = DateTime.now();
+      final scheduledToday = DateTime(
+          now.year, now.month, now.day, startTimeRaw.hour, startTimeRaw.minute);
+      final windowEnd = scheduledToday.add(const Duration(hours: 1));
+      withinWindow = !now.isBefore(scheduledToday) && !now.isAfter(windowEnd);
+    }
+
+    final isStartingThis =
+        _startingRouteId && _startingRoute == route['routeId']?.toString();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  route['routeTitle'] ?? 'Route',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A1A2E),
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: tripStarted
+                      ? const Color(0xFF27AE60).withOpacity(0.1)
+                      : const Color(0xFFFFB800).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  tripStarted ? 'In Progress' : 'Not Started',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: tripStarted
+                        ? const Color(0xFF27AE60)
+                        : const Color(0xFFB8860B),
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(Icons.directions_bus_outlined,
+                  size: 14, color: const Color(0xFF8A94A6)),
+              const SizedBox(width: 4),
+              Text(
+                route['vehicleNumber'] ?? '—',
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF8A94A6),
+                    fontFamily: 'Poppins'),
+              ),
+              const SizedBox(width: 12),
+              const Icon(Icons.access_time,
+                  size: 14, color: Color(0xFF8A94A6)),
+              const SizedBox(width: 4),
+              Text(
+                startTimeText,
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF8A94A6),
+                    fontFamily: 'Poppins'),
+              ),
+              const SizedBox(width: 12),
+              Icon(
+                route['tripType'] == 'drop'
+                    ? Icons.arrow_downward
+                    : Icons.arrow_upward,
+                size: 14,
+                color: const Color(0xFF8A94A6),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                route['tripType'] == 'drop' ? 'Drop' : 'Pick Up',
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF8A94A6),
+                    fontFamily: 'Poppins'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Passengers (${passengers.length})',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1A1A2E),
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (passengers.isEmpty)
+            const Text(
+              'No students on this route yet.',
+              style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF8A94A6),
+                  fontFamily: 'Poppins'),
+            )
+          else
+            Column(
+              children: passengers.map<Widget>((p) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundColor:
+                            const Color(0xFF1B2B6B).withOpacity(0.1),
+                        backgroundImage: (p['image'] != null &&
+                                p['image'].toString().isNotEmpty)
+                            ? NetworkImage(p['image'])
+                            : null,
+                        child: (p['image'] == null ||
+                                p['image'].toString().isEmpty)
+                            ? Text(
+                                (p['fullname'] ?? '?')
+                                    .toString()
+                                    .substring(0, 1)
+                                    .toUpperCase(),
+                                style: const TextStyle(
+                                  color: Color(0xFF1B2B6B),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          p['fullname'] ?? 'Unknown',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontFamily: 'Poppins',
+                            color: Color(0xFF1A1A2E),
+                          ),
+                        ),
+                      ),
+                      if (p['grade'] != null)
+                        Text(
+                          'Grade ${p['grade']}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF8A94A6),
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+
+          if (!tripStarted) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 46,
+              child: ElevatedButton(
+                onPressed: (isStartingThis || !withinWindow)
+                    ? null
+                    : () => _startTripFromRoute(route),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1B2B6B),
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor:
+                      const Color(0xFF8A94A6).withOpacity(0.2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: isStartingThis
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        withinWindow
+                            ? 'Start Trip'
+                            : 'Available at $startTimeText',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+              ),
+            ),
+          ] else ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              height: 46,
+              child: OutlinedButton(
+                onPressed: () => context.go('/trip', extra: route['tripDetails']),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF1B2B6B),
+                  side: const BorderSide(color: Color(0xFF1B2B6B)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Continue Trip',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

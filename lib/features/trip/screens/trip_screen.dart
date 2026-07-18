@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:location/location.dart' as loc;
 import '../../../core/constants/app_constants.dart';
 import '../../../core/network/api_service.dart';
 
@@ -28,18 +30,28 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   int _pickedCount = 0;
   int _totalPassengers = 0;
   Map<String, dynamic>? _profile;
+  StreamSubscription<loc.LocationData>? _positionStream;
+
+  String get _tripId => (widget.trip['_id'] ?? widget.trip['id']).toString();
 
   @override
   void initState() {
     super.initState();
+    // Every way of reaching this screen means a Trip document already
+    // exists with status 'ongoing' (created via the route's "Start Trip"
+    // button on the home screen) — there's no separate "start" step to
+    // perform here, so GPS sharing begins immediately.
+    _isTripStarted = true;
     _loadProfile();
     _loadPassengers();
     _connectSocket();
     _setupMarkers();
+    _startLocationSharing();
   }
 
   @override
   void dispose() {
+    _positionStream?.cancel();
     _socket?.disconnect();
     _socket?.dispose();
     _mapController?.dispose();
@@ -91,6 +103,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
 
     _socket!.onConnect((_) {
       if (mounted) setState(() => _isConnected = true);
+      _socket!.emit('startTrip', {'tripId': _tripId});
     });
 
     _socket!.onDisconnect((_) {
@@ -114,38 +127,88 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     });
   }
 
-  Future<void> _startTrip() async {
-    setState(() => _isStartingTrip = true);
-    try {
-      final tripId = widget.trip['_id'] ?? widget.trip['id'];
-      await ApiService.post('/trips/startTrip', {'tripId': tripId});
-      setState(() => _isTripStarted = true);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Trip started successfully!'),
-            backgroundColor: const Color(0xFF27AE60),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-        );
+  /// Requests location permission, then streams the driver's GPS position:
+  /// - emits `updateLocation` over the socket for real-time parent tracking
+  /// - posts to /trips/updateLocation/:tripId for geofence push alerts
+  Future<void> _startLocationSharing() async {
+    final location = loc.Location();
+
+    bool serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please enable location services to share your trip.'),
+              backgroundColor: Color(0xFFFF4B4B),
+            ),
+          );
+        }
+        return;
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to start trip: $e'),
-            backgroundColor: const Color(0xFFFF4B4B),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isStartingTrip = false);
     }
+
+    loc.PermissionStatus permission = await location.hasPermission();
+    if (permission == loc.PermissionStatus.denied) {
+      permission = await location.requestPermission();
+      if (permission != loc.PermissionStatus.granted) return;
+    }
+    if (permission == loc.PermissionStatus.deniedForever) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Location permission permanently denied. Enable it in app settings.'),
+            backgroundColor: Color(0xFFFF4B4B),
+          ),
+        );
+      }
+      return;
+    }
+
+    await location.changeSettings(
+      accuracy: loc.LocationAccuracy.high,
+      distanceFilter: 10, // meters — avoids flooding updates while stationary
+    );
+
+    await _positionStream?.cancel();
+    _positionStream = location.onLocationChanged.listen((loc.LocationData currentLocation) {
+      final lat = currentLocation.latitude;
+      final lng = currentLocation.longitude;
+      if (lat == null || lng == null) return;
+
+      if (mounted) {
+        setState(() => _driverPosition = LatLng(lat, lng));
+        _updateDriverMarker();
+        _mapController?.animateCamera(CameraUpdate.newLatLng(_driverPosition));
+      }
+
+      _socket?.emit('updateLocation', {
+        'tripId': _tripId,
+        'location': {'lat': lat, 'long': lng},
+      });
+
+      ApiService.post('/trips/updateLocation/$_tripId', {
+        'lat': lat,
+        'lng': lng,
+      }).catchError((_) {
+        // Non-fatal — live tracking still works even if this fails.
+      });
+    });
+  }
+
+  void _updateDriverMarker() {
+    setState(() {
+      _markers = {
+        Marker(
+          markerId: const MarkerId('driver'),
+          position: _driverPosition,
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueBlue),
+          infoWindow: const InfoWindow(title: 'Your Location'),
+        ),
+      };
+    });
   }
 
   Future<void> _endTrip() async {
@@ -184,8 +247,10 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     if (confirmed == true) {
       setState(() => _isEndingTrip = true);
       try {
-        final tripId = widget.trip['_id'] ?? widget.trip['id'];
+        final tripId = _tripId;
         await ApiService.post('/trips/endTrip', {'tripId': tripId});
+        await _positionStream?.cancel();
+        _positionStream = null;
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -480,11 +545,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                           width: double.infinity,
                           height: 52,
                           child: ElevatedButton(
-                            onPressed: _isStartingTrip || _isEndingTrip
-                                ? null
-                                : _isTripStarted
-                                    ? _endTrip
-                                    : _startTrip,
+                            onPressed: _isEndingTrip ? null : _endTrip,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _isTripStarted
                                   ? const Color(0xFF1B2B6B)
