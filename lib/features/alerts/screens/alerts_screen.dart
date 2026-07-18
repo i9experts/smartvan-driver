@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/network/api_service.dart';
+import '../../../core/widgets/voice_recorder_button.dart';
 
 class AlertsScreen extends ConsumerStatefulWidget {
   const AlertsScreen({super.key});
@@ -299,93 +300,169 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
 
   void _showSendAlertDialog() {
     final messageController = TextEditingController();
+    String? audioUrl;
+    bool isSending = false;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) => Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
             ),
-          ),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEAECF0),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Send Alert',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A2E),
-                  fontFamily: 'Poppins',
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: messageController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Enter your message...',
-                  hintStyle: const TextStyle(
-                      color: Color(0xFF8A94A6), fontFamily: 'Poppins'),
-                  filled: true,
-                  fillColor: const Color(0xFFF5F6FA),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAECF0),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Alert sent successfully!'),
-                        backgroundColor: Color(0xFF27AE60),
-                        behavior: SnackBarBehavior.floating,
+                const SizedBox(height: 16),
+                const Text(
+                  'Send Alert',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A1A2E),
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Type a message or record a voice note for your school admin.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF8A94A6),
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: messageController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: 'Enter your message... (optional if recording)',
+                          hintStyle: const TextStyle(
+                              color: Color(0xFF8A94A6), fontFamily: 'Poppins'),
+                          filled: true,
+                          fillColor: const Color(0xFFF5F6FA),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFB800),
-                    foregroundColor: const Color(0xFF1B2B6B),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text(
-                    'Send Alert',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
+                    ),
+                    VoiceRecorderButton(
+                      onUploaded: (url) => setSheetState(() => audioUrl = url),
+                    ),
+                  ],
+                ),
+                if (audioUrl != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
+                      children: const [
+                        Icon(Icons.check_circle, color: Color(0xFF27AE60), size: 16),
+                        SizedBox(width: 6),
+                        Text('Voice note attached',
+                            style: TextStyle(
+                                color: Color(0xFF27AE60),
+                                fontFamily: 'Poppins',
+                                fontSize: 12)),
+                      ],
                     ),
                   ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: isSending
+                        ? null
+                        : () async {
+                            final message = messageController.text.trim();
+                            if (message.isEmpty && audioUrl == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Type a message or record a voice note first.'),
+                                  backgroundColor: Color(0xFFFF4B4B),
+                                ),
+                              );
+                              return;
+                            }
+                            setSheetState(() => isSending = true);
+                            try {
+                              await ApiService.post('/alert/sendAlertByDriver', {
+                                if (message.isNotEmpty) 'message': message,
+                                if (audioUrl != null) 'audioUrl': audioUrl,
+                              });
+                              if (context.mounted) Navigator.pop(context);
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Alert sent to your school admin!'),
+                                    backgroundColor: Color(0xFF27AE60),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              setSheetState(() => isSending = false);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to send alert: $e'),
+                                  backgroundColor: const Color(0xFFFF4B4B),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFB800),
+                      foregroundColor: const Color(0xFF1B2B6B),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: isSending
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Color(0xFF1B2B6B)),
+                          )
+                        : const Text(
+                            'Send Alert',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-            ],
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         ),
       ),
