@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:location/location.dart' as loc;
 import '../../../core/network/api_service.dart';
 
 class PassengersScreen extends ConsumerStatefulWidget {
@@ -81,11 +82,30 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
     try {
       final tripId = widget.trip['_id'] ?? widget.trip['id'];
       final kidId = kid['_id'] ?? kid['id'];
+
+      // Was previously hardcoded to a fixed Karachi coordinate, which got
+      // written directly into the trip's location history — silently
+      // corrupting the live tracking map with a fake point on every drop.
+      double lat = 24.8607;
+      double long = 67.0011;
+      try {
+        final location = loc.Location();
+        final current = await location.getLocation();
+        if (current.latitude != null && current.longitude != null) {
+          lat = current.latitude!;
+          long = current.longitude!;
+        }
+      } catch (_) {
+        // Fall back to the placeholder only if GPS is genuinely unavailable
+        // (permission denied, location services off) — better to record
+        // something than fail the drop entirely.
+      }
+
       await ApiService.post('/trips/dropStudentForHome', {
         'tripId': tripId,
         'kidId': kidId,
-        'lat': 24.8607,
-        'long': 67.0011,
+        'lat': lat,
+        'long': long,
       });
       await _loadPassengers();
       if (mounted) {
