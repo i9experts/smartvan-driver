@@ -39,12 +39,71 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(
         source: ImageSource.gallery, imageQuality: 80);
-    if (picked != null) {
+    if (picked == null) return;
+
+    // Ambiguous generic button — no specific document field to target,
+    // so rather than silently discarding the image (as before), tell the
+    // driver to use one of the specific cards instead.
+    if (type != 'vehicle_card' && type != 'driving_license') {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Please tap directly on "Vehicle Registration" or "Driving License" above to upload that specific document.'),
+            backgroundColor: Color(0xFFFF4B4B),
+          ),
+        );
+      }
+      return;
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Uploading...'),
+          duration: Duration(seconds: 30),
+        ),
+      );
+    }
+
+    try {
+      final imageFile = File(picked.path);
+      final imageUrl = await ApiService.uploadImage(imageFile);
+      if (imageUrl == null) {
+        throw Exception('Upload failed');
+      }
+
+      final fieldName = type == 'vehicle_card'
+          ? 'vehicleCardImageFront'
+          : 'licenceImageFront';
+
+      await ApiService.post('/van/uploadDocuments', {
+        'title': type,
+        fieldName: imageUrl,
+      });
+
+      await _loadDocuments();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$type uploaded successfully!'),
+            content: Text(
+                '${type == 'vehicle_card' ? 'Vehicle Registration Certificate' : 'Driving License'} uploaded successfully!'),
             backgroundColor: const Color(0xFF27AE60),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload document: $e'),
+            backgroundColor: const Color(0xFFFF4B4B),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10)),
