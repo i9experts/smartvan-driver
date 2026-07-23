@@ -23,29 +23,6 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-// Some plugins (notably the `record` package's Android module) don't
-// correctly inherit compileSdkVersion from the root project on certain
-// Gradle/AGP combinations, causing a "compileSdkVersion is not specified"
-// configuration failure. This forces every Android subproject/plugin
-// module to use the same compileSdk value as the main app.
-// Uses gradle.projectsEvaluated (not subprojects.afterEvaluate) because
-// this project's newer Flutter Gradle template (pluginManagement +
-// flutter-plugin-loader in settings.gradle) evaluates the root project
-// earlier, which makes afterEvaluate throw "already evaluated".
-gradle.projectsEvaluated {
-    subprojects.each { project ->
-        if (project.plugins.hasPlugin("com.android.application") ||
-            project.plugins.hasPlugin("com.android.library")) {
-            project.android {
-                if (namespace == null) {
-                    namespace project.group
-                }
-                compileSdkVersion 35
-            }
-        }
-    }
-}
-
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
