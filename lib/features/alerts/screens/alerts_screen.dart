@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/network/api_service.dart';
-import '../../../core/widgets/voice_recorder_button.dart';
 
 class AlertsScreen extends ConsumerStatefulWidget {
   const AlertsScreen({super.key});
@@ -300,7 +299,6 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
 
   void _showSendAlertDialog() {
     final messageController = TextEditingController();
-    String? audioUrl;
     bool isSending = false;
 
     showModalBottomSheet(
@@ -344,7 +342,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Type a message or record a voice note for your school admin.',
+                  'Type a message for your school admin.',
                   style: TextStyle(
                     fontSize: 12,
                     color: Color(0xFF8A94A6),
@@ -360,7 +358,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                         controller: messageController,
                         maxLines: 3,
                         decoration: InputDecoration(
-                          hintText: 'Enter your message... (optional if recording)',
+                          hintText: 'Enter your message...',
                           hintStyle: const TextStyle(
                               color: Color(0xFF8A94A6), fontFamily: 'Poppins'),
                           filled: true,
@@ -372,26 +370,8 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                         ),
                       ),
                     ),
-                    VoiceRecorderButton(
-                      onUploaded: (url) => setSheetState(() => audioUrl = url),
-                    ),
                   ],
                 ),
-                if (audioUrl != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Row(
-                      children: const [
-                        Icon(Icons.check_circle, color: Color(0xFF27AE60), size: 16),
-                        SizedBox(width: 6),
-                        Text('Voice note attached',
-                            style: TextStyle(
-                                color: Color(0xFF27AE60),
-                                fontFamily: 'Poppins',
-                                fontSize: 12)),
-                      ],
-                    ),
-                  ),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -401,10 +381,10 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                         ? null
                         : () async {
                             final message = messageController.text.trim();
-                            if (message.isEmpty && audioUrl == null) {
+                            if (message.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Type a message or record a voice note first.'),
+                                  content: Text('Type a message first.'),
                                   backgroundColor: Color(0xFFFF4B4B),
                                 ),
                               );
@@ -413,8 +393,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                             setSheetState(() => isSending = true);
                             try {
                               await ApiService.post('/alert/sendAlertByDriver', {
-                                if (message.isNotEmpty) 'message': message,
-                                if (audioUrl != null) 'audioUrl': audioUrl,
+                                'message': message,
                               });
                               if (context.mounted) Navigator.pop(context);
                               if (mounted) {

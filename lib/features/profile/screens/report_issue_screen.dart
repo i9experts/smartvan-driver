@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../core/network/api_service.dart';
-import '../../../core/widgets/voice_recorder_button.dart';
 
 class ReportIssueScreen extends ConsumerStatefulWidget {
   const ReportIssueScreen({super.key});
@@ -18,7 +17,6 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
   final _descriptionController = TextEditingController();
   String _selectedIssueType = 'Vehicle Issue';
   File? _selectedImage;
-  String? _audioUrl;
   bool _isSaving = false;
   bool _showSuccess = false;
 
@@ -71,7 +69,6 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
         'issueType': _selectedIssueType,
         'description': _descriptionController.text.trim(),
         if (imageUrl != null) 'image': imageUrl,
-        if (_audioUrl != null) 'audio': _audioUrl,
       });
       if (mounted) setState(() => _showSuccess = true);
     } catch (e) {
@@ -385,35 +382,6 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                                     ),
                                   ],
                                 ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFEAECF0)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Expanded(
-                              child: Text(
-                                'Prefer to speak instead? Record a voice note.',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF8A94A6),
-                                  fontFamily: 'Poppins',
-                                ),
-                              ),
-                            ),
-                            if (_audioUrl != null)
-                              const Icon(Icons.check_circle,
-                                  color: Color(0xFF27AE60), size: 18),
-                            VoiceRecorderButton(
-                              onUploaded: (url) => setState(() => _audioUrl = url),
-                            ),
-                          ],
                         ),
                       ),
                       const SizedBox(height: 32),
