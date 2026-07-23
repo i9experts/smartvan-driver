@@ -73,6 +73,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _saveProfile() async {
     setState(() => _isSaving = true);
     try {
+      // Was previously only a local preview via Image.file — never
+      // actually uploaded or included in the update request at all.
+      String? imageUrl;
+      if (_selectedImage != null) {
+        imageUrl = await ApiService.uploadImage(_selectedImage!);
+      }
+
       await ApiService.post('/van/update-profile', {
         'fullname': _nameController.text.trim(),
         'phoneNo': _phoneController.text.trim(),
@@ -80,6 +87,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         'address': _addressController.text.trim(),
         'NIC': _nicController.text.trim(),
         'userType': 'driver',
+        if (imageUrl != null) 'image': imageUrl,
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
