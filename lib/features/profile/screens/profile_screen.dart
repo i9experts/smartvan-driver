@@ -389,6 +389,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Column(
         children: [
           _buildActionItem(
+            Icons.payments_outlined,
+            'Fee Collection',
+            const Color(0xFF27AE60),
+            () => context.go('/fee-collection'),
+          ),
+          const Divider(height: 1, color: Color(0xFFEAECF0)),
+          _buildActionItem(
             Icons.folder_outlined,
             'My Documents',
             const Color(0xFF1B2B6B),
