@@ -316,7 +316,12 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
         child: Row(
           children: [
             // Avatar
-            Container(
+            // Avatar — tap to view full profile (address, parent contact,
+            // alternate phone). This screen already existed and worked
+            // correctly, but was completely unreachable from anywhere.
+            GestureDetector(
+              onTap: () => context.push('/kid-profile', extra: kid),
+              child: Container(
               width: 52,
               height: 52,
               decoration: BoxDecoration(
@@ -337,6 +342,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
                         errorBuilder: (_, __, ___) =>
                             _buildAvatarFallback(name))
                     : _buildAvatarFallback(name),
+              ),
               ),
             ),
             const SizedBox(width: 12),
