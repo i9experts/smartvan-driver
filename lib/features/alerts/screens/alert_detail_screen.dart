@@ -8,9 +8,13 @@ class AlertDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String type = (alert['type'] ?? 'info').toString().toLowerCase();
-    final String title = alert['title'] ?? alert['message'] ?? 'Alert';
-    final String body = alert['description'] ?? alert['body'] ?? '';
-    final String time = alert['createdAt'] ?? '';
+    final String title = alert['title'] ?? 'Alert';
+    // 'description'/'body' never existed on the Notification schema at
+    // all — only 'message' does. This meant the actual content of every
+    // alert silently never displayed here; the driver would tap an alert
+    // and see only the title, never what it actually said.
+    final String body = alert['message'] ?? '';
+    final String time = alert['date'] ?? alert['createdAt'] ?? '';
     final String tripId = alert['tripId'] ?? '';
 
     Color alertColor;
