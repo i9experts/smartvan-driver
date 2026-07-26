@@ -47,7 +47,7 @@ class _ChangePasswordScreenState
 
     setState(() => _isSaving = true);
     try {
-      await ApiService.post('/auth/changePassword', {
+      await ApiService.post('/auth/change-password', {
         'oldPassword': _currentController.text,
         'newPassword': _newController.text,
         'userType': 'driver',
