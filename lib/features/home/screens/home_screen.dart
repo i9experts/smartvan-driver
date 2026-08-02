@@ -564,44 +564,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ],
           ),
           const SizedBox(height: 4),
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Icon(Icons.directions_bus_outlined,
-                  size: 14, color: const Color(0xFF8A94A6)),
-              const SizedBox(width: 4),
-              Text(
-                route['vehicleNumber'] ?? '—',
-                style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF8A94A6),
-                    fontFamily: 'Poppins'),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.directions_bus_outlined,
+                      size: 14, color: const Color(0xFF8A94A6)),
+                  const SizedBox(width: 4),
+                  Text(
+                    route['vehicleNumber'] ?? '—',
+                    style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF8A94A6),
+                        fontFamily: 'Poppins'),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              const Icon(Icons.access_time,
-                  size: 14, color: Color(0xFF8A94A6)),
-              const SizedBox(width: 4),
-              Text(
-                startTimeText,
-                style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF8A94A6),
-                    fontFamily: 'Poppins'),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.access_time,
+                      size: 14, color: Color(0xFF8A94A6)),
+                  const SizedBox(width: 4),
+                  Text(
+                    startTimeText,
+                    style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF8A94A6),
+                        fontFamily: 'Poppins'),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Icon(
-                route['tripType'] == 'drop'
-                    ? Icons.arrow_downward
-                    : Icons.arrow_upward,
-                size: 14,
-                color: const Color(0xFF8A94A6),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                route['tripType'] == 'drop' ? 'Drop' : 'Pick Up',
-                style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF8A94A6),
-                    fontFamily: 'Poppins'),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    route['tripType'] == 'drop'
+                        ? Icons.arrow_downward
+                        : Icons.arrow_upward,
+                    size: 14,
+                    color: const Color(0xFF8A94A6),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    route['tripType'] == 'drop' ? 'Drop' : 'Pick Up',
+                    style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF8A94A6),
+                        fontFamily: 'Poppins'),
+                  ),
+                ],
               ),
             ],
           ),
