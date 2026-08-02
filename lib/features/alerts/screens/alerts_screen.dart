@@ -205,7 +205,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
     }
 
     return GestureDetector(
-      onTap: () => context.go('/alert-detail', extra: alert),
+      onTap: () => context.push('/alert-detail', extra: alert),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(

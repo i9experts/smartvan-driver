@@ -60,7 +60,7 @@ class AlertDetailScreen extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.arrow_back_ios,
                           color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => context.pop(),
                     ),
                     const Text(
                       'Alert Details',
