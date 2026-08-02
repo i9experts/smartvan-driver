@@ -68,6 +68,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
       await ApiService.post('/report/addReportByDriver', {
         'issueType': _selectedIssueType,
         'description': _descriptionController.text.trim(),
+        'type': 'driverReport',
         if (imageUrl != null) 'image': imageUrl,
       });
       if (mounted) setState(() => _showSuccess = true);
