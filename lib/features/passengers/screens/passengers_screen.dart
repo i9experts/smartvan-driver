@@ -25,7 +25,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
 
   Future<void> _loadPassengers() async {
     try {
-      final response = await ApiService.get('/kid/getKids');
+      final response = await ApiService.get('/trips/getMergedActivePassengers');
       if (response.statusCode == 200) {
         final raw = response.data;
         final data = raw['data'] ?? raw ?? [];
@@ -33,7 +33,8 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
           _passengers = data is List ? data : [];
           _pickedCount = _passengers
               .where((p) =>
-                  (p['status'] ?? '').toString().toLowerCase() == 'picked')
+                  (p['status'] ?? '').toString().toLowerCase() == 'picked' ||
+                  (p['status'] ?? '').toString().toLowerCase() == 'dropped')
               .length;
         });
       }
@@ -45,7 +46,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
 
   Future<void> _pickStudent(Map<String, dynamic> kid) async {
     try {
-      final tripId = widget.trip['_id'] ?? widget.trip['id'];
+      final tripId = kid['tripId'] ?? (widget.trip['_id'] ?? widget.trip['id']);
       final kidId = kid['_id'] ?? kid['id'];
       await ApiService.post('/trips/pickStudent', {
         'tripId': tripId,
@@ -80,7 +81,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
 
   Future<void> _dropStudent(Map<String, dynamic> kid) async {
     try {
-      final tripId = widget.trip['_id'] ?? widget.trip['id'];
+      final tripId = kid['tripId'] ?? (widget.trip['_id'] ?? widget.trip['id']);
       final kidId = kid['_id'] ?? kid['id'];
 
       // Was previously hardcoded to a fixed Karachi coordinate, which got
