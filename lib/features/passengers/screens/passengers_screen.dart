@@ -25,7 +25,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
 
   Future<void> _loadPassengers() async {
     try {
-      final response = await ApiService.get('/trips/getMergedActivePassengers');
+      final response = await ApiService.get('/Route/getMergedActivePassengers');
       if (response.statusCode == 200) {
         final raw = response.data;
         final data = raw['data'] ?? raw ?? [];
