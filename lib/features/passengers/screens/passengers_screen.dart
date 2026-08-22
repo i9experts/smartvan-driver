@@ -47,7 +47,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   Future<void> _pickStudent(Map<String, dynamic> kid) async {
     try {
       final tripId = kid['tripId'] ?? (widget.trip['_id'] ?? widget.trip['id']);
-      final kidId = kid['_id'] ?? kid['id'];
+      final kidId = kid['kidId'] ?? kid['_id'] ?? kid['id'];
       await ApiService.post('/trips/pickStudent', {
         'tripId': tripId,
         'kidId': kidId,
@@ -82,7 +82,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   Future<void> _dropStudent(Map<String, dynamic> kid) async {
     try {
       final tripId = kid['tripId'] ?? (widget.trip['_id'] ?? widget.trip['id']);
-      final kidId = kid['_id'] ?? kid['id'];
+      final kidId = kid['kidId'] ?? kid['_id'] ?? kid['id'];
 
       // Was previously hardcoded to a fixed Karachi coordinate, which got
       // written directly into the trip's location history — silently
@@ -368,12 +368,16 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
                       const Icon(Icons.location_on_outlined,
                           size: 12, color: Color(0xFF8A94A6)),
                       const SizedBox(width: 4),
-                      Text(
-                        distance != '—' ? '$distance Away' : schoolName,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF8A94A6),
-                          fontFamily: 'Poppins',
+                      Expanded(
+                        child: Text(
+                          distance != '—' ? '$distance Away' : schoolName,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF8A94A6),
+                            fontFamily: 'Poppins',
+                          ),
                         ),
                       ),
                     ],

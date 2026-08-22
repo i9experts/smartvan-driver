@@ -448,7 +448,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final data = response.data['data'];
       await _loadData();
       if (mounted && data != null) {
-        context.go('/trip', extra: data);
+        // The raw trip document has no route title of its own (just a
+        // bare routeId) — merge it in from the route we already have,
+        // otherwise the trip screen permanently shows "School Route: —".
+        final enriched = {
+          ...Map<String, dynamic>.from(data),
+          'schoolRoute': route['routeTitle'],
+        };
+        context.go('/trip', extra: enriched);
       }
     } on DioException catch (e) {
       final message = e.response?.data?['message']?.toString() ??
@@ -742,7 +749,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               width: double.infinity,
               height: 46,
               child: OutlinedButton(
-                onPressed: () => context.go('/trip', extra: route['tripDetails']),
+                onPressed: () {
+                  final tripDetails = route['tripDetails'];
+                  if (tripDetails == null) return;
+                  final enriched = {
+                    ...Map<String, dynamic>.from(tripDetails),
+                    'schoolRoute': route['routeTitle'],
+                  };
+                  context.go('/trip', extra: enriched);
+                },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF1B2B6B),
                   side: const BorderSide(color: Color(0xFF1B2B6B)),
@@ -912,11 +927,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildTripCard(Map<String, dynamic> trip) {
     final String tripName =
-        trip['tripName'] ?? trip['name'] ?? 'School Trip';
-    final String date = trip['date'] ?? trip['tripDate'] ?? '—';
-    final String shift = trip['shift'] ?? 'Morning';
+        trip['tripName'] ?? trip['name'] ?? trip['schoolRoute'] ?? 'School Trip';
+
+    // The Trip schema stores these nested/differently than what was
+    // guessed here before (trip['date'], trip['tripDate'], trip['shift']
+    // don't exist at all — hence the permanent "—" placeholders).
+    final createdAt = trip['createdAt'] != null
+        ? DateTime.tryParse(trip['createdAt'].toString())?.toLocal()
+        : null;
+    final String date = createdAt != null
+        ? '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year}'
+        : '—';
+
+    final tripStartRaw = trip['tripStart'] is Map ? trip['tripStart']['startTime'] : null;
+    final startTimeParsed = tripStartRaw != null
+        ? DateTime.tryParse(tripStartRaw.toString())?.toLocal()
+        : null;
     final String startTime =
-        trip['startTime'] ?? trip['tripStartTime'] ?? '—';
+        startTimeParsed != null ? _formatTime12Hour(startTimeParsed) : '—';
+
+    final String shift =
+        (trip['type'] ?? '').toString().toLowerCase() == 'drop'
+            ? 'Drop Off'
+            : 'Pick Up';
+
     final String status = trip['status'] ?? 'pending';
     final bool isActive = status.toLowerCase() == 'active' ||
         status.toLowerCase() == 'ongoing' ||
