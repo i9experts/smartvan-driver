@@ -7,13 +7,20 @@ class AlertDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String type = (alert['type'] ?? 'info').toString().toLowerCase();
-    final String title = alert['title'] ?? 'Alert';
+    // Backend sets 'alertType' on driver-visible alerts; 'type' is only
+    // used to distinguish parent-vs-driver notification rows, so it's
+    // never actually populated here.
+    final String type =
+        (alert['alertType'] ?? alert['type'] ?? 'info').toString().toLowerCase();
     // 'description'/'body' never existed on the Notification schema at
     // all — only 'message' does. This meant the actual content of every
     // alert silently never displayed here; the driver would tap an alert
     // and see only the title, never what it actually said.
     final String body = alert['message'] ?? '';
+    // Backend never sets 'title' either. The message is already shown in
+    // full in the body below, so falling back to it here would just show
+    // the same text twice — use a type-specific heading instead.
+    final String title = alert['title'] ?? _titleForType(type);
     final String time = alert['date'] ?? alert['createdAt'] ?? '';
     final String tripId = alert['tripId'] ?? '';
 
@@ -272,6 +279,23 @@ class AlertDetailScreen extends StatelessWidget {
       return '${dt.day} ${_month(dt.month)} ${dt.year} — ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} ${dt.hour >= 12 ? 'PM' : 'AM'}';
     } catch (e) {
       return time;
+    }
+  }
+
+  String _titleForType(String type) {
+    switch (type) {
+      case 'sos':
+      case 'emergency':
+        return 'Emergency Alert';
+      case 'payment':
+        return 'Payment Alert';
+      case 'trip':
+      case 'new_trip':
+        return 'Trip Update';
+      case 'profile':
+        return 'Profile Update';
+      default:
+        return 'Alert';
     }
   }
 

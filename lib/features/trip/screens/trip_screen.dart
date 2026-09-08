@@ -80,27 +80,44 @@ class _TripScreenState extends ConsumerState<TripScreen> {
         final raw = response.data;
         setState(() => _profile = raw['data'] ?? raw);
       }
-    } catch (e) {}
+    } catch (e) {
+      // Non-fatal — driver name display falls back to 'Driver'.
+      debugPrint('Failed to load driver profile: $e');
+    }
   }
 
   Future<void> _loadPassengers() async {
     try {
-      final tripId = widget.trip['_id'] ?? widget.trip['id'];
+      // /kid/getKids returns each kid's account-verification status, not
+      // their pickup state for this trip — that only lives on
+      // /Route/getMergedActivePassengers (same endpoint the Passengers
+      // screen uses), so this has to match it to get a real picked count.
       final response =
-          await ApiService.get('/kid/getKids');
+          await ApiService.get('/Route/getMergedActivePassengers');
       if (response.statusCode == 200) {
         final raw = response.data;
         final data = raw['data'] ?? raw ?? [];
         setState(() {
           _passengers = data is List ? data : [];
           _totalPassengers = _passengers.length;
-          _pickedCount = _passengers
-              .where((p) =>
-                  (p['status'] ?? '').toString().toLowerCase() == 'picked')
-              .length;
+          _pickedCount = _passengers.where((p) {
+            final status =
+                (p['tripStatus'] ?? p['status'] ?? '').toString().toLowerCase();
+            return status == 'picked' || status == 'dropped';
+          }).length;
         });
       }
-    } catch (e) {}
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to load passengers'),
+            backgroundColor: Color(0xFFFF4B4B),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   void _connectSocket() async {

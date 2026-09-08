@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
 import '../../../core/network/api_service.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -56,6 +57,10 @@ class _ChangePasswordScreenState
       if (mounted) {
         _showSuccessDialog();
       }
+    } on DioException catch (e) {
+      final message =
+          e.response?.data?['message'] ?? 'Failed to change password. Try again.';
+      if (mounted) _showError(message.toString());
     } catch (e) {
       if (mounted) _showError('Failed to change password. Try again.');
     } finally {
