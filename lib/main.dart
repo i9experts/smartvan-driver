@@ -13,12 +13,17 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  // Was previously never called anywhere in the app — meant FCM permission
-  // requests, token retrieval, and backend registration never actually ran,
-  // so a driver's device could never receive push notifications at all.
-  await FCMService.initialize();
+  // Firebase has no config on platforms/builds that never ran the FlutterFire
+  // CLI (e.g. web has no firebase_options.dart here), so initializeApp()
+  // throws there. Push notifications are non-essential to app startup, so
+  // failing to init shouldn't block the driver from using the rest of the app.
+  try {
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    await FCMService.initialize();
+  } catch (e) {
+    debugPrint('Firebase init failed, continuing without push notifications: $e');
+  }
   runApp(const ProviderScope(child: SmartVanDriverApp()));
 }
 
