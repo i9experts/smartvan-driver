@@ -227,7 +227,9 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
     final String type =
         (alert['alertType'] ?? alert['type'] ?? 'info').toString().toLowerCase();
     final String title = alert['title'] ?? alert['message'] ?? 'Alert';
-    final String body = alert['description'] ?? alert['body'] ?? '';
+    final String body = alert['title'] != null
+        ? (alert['message'] ?? alert['description'] ?? alert['body'] ?? '')
+        : '';
     final String time = alert['createdAt'] ?? '';
 
     Color alertColor;

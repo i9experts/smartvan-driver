@@ -386,15 +386,18 @@ class KidProfileScreen extends StatelessWidget {
             ),
           ),
           if (value != '—')
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: const Color(0xFF27AE60),
-                borderRadius: BorderRadius.circular(10),
+            GestureDetector(
+              onTap: () => _callPhone(value),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF27AE60),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.call,
+                    color: Colors.white, size: 18),
               ),
-              child: const Icon(Icons.call,
-                  color: Colors.white, size: 18),
             ),
         ],
       ),

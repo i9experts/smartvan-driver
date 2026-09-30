@@ -381,7 +381,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
             )
           else
             GestureDetector(
-              onTap: () => _uploadDocument(title),
+              onTap: () => _uploadDocument(type),
               child: Container(
                 width: double.infinity,
                 height: 100,

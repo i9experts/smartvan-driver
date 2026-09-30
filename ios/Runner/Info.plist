@@ -45,5 +45,19 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SmartVan needs your location to share your live position with parents and the school while a trip is in progress.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>SmartVan needs your location in the background to keep sharing your live position with parents and the school while a trip is in progress, even when the app isn't in the foreground.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>SmartVan needs camera access so you can take photos for issue reports and document uploads.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SmartVan needs photo library access so you can upload your profile photo, documents, and issue report photos.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>
