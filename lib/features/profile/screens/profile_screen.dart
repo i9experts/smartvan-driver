@@ -30,6 +30,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         setState(() => _profile = raw['data'] ?? raw);
       }
     } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to load profile'),
+            backgroundColor: Color(0xFFFF4B4B),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

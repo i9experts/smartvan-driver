@@ -15,6 +15,7 @@ class PassengersScreen extends ConsumerStatefulWidget {
 class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   List<dynamic> _passengers = [];
   bool _isLoading = true;
+  bool _hasError = false;
   int _pickedCount = 0;
 
   @override
@@ -24,6 +25,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   }
 
   Future<void> _loadPassengers() async {
+    setState(() => _hasError = false);
     try {
       final response = await ApiService.get('/Route/getMergedActivePassengers');
       if (response.statusCode == 200) {
@@ -39,6 +41,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
         });
       }
     } catch (e) {
+      if (mounted) setState(() => _hasError = true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -120,7 +123,20 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
           ),
         );
       }
-    } catch (e) {}
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Failed to drop off ${kid['fullname'] ?? 'kid'}. Please try again.'),
+            backgroundColor: const Color(0xFFFF4B4B),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -195,9 +211,11 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
                 ? const Center(
                     child: CircularProgressIndicator(
                         color: Color(0xFF1B2B6B)))
-                : _passengers.isEmpty
-                    ? _buildEmptyState()
-                    : RefreshIndicator(
+                : _hasError && _passengers.isEmpty
+                    ? _buildErrorState()
+                    : _passengers.isEmpty
+                        ? _buildEmptyState()
+                        : RefreshIndicator(
                         onRefresh: _loadPassengers,
                         color: const Color(0xFF1B2B6B),
                         child: ListView.builder(
@@ -246,6 +264,56 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF4B4B).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.wifi_off_rounded,
+                size: 40, color: Color(0xFFFF4B4B)),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Couldn\'t Load Passengers',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1A1A2E),
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Check your connection and try again',
+            style: TextStyle(
+              fontSize: 13,
+              color: Color(0xFF8A94A6),
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _loadPassengers,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1B2B6B),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Retry', style: TextStyle(fontFamily: 'Poppins')),
+          ),
+        ],
       ),
     );
   }

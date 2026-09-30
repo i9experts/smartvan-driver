@@ -56,7 +56,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final raw = response.data;
         setState(() => _profile = raw['data'] ?? raw);
       }
-    } catch (e) {}
+    } catch (e) {
+      // Non-fatal — name display falls back to a default, and pull-to-refresh
+      // recovers it — but a real failure (timeout/500) shouldn't be mute.
+      debugPrint('Failed to load driver profile: $e');
+    }
   }
 
   Future<void> _loadTrips() async {
@@ -67,7 +71,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final data = raw['data'] ?? raw ?? [];
         setState(() => _trips = data is List ? data : []);
       }
-    } catch (e) {}
+    } catch (e) {
+      // Non-fatal — falls back to the "No Trip Today" empty state, and
+      // pull-to-refresh recovers it — but a real failure shouldn't be mute.
+      debugPrint('Failed to load driver trips: $e');
+    }
   }
 
   Future<void> _logout() async {
