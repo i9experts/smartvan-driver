@@ -452,6 +452,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                               );
                               return;
                             }
+                            final messenger = ScaffoldMessenger.of(context);
                             setSheetState(() => isSending = true);
                             try {
                               await ApiService.post('/alert/sendAlertByDriver', {
@@ -459,7 +460,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                               });
                               if (context.mounted) Navigator.pop(context);
                               if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   const SnackBar(
                                     content: Text('Alert sent to your school admin!'),
                                     backgroundColor: Color(0xFF27AE60),
@@ -469,7 +470,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                               }
                             } catch (e) {
                               setSheetState(() => isSending = false);
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              messenger.showSnackBar(
                                 SnackBar(
                                   content: Text(ApiErrors.message(e, fallback: 'Failed to send alert.')),
                                   backgroundColor: const Color(0xFFFF4B4B),
