@@ -169,8 +169,6 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String tripName =
-        widget.trip['tripName'] ?? widget.trip['name'] ?? 'Trip';
     final int total = _passengers.length;
 
     return Scaffold(
