@@ -9,6 +9,7 @@ import '../../../core/sync/sync_queue.dart';
 import '../../passengers/kid_status.dart';
 import '../../safety/widgets/sos_button.dart';
 import '../services/trip_tracking_service.dart';
+import '../widgets/kids_not_dropped_sheet.dart';
 
 class TripScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> trip;
@@ -163,13 +164,39 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       ),
     );
     if (confirmed != true) return;
+    await _submitEndTrip();
+  }
 
+  Future<void> _submitEndTrip({bool forceEnd = false, String? note}) async {
     setState(() => _isEndingTrip = true);
     try {
-      await ref.read(tripTrackingProvider.notifier).endTrip();
+      await ref
+          .read(tripTrackingProvider.notifier)
+          .endTrip(forceEnd: forceEnd, confirmationNote: note);
       if (!mounted) return;
-      _showSnack('Trip ended successfully!', color: const Color(0xFF27AE60));
+      _showSnack(
+          forceEnd
+              ? 'Trip ended. The school has been alerted.'
+              : 'Trip ended successfully!',
+          color: const Color(0xFF27AE60));
       context.go('/home');
+    } on KidsNotDroppedException catch (e) {
+      if (!mounted) return;
+      setState(() => _isEndingTrip = false);
+      final choice = await KidsNotDroppedSheet.show(context, e.kids);
+      if (!mounted) return;
+      switch (choice) {
+        case OpenPassengersChoice():
+          await context.push('/passengers', extra: {
+            ..._trip,
+            'passengers': _passengers,
+          });
+          if (mounted) _loadPassengers();
+        case ForceEndChoice(:final note):
+          await _submitEndTrip(forceEnd: true, note: note);
+        case null:
+          break;
+      }
     } on PendingSyncException catch (e) {
       if (mounted) {
         setState(() => _isEndingTrip = false);

@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../../../core/constants/app_constants.dart';
+import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/storage/token_storage.dart';
 import '../../../core/sync/sync_queue.dart';
@@ -27,6 +29,17 @@ class PendingSyncException implements Exception {
   String toString() =>
       '$pending pickup/drop update${pending == 1 ? '' : 's'} not synced yet. '
       'Connect to the internet, wait for sync, then end the trip.';
+}
+
+/// Thrown by [TripTrackingNotifier.endTrip] when the backend refuses to end
+/// a drop trip because kids are still marked as picked (409
+/// KIDS_NOT_DROPPED). [kids] = [{kidId, fullname}].
+class KidsNotDroppedException implements Exception {
+  final List<Map<String, dynamic>> kids;
+  final String message;
+  KidsNotDroppedException(this.kids, this.message);
+  @override
+  String toString() => message;
 }
 
 @immutable
@@ -145,7 +158,11 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
   /// Ends the trip on the server, but only after every queued pickup/drop
   /// has been delivered. Throws [PendingSyncException] if that's not
   /// possible right now, or the API error if /trips/endTrip fails.
-  Future<void> endTrip() async {
+  ///
+  /// [forceEnd] + [confirmationNote]: end a drop trip even though kids are
+  /// still marked as picked (the driver confirmed they checked the van).
+  /// Throws [KidsNotDroppedException] when the server refuses.
+  Future<void> endTrip({bool forceEnd = false, String? confirmationNote}) async {
     final id = state.tripId;
     if (id == null) {
       await stop();
@@ -154,7 +171,26 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
     final synced = await SyncQueue.instance.flush();
     if (!synced) throw PendingSyncException(SyncQueue.instance.pending.value);
 
-    await ApiService.post('/trips/endTrip', {'tripId': id});
+    final position = state.lastPosition;
+    try {
+      await ApiService.post('/trips/endTrip', {
+        'tripId': id,
+        if (position != null) 'lat': position.latitude,
+        if (position != null) 'long': position.longitude,
+        if (forceEnd) 'forceEnd': true,
+        if (forceEnd) 'confirmationNote': confirmationNote ?? '',
+      });
+    } on DioException catch (e) {
+      if (ApiErrors.code(e) == 'KIDS_NOT_DROPPED') {
+        final data = e.response?.data;
+        final rawKids = data is Map ? data['kids'] : null;
+        final kids = rawKids is List
+            ? rawKids.whereType<Map>().map((k) => Map<String, dynamic>.from(k)).toList()
+            : <Map<String, dynamic>>[];
+        throw KidsNotDroppedException(kids, ApiErrors.message(e));
+      }
+      rethrow;
+    }
     await stop();
   }
 
