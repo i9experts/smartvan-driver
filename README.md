@@ -53,3 +53,16 @@ Backend contract: `docs/PHASE2_API.md` in the `smartvan` repo.
 - **Daily van check** (`lib/features/checklist/`): checklist screen, home
   status card, and automatic hand-off when `startTrip` answers
   409 `CHECKLIST_REQUIRED`.
+
+## Phase 3
+
+Backend contract: `docs/PHASE3_API.md` in the `smartvan` repo.
+
+- Location updates send GPS speed (overspeed monitoring); tracking stops
+  if the server reports the trip is over.
+- **My Driving Stats** (`lib/features/stats/`): safety score, distance,
+  on-time starts, top speed (7/30 days).
+- **Fees**: monthly summary card and shareable receipts
+  (`lib/features/fees/widgets/receipt_sheet.dart`).
+- **Chat** (`lib/features/chat/`): parent ↔ driver messages with quick
+  replies; entry from the home header and each passenger card.
