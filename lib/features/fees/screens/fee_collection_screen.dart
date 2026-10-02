@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
+import '../widgets/receipt_sheet.dart';
 
 class FeeCollectionScreen extends ConsumerStatefulWidget {
   const FeeCollectionScreen({super.key});
@@ -15,6 +16,7 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
   bool _isLoading = true;
   String? _error;
   String? _payingKidId;
+  Map<String, dynamic>? _summary;
 
   @override
   void initState() {
@@ -27,6 +29,7 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
       _isLoading = true;
       _error = null;
     });
+    _loadSummary();
     try {
       final response = await ApiService.get('/fees/driver-students');
       final raw = response.data;
@@ -39,6 +42,57 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  /// Monthly totals card; hidden if the endpoint isn't available.
+  Future<void> _loadSummary() async {
+    try {
+      final res = await ApiService.get('/fees/driver-summary');
+      final d = res.data is Map ? res.data['data'] : null;
+      if (mounted) setState(() => _summary = d is Map ? Map<String, dynamic>.from(d) : null);
+    } catch (_) {
+      if (mounted) setState(() => _summary = null);
+    }
+  }
+
+  Widget _summaryCard() {
+    final s = _summary;
+    if (s == null) return const SizedBox.shrink();
+    final cur = s['currency'] ?? 'PKR';
+    Widget stat(String label, String value, Color color) => Expanded(
+          child: Column(
+            children: [
+              Text(value,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16, color: color, fontFamily: 'Poppins')),
+              Text(label,
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF8A94A6), fontFamily: 'Poppins')),
+            ],
+          ),
+        );
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('This month · ${s['paid']}/${s['students']} paid',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              stat('Collected by you', '$cur ${s['collectedByYou'] ?? 0}', const Color(0xFF27AE60)),
+              stat('Paid online', '$cur ${s['collectedOnline'] ?? 0}', const Color(0xFF1B2B6B)),
+              stat('Pending', '$cur ${s['totalPending'] ?? 0}', const Color(0xFFFFB800)),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _collectPayment(Map<String, dynamic> student) async {
@@ -81,6 +135,13 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
         );
       }
       await _loadStudents();
+      // Offer the receipt straight away so the driver can share it.
+      final updated = _students.cast<Map>().firstWhere(
+            (s) => s['kidId'] == student['kidId'],
+            orElse: () => const {},
+          );
+      final pid = updated['paymentId']?.toString();
+      if (mounted && pid != null) await ReceiptSheet.show(context, pid);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -169,9 +230,10 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
                       )
                     : ListView.builder(
                         padding: const EdgeInsets.all(16),
-                        itemCount: _students.length,
+                        itemCount: _students.length + 1,
                         itemBuilder: (context, index) {
-                          final s = _students[index];
+                          if (index == 0) return _summaryCard();
+                          final s = _students[index - 1];
                           final isPaid = s['status'] == 'paid';
                           final isBusy = _payingKidId == s['kidId'];
                           return Container(
@@ -240,6 +302,16 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
                                         color: Color(0xFF1B2B6B)),
                                   ),
                                 ],
+                                if (isPaid && s['paymentId'] != null)
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: TextButton.icon(
+                                      onPressed: () => ReceiptSheet.show(
+                                          context, s['paymentId'].toString()),
+                                      icon: const Icon(Icons.receipt_long, size: 18),
+                                      label: const Text('Receipt'),
+                                    ),
+                                  ),
                                 if (!isPaid && s['status'] != 'not_generated') ...[
                                   const SizedBox(height: 10),
                                   SizedBox(
