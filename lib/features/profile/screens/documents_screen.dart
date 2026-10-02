@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
 
 class DocumentsScreen extends ConsumerStatefulWidget {
@@ -111,7 +112,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to upload document: $e'),
+            content: Text(ApiErrors.message(e, fallback: 'Failed to upload document.')),
             backgroundColor: const Color(0xFFFF4B4B),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(

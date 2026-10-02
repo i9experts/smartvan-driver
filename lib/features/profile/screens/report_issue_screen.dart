@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
 
 class ReportIssueScreen extends ConsumerStatefulWidget {
@@ -93,7 +94,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to submit report: $e'),
+            content: Text(ApiErrors.message(e, fallback: 'Failed to submit report.')),
             backgroundColor: const Color(0xFFFF4B4B),
             behavior: SnackBarBehavior.floating,
           ),

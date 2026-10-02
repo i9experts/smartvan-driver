@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
 
 class AlertsScreen extends ConsumerStatefulWidget {
@@ -470,7 +471,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                               setSheetState(() => isSending = false);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Failed to send alert: $e'),
+                                  content: Text(ApiErrors.message(e, fallback: 'Failed to send alert.')),
                                   backgroundColor: const Color(0xFFFF4B4B),
                                   behavior: SnackBarBehavior.floating,
                                 ),
