@@ -86,8 +86,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: const Text('Logout',
             style: TextStyle(
                 fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
-        content: const Text('Are you sure you want to logout?',
-            style: TextStyle(fontFamily: 'Poppins')),
+        content: Text(AppSession.logoutConfirmText(),
+            style: const TextStyle(fontFamily: 'Poppins')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
