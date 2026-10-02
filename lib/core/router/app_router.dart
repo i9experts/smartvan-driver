@@ -16,6 +16,9 @@ import '../../features/fees/screens/fee_collection_screen.dart';
 import '../../features/scan/screens/scan_screen.dart';
 import '../../features/checklist/screens/checklist_screen.dart';
 import '../../features/stats/screens/driver_stats_screen.dart';
+import '../../features/chat/chat_api.dart';
+import '../../features/chat/screens/chat_screen.dart';
+import '../../features/chat/screens/conversations_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -83,6 +86,15 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/report-issue',
       builder: (context, state) => const ReportIssueScreen(),
+    ),
+    GoRoute(
+      path: '/chats',
+      builder: (context, state) => const ConversationsScreen(),
+    ),
+    GoRoute(
+      path: '/chat',
+      builder: (context, state) =>
+          ChatScreen(conversation: state.extra as Conversation),
     ),
     GoRoute(
       path: '/stats',

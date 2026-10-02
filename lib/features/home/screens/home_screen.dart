@@ -6,6 +6,7 @@ import '../../../core/session/app_session.dart';
 import '../../../core/network/api_service.dart';
 import '../../trip/services/trip_tracking_service.dart';
 import '../../checklist/checklist_api.dart';
+import '../../chat/chat_api.dart';
 import '../../../core/network/api_errors.dart';
 import '../../alerts/screens/alerts_screen.dart';
 import '../../profile/screens/profile_screen.dart';
@@ -30,8 +31,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _loadData();
   }
 
+  int _chatUnread = 0;
+
+  Future<void> _loadChatUnread() async {
+    try {
+      final n = await ChatApi.unread();
+      if (mounted) setState(() => _chatUnread = n);
+    } catch (_) {
+      // chat not available — keep the icon without a badge
+    }
+  }
+
   Future<void> _loadData() async {
     ref.invalidate(todayChecklistProvider);
+    _loadChatUnread();
     await Future.wait([_loadProfile(), _loadTrips(), _loadMyRoutes()]);
     if (mounted) setState(() => _isLoading = false);
   }
@@ -321,6 +334,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ],
                             ),
                           ),
+                          Badge(
+                            isLabelVisible: _chatUnread > 0,
+                            label: Text('$_chatUnread'),
+                            backgroundColor: const Color(0xFF27AE60),
+                            child: Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: IconButton(
+                                tooltip: 'Messages',
+                                icon: const Icon(Icons.chat_bubble_outline,
+                                    color: Colors.white, size: 20),
+                                onPressed: () async {
+                                  await context.push('/chats');
+                                  _loadChatUnread();
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           Container(
                             width: 42,
                             height: 42,

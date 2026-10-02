@@ -7,6 +7,7 @@ import '../../../core/network/api_service.dart';
 import '../../../core/sync/sync_queue.dart';
 import '../../trip/services/trip_tracking_service.dart';
 import '../kid_status.dart';
+import '../../chat/chat_api.dart';
 
 class PassengersScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> trip;
@@ -152,6 +153,16 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
           const Color(0xFFFF4B4B));
     } finally {
       if (mounted) setState(() => _busyKidIds.remove(kidId));
+    }
+  }
+
+  Future<void> _messageParent(String kidId) async {
+    try {
+      final conversation = await ChatApi.start(kidId);
+      if (mounted) await context.push('/chat', extra: conversation);
+    } catch (e) {
+      _showSnack(ApiErrors.message(e, fallback: 'Could not open chat.'),
+          const Color(0xFFFF4B4B));
     }
   }
 
@@ -481,6 +492,14 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
                               size: 16, color: Color(0xFFFFB800)),
                         ),
                       ],
+                      if (kidId != null)
+                        IconButton(
+                          tooltip: 'Message parent',
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(Icons.chat_bubble_outline,
+                              size: 18, color: Color(0xFF1B2B6B)),
+                          onPressed: () => _messageParent(kidId),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 4),
