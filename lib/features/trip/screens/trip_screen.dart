@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:location/location.dart' as loc;
-import '../../../core/constants/app_constants.dart';
+import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
-import '../../../core/storage/token_storage.dart';
+import '../../../core/sync/sync_queue.dart';
+import '../../passengers/kid_status.dart';
+import '../services/trip_tracking_service.dart';
 
 class TripScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> trip;
@@ -18,70 +18,68 @@ class TripScreen extends ConsumerStatefulWidget {
 }
 
 class _TripScreenState extends ConsumerState<TripScreen> {
+  static const LatLng _fallbackCenter = LatLng(24.8607, 67.0011);
+
   GoogleMapController? _mapController;
-  IO.Socket? _socket;
-  LatLng _driverPosition = const LatLng(24.8607, 67.0011);
-  Set<Marker> _markers = {};
-  bool _isConnected = false;
-  bool _isTripStarted = false;
-  bool _isStartingTrip = false;
+  // Every way of reaching this screen means a Trip document already exists
+  // with status 'ongoing' (created via "Start Trip" on the home screen).
+  final bool _isTripStarted = true;
+  final bool _isStartingTrip = false;
   bool _isEndingTrip = false;
   List<dynamic> _passengers = [];
   int _pickedCount = 0;
   int _totalPassengers = 0;
   Map<String, dynamic>? _profile;
-  StreamSubscription<loc.LocationData>? _positionStream;
-  final loc.Location _location = loc.Location();
+  StreamSubscription<void>? _syncedSub;
 
-  String get _tripId => (widget.trip['_id'] ?? widget.trip['id']).toString();
+  /// Trip details: the route's extra if given, otherwise whatever the
+  /// tracking service is holding (e.g. after resuming a killed app).
+  Map<String, dynamic> get _trip =>
+      widget.trip.isNotEmpty ? widget.trip : (ref.read(tripTrackingProvider).trip ?? {});
 
   @override
   void initState() {
     super.initState();
-    // Every way of reaching this screen means a Trip document already
-    // exists with status 'ongoing' (created via the route's "Start Trip"
-    // button on the home screen) — there's no separate "start" step to
-    // perform here, so GPS sharing begins immediately.
-    _isTripStarted = true;
     _loadProfile();
     _loadPassengers();
-    _connectSocket();
-    _setupMarkers();
-    _startLocationSharing();
+    _syncedSub = SyncQueue.instance.onSynced.listen((_) => _loadPassengers());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startTracking());
   }
 
   @override
   void dispose() {
-    _positionStream?.cancel();
-    _disableBackgroundModeSafely();
-    _socket?.disconnect();
-    _socket?.dispose();
+    // Tracking intentionally keeps running — it belongs to the trip, not to
+    // this screen. It stops only when the trip is ended.
+    _syncedSub?.cancel();
     _mapController?.dispose();
     super.dispose();
   }
 
-  /// Fire-and-forget helper — dispose() can't be async, and
-  /// enableBackgroundMode's Future<bool> return type doesn't play nicely
-  /// with a bare .catchError, so this wraps it in a proper try/catch.
-  void _disableBackgroundModeSafely() {
-    () async {
-      try {
-        await _location.enableBackgroundMode(enable: false);
-      } catch (_) {
-        // Non-fatal — screen is going away either way.
-      }
-    }();
+  Future<void> _startTracking() async {
+    final trip = _trip;
+    if (trip.isEmpty) return;
+    final result = await ref.read(tripTrackingProvider.notifier).start(trip);
+    if (!mounted) return;
+    final message = switch (result) {
+      TrackingStartResult.locationServiceOff =>
+        'Please enable location services to share your trip.',
+      TrackingStartResult.permissionDenied =>
+        'Location permission is needed to share your trip with parents.',
+      TrackingStartResult.permissionDeniedForever =>
+        'Location permission permanently denied. Enable it in app settings.',
+      _ => null,
+    };
+    if (message != null) _showSnack(message, isError: true);
   }
 
   Future<void> _loadProfile() async {
     try {
       final response = await ApiService.get('/auth/getProfile');
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && mounted) {
         final raw = response.data;
         setState(() => _profile = raw['data'] ?? raw);
       }
     } catch (e) {
-      // Non-fatal — driver name display falls back to 'Driver'.
       debugPrint('Failed to load driver profile: $e');
     }
   }
@@ -94,172 +92,42 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       // screen uses), so this has to match it to get a real picked count.
       final response =
           await ApiService.get('/Route/getMergedActivePassengers');
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && mounted) {
         final raw = response.data;
         final data = raw['data'] ?? raw ?? [];
+        final list = data is List ? data : [];
+        final pending = SyncQueue.instance
+            .pendingKidStatuses(TripTrackingState.tripIdOf(_trip));
         setState(() {
-          _passengers = data is List ? data : [];
-          _totalPassengers = _passengers.length;
-          _pickedCount = _passengers.where((p) {
-            final status =
-                (p['tripStatus'] ?? p['status'] ?? '').toString().toLowerCase();
-            return status == 'picked' || status == 'dropped';
-          }).length;
+          _passengers = list;
+          _totalPassengers = list.length;
+          _pickedCount = list
+              .where((p) => KidStatus.isPickedOrDropped(
+                  KidStatus.of(p as Map, pendingSync: pending)))
+              .length;
         });
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to load passengers'),
-            backgroundColor: Color(0xFFFF4B4B),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _showSnack(ApiErrors.message(e, fallback: 'Failed to load passengers'),
+            isError: true);
       }
     }
   }
 
-  void _connectSocket() async {
-    final token = await TokenStorage.read() ?? '';
-
-    _socket = IO.io(
-      AppConstants.socketUrl,
-      IO.OptionBuilder()
-          .setTransports(['websocket'])
-          .setAuth({'token': token})
-          .enableAutoConnect()
-          .build(),
-    );
-
-    _socket!.onConnect((_) {
-      if (mounted) setState(() => _isConnected = true);
-      _socket!.emit('startTrip', {'tripId': _tripId});
-    });
-
-    _socket!.onDisconnect((_) {
-      if (mounted) setState(() => _isConnected = false);
-    });
-
-    _socket!.connect();
+  void _onPositionChanged(LatLng? position) {
+    if (position == null) return;
+    _mapController?.animateCamera(CameraUpdate.newLatLng(position));
   }
 
-  void _setupMarkers() {
-    setState(() {
-      _markers = {
+  Set<Marker> _markersFor(LatLng position) => {
         Marker(
           markerId: const MarkerId('driver'),
-          position: _driverPosition,
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueBlue),
+          position: position,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
           infoWindow: const InfoWindow(title: 'Your Location'),
         ),
       };
-    });
-  }
-
-  /// Requests location permission, then streams the driver's GPS position:
-  /// - emits `updateLocation` over the socket for real-time parent tracking
-  /// - posts to /trips/updateLocation/:tripId for geofence push alerts
-  Future<void> _startLocationSharing() async {
-    final location = _location;
-
-    bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please enable location services to share your trip.'),
-              backgroundColor: Color(0xFFFF4B4B),
-            ),
-          );
-        }
-        return;
-      }
-    }
-
-    loc.PermissionStatus permission = await location.hasPermission();
-    if (permission == loc.PermissionStatus.denied) {
-      permission = await location.requestPermission();
-      if (permission != loc.PermissionStatus.granted) return;
-    }
-    if (permission == loc.PermissionStatus.deniedForever) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Location permission permanently denied. Enable it in app settings.'),
-            backgroundColor: Color(0xFFFF4B4B),
-          ),
-        );
-      }
-      return;
-    }
-
-    // Without this, Android throttles or kills the location stream the
-    // moment the app isn't in the foreground (screen locks, driver switches
-    // to a maps app, etc.) — which happens constantly during a real trip.
-    // This starts a proper Android foreground service (with the required
-    // persistent notification) so GPS sharing keeps running regardless.
-    try {
-      await location.changeNotificationOptions(
-        title: 'SmartVan — Trip in progress',
-        subtitle: 'Sharing your location with parents and school',
-        onTapBringToFront: true,
-      );
-      await location.enableBackgroundMode(enable: true);
-    } catch (e) {
-      // Non-fatal: on some OEM Android builds / older OS versions this can
-      // fail even with the right permissions. Foreground-only tracking
-      // still works via the stream below, just won't survive backgrounding.
-      debugPrint('enableBackgroundMode failed: $e');
-    }
-
-    await location.changeSettings(
-      accuracy: loc.LocationAccuracy.high,
-      distanceFilter: 10, // meters — avoids flooding updates while stationary
-    );
-
-    await _positionStream?.cancel();
-    _positionStream = location.onLocationChanged.listen((loc.LocationData currentLocation) {
-      final lat = currentLocation.latitude;
-      final lng = currentLocation.longitude;
-      if (lat == null || lng == null) return;
-
-      if (mounted) {
-        setState(() => _driverPosition = LatLng(lat, lng));
-        _updateDriverMarker();
-        _mapController?.animateCamera(CameraUpdate.newLatLng(_driverPosition));
-      }
-
-      _socket?.emit('updateLocation', {
-        'tripId': _tripId,
-        'location': {'lat': lat, 'long': lng},
-      });
-
-      ApiService.post('/trips/updateLocation/$_tripId', {
-        'lat': lat,
-        'lng': lng,
-      }).catchError((_) {
-        // Non-fatal — live tracking still works even if this fails.
-      });
-    });
-  }
-
-  void _updateDriverMarker() {
-    setState(() {
-      _markers = {
-        Marker(
-          markerId: const MarkerId('driver'),
-          position: _driverPosition,
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueBlue),
-          infoWindow: const InfoWindow(title: 'Your Location'),
-        ),
-      };
-    });
-  }
 
   Future<void> _endTrip() async {
     final confirmed = await showDialog<bool>(
@@ -293,55 +161,109 @@ class _TripScreenState extends ConsumerState<TripScreen> {
         ],
       ),
     );
+    if (confirmed != true) return;
 
-    if (confirmed == true) {
-      setState(() => _isEndingTrip = true);
-      try {
-        final tripId = _tripId;
-        await ApiService.post('/trips/endTrip', {'tripId': tripId});
-        await _positionStream?.cancel();
-        _positionStream = null;
-        try {
-          await _location.enableBackgroundMode(enable: false);
-        } catch (_) {
-          // Non-fatal — dispose() will also attempt this as a backstop.
-        }
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Trip ended successfully!'),
-              backgroundColor: const Color(0xFF27AE60),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-          );
-          context.go('/home');
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() => _isEndingTrip = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to end trip: $e'),
-              backgroundColor: const Color(0xFFFF4B4B),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-          );
-        }
+    setState(() => _isEndingTrip = true);
+    try {
+      await ref.read(tripTrackingProvider.notifier).endTrip();
+      if (!mounted) return;
+      _showSnack('Trip ended successfully!', color: const Color(0xFF27AE60));
+      context.go('/home');
+    } on PendingSyncException catch (e) {
+      if (mounted) {
+        setState(() => _isEndingTrip = false);
+        _showSnack(e.toString(), isError: true);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isEndingTrip = false);
+        _showSnack(ApiErrors.message(e, fallback: 'Failed to end trip.'),
+            isError: true);
       }
     }
   }
 
+  void _showSnack(String message, {bool isError = false, Color? color}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            color ?? (isError ? const Color(0xFFFF4B4B) : const Color(0xFF1B2B6B)),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  Widget _buildSyncBanner(TripTrackingState tracking) {
+    return ValueListenableBuilder<int>(
+      valueListenable: SyncQueue.instance.pending,
+      builder: (context, pending, _) {
+        final warnings = <Widget>[];
+        if (!tracking.isTracking) {
+          warnings.add(_banner(
+            Icons.location_off,
+            'Location sharing is off — parents can\'t see the van.',
+            const Color(0xFFFF4B4B),
+            action: TextButton(
+              onPressed: _startTracking,
+              child: const Text('Turn on',
+                  style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+            ),
+          ));
+        }
+        if (pending > 0) {
+          warnings.add(_banner(
+            Icons.cloud_off,
+            '$pending update${pending == 1 ? '' : 's'} saved offline — will sync automatically.',
+            const Color(0xFFFFB800),
+          ));
+        }
+        if (warnings.isEmpty) return const SizedBox.shrink();
+        return Column(mainAxisSize: MainAxisSize.min, children: warnings);
+      },
+    );
+  }
+
+  Widget _banner(IconData icon, String text, Color color, {Widget? action}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text,
+                style: const TextStyle(
+                    color: Colors.white, fontSize: 12, fontFamily: 'Poppins')),
+          ),
+          if (action != null) action,
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final tracking = ref.watch(tripTrackingProvider);
+    ref.listen<LatLng?>(
+      tripTrackingProvider.select((s) => s.lastPosition),
+      (_, next) => _onPositionChanged(next),
+    );
+    final driverPosition = tracking.lastPosition ?? _fallbackCenter;
+    final bool isConnected = tracking.socketConnected;
+    final trip = _trip;
+
     final String tripName =
-        widget.trip['tripName'] ?? widget.trip['name'] ?? 'Morning Trip';
-    final String shift = widget.trip['shift'] ?? 'Morning';
+        trip['tripName'] ?? trip['name'] ?? 'Morning Trip';
+    final String shift = trip['shift'] ?? 'Morning';
     final String schoolRoute =
-        widget.trip['schoolRoute'] ?? widget.trip['route'] ?? '—';
+        trip['schoolRoute'] ?? trip['route'] ?? '—';
     final String driverName =
         _profile?['fullname'] ?? _profile?['name'] ?? 'Driver';
 
@@ -384,12 +306,12 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: _isConnected
+                        color: isConnected
                             ? const Color(0xFF27AE60).withOpacity(0.2)
                             : Colors.white.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: _isConnected
+                          color: isConnected
                               ? const Color(0xFF27AE60)
                               : Colors.white30,
                         ),
@@ -400,7 +322,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                             width: 6,
                             height: 6,
                             decoration: BoxDecoration(
-                              color: _isConnected
+                              color: isConnected
                                   ? const Color(0xFF27AE60)
                                   : Colors.white30,
                               shape: BoxShape.circle,
@@ -408,9 +330,9 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            _isConnected ? 'Live' : 'Offline',
+                            isConnected ? 'Live' : 'Offline',
                             style: TextStyle(
-                              color: _isConnected
+                              color: isConnected
                                   ? const Color(0xFF27AE60)
                                   : Colors.white54,
                               fontSize: 11,
@@ -434,12 +356,12 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                 // Google Map
                 GoogleMap(
                   initialCameraPosition: CameraPosition(
-                    target: _driverPosition,
+                    target: driverPosition,
                     zoom: 14,
                   ),
                   onMapCreated: (controller) =>
                       _mapController = controller,
-                  markers: _markers,
+                  markers: _markersFor(driverPosition),
                   myLocationEnabled: true,
                   myLocationButtonEnabled: false,
                   zoomControlsEnabled: false,
@@ -451,11 +373,14 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                   top: 16,
                   right: 16,
                   child: GestureDetector(
-                    onTap: () => context.push('/passengers',
-                        extra: {
-                          ...widget.trip,
-                          'passengers': _passengers,
-                        }),
+                    onTap: () async {
+                      await context.push('/passengers', extra: {
+                        ...trip,
+                        'passengers': _passengers,
+                      });
+                      // Refresh counts after picks/drops on that screen.
+                      if (mounted) _loadPassengers();
+                    },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 10),
@@ -487,6 +412,14 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                       ),
                     ),
                   ),
+                ),
+
+                // Offline / location warnings
+                Positioned(
+                  top: 64,
+                  left: 16,
+                  right: 16,
+                  child: _buildSyncBanner(tracking),
                 ),
 
                 // Bottom card
@@ -583,7 +516,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                           children: [
                             _buildTripStat(
                                 Icons.calendar_today_outlined,
-                                widget.trip['date'] ?? '—',
+                                trip['date'] ?? '—',
                                 'Date'),
                             _buildStatDivider(),
                             _buildTripStat(Icons.wb_sunny_outlined,

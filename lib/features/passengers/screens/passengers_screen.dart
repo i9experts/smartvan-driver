@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:location/location.dart' as loc;
+import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
+import '../../../core/sync/sync_queue.dart';
+import '../../trip/services/trip_tracking_service.dart';
+import '../kid_status.dart';
 
 class PassengersScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> trip;
@@ -17,126 +21,150 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   bool _isLoading = true;
   bool _hasError = false;
   int _pickedCount = 0;
+  Map<String, String> _pendingSync = const {};
+  final Set<String> _busyKidIds = {};
+  StreamSubscription<void>? _syncedSub;
+
+  String? get _tripId => TripTrackingState.tripIdOf(widget.trip) ??
+      ref.read(tripTrackingProvider).tripId;
 
   @override
   void initState() {
     super.initState();
     _loadPassengers();
+    // When queued picks/drops reach the server, reload real statuses.
+    _syncedSub = SyncQueue.instance.onSynced.listen((_) => _loadPassengers());
+  }
+
+  @override
+  void dispose() {
+    _syncedSub?.cancel();
+    super.dispose();
+  }
+
+  void _recount() {
+    _pendingSync = SyncQueue.instance.pendingKidStatuses(_tripId);
+    _pickedCount = _passengers
+        .where((p) => KidStatus.isPickedOrDropped(
+            KidStatus.of(p as Map, pendingSync: _pendingSync)))
+        .length;
   }
 
   Future<void> _loadPassengers() async {
     setState(() => _hasError = false);
     try {
       final response = await ApiService.get('/Route/getMergedActivePassengers');
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && mounted) {
         final raw = response.data;
         final data = raw['data'] ?? raw ?? [];
         setState(() {
           _passengers = data is List ? data : [];
-          _pickedCount = _passengers
-              .where((p) =>
-                  (p['status'] ?? '').toString().toLowerCase() == 'picked' ||
-                  (p['status'] ?? '').toString().toLowerCase() == 'dropped')
-              .length;
+          _recount();
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _hasError = true);
+      // Offline: keep the list we were given by the trip screen so the
+      // driver can still mark picks/drops.
+      if (mounted) {
+        setState(() {
+          if (_passengers.isEmpty && widget.trip['passengers'] is List) {
+            _passengers = List.of(widget.trip['passengers'] as List);
+          }
+          _recount();
+          _hasError = true;
+        });
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _pickStudent(Map<String, dynamic> kid) async {
+    final kidId = KidStatus.idOf(kid);
+    final tripId = (kid['tripId'] ?? _tripId)?.toString();
+    if (kidId == null || tripId == null || _busyKidIds.contains(kidId)) return;
+    setState(() => _busyKidIds.add(kidId));
     try {
-      final tripId = kid['tripId'] ?? (widget.trip['_id'] ?? widget.trip['id']);
-      final kidId = kid['kidId'] ?? kid['_id'] ?? kid['id'];
-      await ApiService.post('/trips/pickStudent', {
-        'tripId': tripId,
-        'kidId': kidId,
-      });
-      await _loadPassengers();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${kid['fullname'] ?? 'Kid'} picked up!'),
-            backgroundColor: const Color(0xFF27AE60),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-        );
+      final outcome = await SyncQueue.instance.submit(
+        kind: SyncKind.pick,
+        path: '/trips/pickStudent',
+        body: {'tripId': tripId, 'kidId': kidId},
+        tripId: tripId,
+        kidId: kidId,
+      );
+      final name = kid['fullname'] ?? 'Kid';
+      if (outcome == SubmitOutcome.sent) {
+        await _loadPassengers();
+        _showSnack('$name picked up!', const Color(0xFF27AE60));
+      } else {
+        if (mounted) setState(_recount);
+        _showSnack('$name picked up — saved offline, will sync automatically.',
+            const Color(0xFFFFB800));
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Failed to pick student'),
-            backgroundColor: const Color(0xFFFF4B4B),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-      }
+      _showSnack(ApiErrors.message(e, fallback: 'Failed to pick student'),
+          const Color(0xFFFF4B4B));
+    } finally {
+      if (mounted) setState(() => _busyKidIds.remove(kidId));
     }
   }
 
   Future<void> _dropStudent(Map<String, dynamic> kid) async {
+    final kidId = KidStatus.idOf(kid);
+    final tripId = (kid['tripId'] ?? _tripId)?.toString();
+    if (kidId == null || tripId == null || _busyKidIds.contains(kidId)) return;
+    setState(() => _busyKidIds.add(kidId));
     try {
-      final tripId = kid['tripId'] ?? (widget.trip['_id'] ?? widget.trip['id']);
-      final kidId = kid['kidId'] ?? kid['_id'] ?? kid['id'];
-
-      // Was previously hardcoded to a fixed Karachi coordinate, which got
-      // written directly into the trip's location history — silently
-      // corrupting the live tracking map with a fake point on every drop.
-      double lat = 24.8607;
-      double long = 67.0011;
-      try {
-        final location = loc.Location();
-        final current = await location.getLocation();
-        if (current.latitude != null && current.longitude != null) {
-          lat = current.latitude!;
-          long = current.longitude!;
-        }
-      } catch (_) {
-        // Fall back to the placeholder only if GPS is genuinely unavailable
-        // (permission denied, location services off) — better to record
-        // something than fail the drop entirely.
+      // Real GPS only. The old code fell back to a fixed Karachi coordinate,
+      // which wrote a fake point into the trip's location history.
+      final position =
+          await ref.read(tripTrackingProvider.notifier).currentPosition();
+      if (position == null) {
+        _showSnack('Could not get your GPS location. Turn on location and try again.',
+            const Color(0xFFFF4B4B));
+        return;
       }
-
-      await ApiService.post('/trips/dropStudentForHome', {
-        'tripId': tripId,
-        'kidId': kidId,
-        'lat': lat,
-        'long': long,
-      });
-      await _loadPassengers();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${kid['fullname'] ?? 'Kid'} dropped off!'),
-            backgroundColor: const Color(0xFF1B2B6B),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-        );
+      final outcome = await SyncQueue.instance.submit(
+        kind: SyncKind.drop,
+        path: '/trips/dropStudentForHome',
+        body: {
+          'tripId': tripId,
+          'kidId': kidId,
+          'lat': position.latitude,
+          'long': position.longitude,
+        },
+        tripId: tripId,
+        kidId: kidId,
+      );
+      final name = kid['fullname'] ?? 'Kid';
+      if (outcome == SubmitOutcome.sent) {
+        await _loadPassengers();
+        _showSnack('$name dropped off!', const Color(0xFF1B2B6B));
+      } else {
+        if (mounted) setState(_recount);
+        _showSnack('$name dropped off — saved offline, will sync automatically.',
+            const Color(0xFFFFB800));
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                'Failed to drop off ${kid['fullname'] ?? 'kid'}. Please try again.'),
-            backgroundColor: const Color(0xFFFF4B4B),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-      }
+      _showSnack(
+          ApiErrors.message(e,
+              fallback: 'Failed to drop off ${kid['fullname'] ?? 'kid'}. Please try again.'),
+          const Color(0xFFFF4B4B));
+    } finally {
+      if (mounted) setState(() => _busyKidIds.remove(kidId));
     }
+  }
+
+  void _showSnack(String message, Color color) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
@@ -360,9 +388,11 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   Widget _buildPassengerCard(Map<String, dynamic> kid) {
     final String name = kid['fullname'] ?? kid['name'] ?? 'Unknown';
     final String? image = kid['image'] ?? kid['profileImage'];
-    final String status = kid['tripStatus'] ?? kid['status'] ?? 'pending';
-    final bool isPicked = status.toLowerCase() == 'picked';
-    final bool isDropped = status.toLowerCase() == 'dropped';
+    final String status = KidStatus.of(kid, pendingSync: _pendingSync);
+    final bool isPicked = status == KidStatus.picked;
+    final bool isDropped = status == KidStatus.dropped;
+    final kidId = KidStatus.idOf(kid);
+    final bool isUnsynced = kidId != null && _pendingSync.containsKey(kidId);
     final String schoolName =
         kid['school']?['schoolName'] ?? kid['schoolName'] ?? '—';
     final String distance = kid['distance'] ?? '—';
@@ -421,14 +451,29 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A2E),
-                      fontFamily: 'Poppins',
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          name,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A1A2E),
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
+                      if (isUnsynced) ...[
+                        const SizedBox(width: 6),
+                        const Tooltip(
+                          message: 'Saved offline — waiting to sync',
+                          child: Icon(Icons.cloud_upload_outlined,
+                              size: 16, color: Color(0xFFFFB800)),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Row(

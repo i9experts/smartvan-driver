@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'core/providers/app_container.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/fcm_service.dart';
 import 'core/sync/sync_queue.dart';
+import 'features/trip/services/active_trip_store.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -15,9 +18,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Local offline queue (Hive) — must be ready before any screen can
-  // record a pickup/drop.
+  // Local storage (Hive): offline queue + active trip. Must be ready before
+  // any screen can record a pickup/drop or resume a trip.
+  await Hive.initFlutter();
   await SyncQueue.instance.init();
+  await ActiveTripStore.init();
   // This app has no web push (VAPID) setup or firebase_options.dart for web,
   // so it isn't a supported target for Firebase Messaging there. On web,
   // the JS SDK's dynamic import() hangs the whole app on any network/CSP
@@ -34,7 +39,10 @@ void main() async {
       debugPrint('Firebase init failed, continuing without push notifications: $e');
     }
   }
-  runApp(const ProviderScope(child: SmartVanDriverApp()));
+  runApp(UncontrolledProviderScope(
+    container: appContainer,
+    child: const SmartVanDriverApp(),
+  ));
 }
 
 class SmartVanDriverApp extends StatelessWidget {

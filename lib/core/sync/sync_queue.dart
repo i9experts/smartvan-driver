@@ -57,7 +57,6 @@ class SyncQueue {
 
   Future<void> init() async {
     if (_ready) return;
-    await Hive.initFlutter();
     _box = await Hive.openBox(_boxName);
     _ready = true;
     _refreshCount();

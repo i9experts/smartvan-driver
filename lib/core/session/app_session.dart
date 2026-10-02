@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import '../../features/trip/services/trip_tracking_service.dart';
+import '../providers/app_container.dart';
 import '../router/app_router.dart';
 import '../storage/token_storage.dart';
 import '../sync/sync_queue.dart';
@@ -28,6 +30,8 @@ class AppSession {
     _signingOut = true;
     try {
       debugPrint('[AppSession] signing out ($reason)');
+      // Stop GPS/socket/foreground service — nobody is signed in to own it.
+      await appContainer.read(tripTrackingProvider.notifier).stop();
       await TokenStorage.clear();
       if (reason == 'logout') await SyncQueue.instance.clear();
       appRouter.go('/login');
