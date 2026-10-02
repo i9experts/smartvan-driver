@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/services/fcm_service.dart';
+import '../../../core/storage/token_storage.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -41,9 +42,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       });
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data;
-        final token = data['data']?['token'] ?? data['token'] ?? '';
+        final token = (data['data']?['token'] ?? data['token'] ?? '').toString();
+        if (token.isEmpty) {
+          _showError('Login failed. Please try again.');
+          return;
+        }
+        await TokenStorage.save(token);
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(AppConstants.tokenKey, token);
         await prefs.setString(AppConstants.userTypeKey, 'driver');
         FCMService.registerTokenWithBackend().catchError((_) {});
         if (mounted) context.go('/home');

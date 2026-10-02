@@ -3,7 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_constants.dart';
-import '../router/app_router.dart';
+import '../session/app_session.dart';
+import '../storage/token_storage.dart';
 
 class ApiService {
   static final Dio _dio = Dio(
@@ -16,7 +17,15 @@ class ApiService {
   )
     ..interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) {
+        onRequest: (options, handler) async {
+          // Token is attached per request (not stored on _dio.options) so a
+          // logout can never leave the previous driver's token on the client.
+          final token = await TokenStorage.read();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          } else {
+            options.headers.remove('Authorization');
+          }
           debugPrint('[API] -> ${options.method} ${options.path}');
           handler.next(options);
         },
@@ -30,11 +39,12 @@ class ApiService {
           // Session expired/invalid — no screen was handling this before,
           // so a driver mid-shift would just see raw errors on every
           // request instead of a clean prompt to log back in.
-          if (error.response?.statusCode == 401) {
-            debugPrint('[API] 401 received — clearing token and redirecting to /login');
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.remove(AppConstants.tokenKey);
-            appRouter.go('/login');
+          // Login itself answers 401 for a wrong password — that must show
+          // an error on the login screen, not trigger a sign-out redirect.
+          final isLoginCall = error.requestOptions.path.contains('/auth/login');
+          if (error.response?.statusCode == 401 && !isLoginCall) {
+            debugPrint('[API] 401 received — signing out');
+            await AppSession.signOut(reason: '401');
           }
           handler.next(error);
         },
@@ -45,36 +55,23 @@ class ApiService {
     return await SharedPreferences.getInstance();
   }
 
-  static Future<void> _addAuthHeader() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString(AppConstants.tokenKey);
-    if (token != null) {
-      _dio.options.headers['Authorization'] = 'Bearer $token';
-    }
-  }
-
   static Future<Response> get(String path) async {
-    await _addAuthHeader();
     return await _dio.get(path);
   }
 
   static Future<Response> post(String path, Map<String, dynamic> data) async {
-    await _addAuthHeader();
     return await _dio.post(path, data: data);
   }
 
   static Future<Response> put(String path, Map<String, dynamic> data) async {
-    await _addAuthHeader();
     return await _dio.put(path, data: data);
   }
 
   static Future<Response> patch(String path, Map<String, dynamic> data) async {
-    await _addAuthHeader();
     return await _dio.patch(path, data: data);
   }
 
   static Future<Response> delete(String path) async {
-    await _addAuthHeader();
     return await _dio.delete(path);
   }
 
@@ -83,8 +80,7 @@ class ApiService {
   /// Use this BEFORE calling update-profile etc — that endpoint expects
   /// `image` as a plain string URL, not a raw file.
   static Future<String?> uploadImage(File file) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString(AppConstants.tokenKey);
+    final token = await TokenStorage.read();
 
     final uploadDio = Dio();
     try {

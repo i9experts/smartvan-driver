@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/constants/app_constants.dart';
+import '../../../core/session/app_session.dart';
 import '../../../core/network/api_service.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -65,9 +64,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.remove(AppConstants.tokenKey);
-              if (mounted) context.go('/login');
+              await AppSession.signOut();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFFF4B4B),

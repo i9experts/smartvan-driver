@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:location/location.dart' as loc;
 import '../../../core/constants/app_constants.dart';
 import '../../../core/network/api_service.dart';
+import '../../../core/storage/token_storage.dart';
 
 class TripScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> trip;
@@ -121,8 +121,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   }
 
   void _connectSocket() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString(AppConstants.tokenKey) ?? '';
+    final token = await TokenStorage.read() ?? '';
 
     _socket = IO.io(
       AppConstants.socketUrl,
