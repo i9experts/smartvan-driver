@@ -36,3 +36,20 @@ Firebase Messaging, Hive (offline storage), flutter_secure_storage.
 when there is no internet and replays them in order when connectivity
 returns. Drivers see a cloud badge on unsynced kids and a banner on the trip
 screen. A trip can't be ended until the queue is empty.
+
+## Phase 2 — safety features
+
+Backend contract: `docs/PHASE2_API.md` in the `smartvan` repo.
+
+- **SOS** (`lib/features/safety/`): hold the red button on the trip screen
+  for 1.5 s → `POST /alert/sos` with GPS. Result sheet always offers calls
+  to Police 15, Rescue 1122 and Edhi 115.
+- **Students still in van** (`lib/features/trip/widgets/`): ending a drop
+  trip that answers 409 `KIDS_NOT_DROPPED` shows who is still marked in the
+  van; the driver drops them or confirms + writes a note (`forceEnd`).
+- **QR scan** (`lib/features/scan/`): continuous scanner →
+  `POST /trips/scanStudent`; the server decides pick vs drop. Needs internet
+  (the Passengers list still works offline).
+- **Daily van check** (`lib/features/checklist/`): checklist screen, home
+  status card, and automatic hand-off when `startTrip` answers
+  409 `CHECKLIST_REQUIRED`.
