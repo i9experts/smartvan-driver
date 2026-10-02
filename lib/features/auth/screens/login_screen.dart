@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/services/fcm_service.dart';
 import '../../../core/storage/token_storage.dart';
@@ -54,9 +55,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         if (mounted) context.go('/home');
       }
     } on DioException catch (e) {
-      final message =
-          e.response?.data?['message'] ?? 'Login failed. Please try again.';
-      _showError(message.toString());
+      // Shows the server's real reason (account not found, wrong password,
+      // ...) and a proper "no internet" message when offline.
+      _showError(ApiErrors.message(e, fallback: 'Login failed. Please try again.'));
     } catch (e) {
       _showError('Something went wrong. Please try again.');
     } finally {
