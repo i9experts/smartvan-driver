@@ -452,7 +452,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                   top: 16,
                   right: 16,
                   child: GestureDetector(
-                    onTap: () => context.go('/passengers',
+                    onTap: () => context.push('/passengers',
                         extra: {
                           ...widget.trip,
                           'passengers': _passengers,
