@@ -30,6 +30,18 @@ class ApiErrors {
     return code != null && code >= 500;
   }
 
+  /// Machine-readable error code the backend sends on Phase 2 endpoints,
+  /// e.g. 'KIDS_NOT_DROPPED', 'CHECKLIST_REQUIRED', 'INVALID_QR'.
+  static String? code(Object error) {
+    if (error is! DioException) return null;
+    final data = error.response?.data;
+    if (data is Map && data['code'] is String) return data['code'] as String;
+    return null;
+  }
+
+  static int? status(Object error) =>
+      error is DioException ? error.response?.statusCode : null;
+
   static String message(Object error, {String fallback = 'Something went wrong. Please try again.'}) {
     if (isNetworkError(error)) {
       return 'No internet connection. Please check your network and try again.';

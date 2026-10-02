@@ -7,6 +7,7 @@ import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/sync/sync_queue.dart';
 import '../../passengers/kid_status.dart';
+import '../../safety/widgets/sos_button.dart';
 import '../services/trip_tracking_service.dart';
 
 class TripScreen extends ConsumerStatefulWidget {
@@ -414,9 +415,16 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                   ),
                 ),
 
+                // SOS (press and hold)
+                const Positioned(
+                  top: 12,
+                  left: 16,
+                  child: SosButton(),
+                ),
+
                 // Offline / location warnings
                 Positioned(
-                  top: 64,
+                  top: 84,
                   left: 16,
                   right: 16,
                   child: _buildSyncBanner(tracking),
