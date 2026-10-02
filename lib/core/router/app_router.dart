@@ -14,6 +14,7 @@ import '../../features/profile/screens/change_password_screen.dart';
 import '../../features/profile/screens/report_issue_screen.dart';
 import '../../features/fees/screens/fee_collection_screen.dart';
 import '../../features/scan/screens/scan_screen.dart';
+import '../../features/checklist/screens/checklist_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -81,6 +82,13 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/report-issue',
       builder: (context, state) => const ReportIssueScreen(),
+    ),
+    GoRoute(
+      path: '/checklist',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return ChecklistScreen(routeId: extra?['routeId']?.toString());
+      },
     ),
     GoRoute(
       path: '/scan',

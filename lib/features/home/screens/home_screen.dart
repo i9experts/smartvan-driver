@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import '../../../core/session/app_session.dart';
 import '../../../core/network/api_service.dart';
 import '../../trip/services/trip_tracking_service.dart';
+import '../../checklist/checklist_api.dart';
+import '../../../core/network/api_errors.dart';
 import '../../alerts/screens/alerts_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 
@@ -29,6 +31,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _loadData() async {
+    ref.invalidate(todayChecklistProvider);
     await Future.wait([_loadProfile(), _loadTrips(), _loadMyRoutes()]);
     if (mounted) setState(() => _isLoading = false);
   }
@@ -426,6 +429,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             _buildActiveTripBanner(),
 
+            _buildChecklistCard(),
+
             // My Route Today — schedule + passengers, independent of
             // whether a trip has actually been started yet.
             if (_myRoutes.isNotEmpty)
@@ -539,6 +544,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _startingRouteId = true;
       _startingRoute = routeId;
     });
+    var needsChecklist = false;
     try {
       final response = await ApiService.post('/trips/startTrip', {
         'routeId': routeId,
@@ -557,6 +563,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         context.go('/trip', extra: enriched);
       }
     } on DioException catch (e) {
+      // School requires today's van check first — open it, then retry.
+      if (ApiErrors.code(e) == 'CHECKLIST_REQUIRED') {
+        needsChecklist = true;
+        return;
+      }
       final message = e.response?.data?['message']?.toString() ??
           'Failed to start trip. Please try again.';
       if (mounted) {
@@ -585,7 +596,85 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _startingRoute = null;
         });
       }
+      if (needsChecklist && mounted) {
+        _openChecklistThenStart(route);
+      }
     }
+  }
+
+  Future<void> _openChecklistThenStart(Map<String, dynamic> route) async {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Please complete today\'s van check first.'),
+      behavior: SnackBarBehavior.floating,
+    ));
+    final done = await context.push<bool>('/checklist',
+        extra: {'routeId': route['routeId']?.toString()});
+    ref.invalidate(todayChecklistProvider);
+    if (done == true && mounted) await _startTripFromRoute(route);
+  }
+
+  Widget _buildChecklistCard() {
+    if (_myRoutes.isEmpty) return const SizedBox.shrink();
+    final today = ref.watch(todayChecklistProvider);
+    return today.maybeWhen(
+      data: (t) {
+        final done = t.done;
+        final color = !done
+            ? (t.required ? const Color(0xFFE53935) : const Color(0xFFFFB800))
+            : (t.allOk ? const Color(0xFF27AE60) : const Color(0xFFFFB800));
+        final title = !done
+            ? 'Daily van check not done'
+            : (t.allOk ? 'Van check done' : 'Van check done — issues reported');
+        final subtitle = !done
+            ? (t.required ? 'Required before you can start a trip' : 'Takes less than a minute')
+            : 'Tap to update';
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          child: Material(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () async {
+                await context.push<bool>('/checklist');
+                ref.invalidate(todayChecklistProvider);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: color.withOpacity(0.6)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(done ? Icons.fact_check : Icons.checklist, color: color),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(title,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                          Text(subtitle,
+                              style: const TextStyle(
+                                  color: Color(0xFF8A94A6),
+                                  fontSize: 12,
+                                  fontFamily: 'Poppins')),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Color(0xFF8A94A6)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      // Hidden while loading or if the backend doesn't support it yet.
+      orElse: () => const SizedBox.shrink(),
+    );
   }
 
   Widget _buildRouteCard(Map<String, dynamic> route) {
