@@ -40,10 +40,12 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     if (!silent) setState(() => _loading = true);
     try {
       final items = await ChatApi.conversations();
-      if (mounted) setState(() {
-        _items = items;
-        _error = null;
-      });
+      if (mounted) {
+        setState(() {
+          _items = items;
+          _error = null;
+        });
+      }
     } catch (e) {
       if (mounted) setState(() => _error = ApiErrors.message(e, fallback: 'Could not load messages.'));
     } finally {
