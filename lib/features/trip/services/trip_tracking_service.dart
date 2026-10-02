@@ -234,11 +234,23 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
           .submit(
             kind: SyncKind.location,
             path: '/trips/updateLocation/$id',
-            body: {'lat': lat, 'lng': lng},
+            body: {
+              'lat': lat,
+              'lng': lng,
+              // m/s — the server records overspeed events from it.
+              if (fix.speed != null && fix.speed! >= 0) 'speed': fix.speed,
+            },
             tripId: id,
           )
           .catchError((Object e) {
-        // Non-fatal — live map still works via the socket.
+        // The trip was ended elsewhere (admin panel / another device):
+        // stop GPS + foreground service instead of tracking forever.
+        if (ApiErrors.code(e) == 'TRIP_NOT_ONGOING') {
+          debugPrint('[Tracking] server says trip is over — stopping');
+          stop();
+          return SubmitOutcome.sent;
+        }
+        // Otherwise non-fatal — live map still works via the socket.
         debugPrint('[Tracking] updateLocation rejected: $e');
         return SubmitOutcome.queued;
       });
