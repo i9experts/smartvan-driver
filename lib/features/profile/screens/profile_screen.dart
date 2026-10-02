@@ -395,6 +395,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Column(
         children: [
           _buildActionItem(
+            Icons.insights_outlined,
+            'My Driving Stats',
+            const Color(0xFF6C5CE7),
+            () => context.push('/stats'),
+          ),
+          const Divider(height: 1, color: Color(0xFFEAECF0)),
+          _buildActionItem(
             Icons.payments_outlined,
             'Fee Collection',
             const Color(0xFF27AE60),

@@ -15,6 +15,7 @@ import '../../features/profile/screens/report_issue_screen.dart';
 import '../../features/fees/screens/fee_collection_screen.dart';
 import '../../features/scan/screens/scan_screen.dart';
 import '../../features/checklist/screens/checklist_screen.dart';
+import '../../features/stats/screens/driver_stats_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -82,6 +83,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/report-issue',
       builder: (context, state) => const ReportIssueScreen(),
+    ),
+    GoRoute(
+      path: '/stats',
+      builder: (context, state) => const DriverStatsScreen(),
     ),
     GoRoute(
       path: '/checklist',
