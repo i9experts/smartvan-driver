@@ -678,8 +678,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.directions_bus_outlined,
-                      size: 14, color: const Color(0xFF8A94A6)),
+                  const Icon(Icons.directions_bus_outlined,
+                      size: 14, color: Color(0xFF8A94A6)),
                   const SizedBox(width: 4),
                   Text(
                     route['vehicleNumber'] ?? '—',
