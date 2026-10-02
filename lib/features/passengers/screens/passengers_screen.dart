@@ -206,6 +206,16 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
                             fontFamily: 'Poppins',
                           ),
                         ),
+                        const Spacer(),
+                        IconButton(
+                          tooltip: 'Scan student card',
+                          icon: const Icon(Icons.qr_code_scanner,
+                              color: Colors.white),
+                          onPressed: () async {
+                            await context.push('/scan');
+                            if (mounted) _loadPassengers();
+                          },
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),

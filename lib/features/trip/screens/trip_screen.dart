@@ -211,6 +211,11 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     }
   }
 
+  Future<void> _openScanner() async {
+    await context.push('/scan');
+    if (mounted) _loadPassengers();
+  }
+
   void _showSnack(String message, {bool isError = false, Color? color}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -564,6 +569,26 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 46,
+                          child: OutlinedButton.icon(
+                            onPressed: _openScanner,
+                            icon: const Icon(Icons.qr_code_scanner),
+                            label: const Text('Scan student card',
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w600)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF1B2B6B),
+                              side: const BorderSide(color: Color(0xFF1B2B6B)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
                         SizedBox(
                           width: double.infinity,
                           height: 52,

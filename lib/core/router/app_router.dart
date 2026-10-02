@@ -13,6 +13,7 @@ import '../../features/profile/screens/documents_screen.dart';
 import '../../features/profile/screens/change_password_screen.dart';
 import '../../features/profile/screens/report_issue_screen.dart';
 import '../../features/fees/screens/fee_collection_screen.dart';
+import '../../features/scan/screens/scan_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -80,6 +81,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/report-issue',
       builder: (context, state) => const ReportIssueScreen(),
+    ),
+    GoRoute(
+      path: '/scan',
+      builder: (context, state) => const ScanScreen(),
     ),
     GoRoute(
       path: '/fee-collection',

@@ -52,7 +52,7 @@
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>SmartVan needs your location in the background to keep sharing your live position with parents and the school while a trip is in progress, even when the app isn't in the foreground.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>SmartVan needs camera access so you can take photos for issue reports and document uploads.</string>
+	<string>SmartVan needs camera access to scan students' QR cards and to take photos for van checks, issue reports and document uploads.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>SmartVan needs photo library access so you can upload your profile photo, documents, and issue report photos.</string>
 	<key>UIBackgroundModes</key>
