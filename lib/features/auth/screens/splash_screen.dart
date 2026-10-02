@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../trip/services/active_trip_store.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -48,7 +49,12 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(const Duration(seconds: 4));
     final loggedIn = await TokenStorage.hasToken();
     if (mounted) {
-      if (loggedIn) {
+      final activeTrip = loggedIn ? ActiveTripStore.read() : null;
+      if (activeTrip != null) {
+        // App was killed mid-trip — go straight back to it. TripScreen
+        // restarts tracking; Home will reconcile with the server later.
+        context.go('/trip', extra: activeTrip);
+      } else if (loggedIn) {
         context.go('/home');
       } else {
         context.go('/login');

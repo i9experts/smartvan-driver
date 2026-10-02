@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import '../../../core/session/app_session.dart';
 import '../../../core/network/api_service.dart';
+import '../../trip/services/trip_tracking_service.dart';
 import '../../alerts/screens/alerts_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 
@@ -38,7 +39,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (response.statusCode == 200) {
         final raw = response.data;
         final data = raw['data'];
-        setState(() => _myRoutes = data is List ? data : []);
+        final routes = data is List ? data : [];
+        if (mounted) setState(() => _myRoutes = routes);
+        await _reconcileTracking(routes);
       }
     } catch (e) {
       // No van assigned / no routes today / driver inactive — all handled
@@ -46,6 +49,95 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // covers this gracefully.
       setState(() => _myRoutes = []);
     }
+  }
+
+  /// Keeps on-device tracking in line with the server:
+  /// - a trip is ongoing on the server but this device isn't tracking it
+  ///   (app was killed / reinstalled / driver switched phone) → resume;
+  /// - this device is tracking but no route has a started trip any more
+  ///   (ended from the admin panel) → stop the GPS + foreground service.
+  Future<void> _reconcileTracking(List routes) async {
+    final tracking = ref.read(tripTrackingProvider);
+    final notifier = ref.read(tripTrackingProvider.notifier);
+
+    Map<String, dynamic>? ongoing;
+    for (final r in routes) {
+      if (r is Map && r['TripStarted'] == true && r['tripDetails'] is Map) {
+        ongoing = {
+          ...Map<String, dynamic>.from(r['tripDetails'] as Map),
+          'schoolRoute': r['routeTitle'],
+        };
+        break;
+      }
+    }
+
+    if (ongoing != null) {
+      final id = TripTrackingState.tripIdOf(ongoing);
+      if (!tracking.isTracking || tracking.tripId != id) {
+        final result = await notifier.start(ongoing);
+        if (result == TrackingStartResult.started && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Your ongoing trip was resumed — location sharing is on.'),
+              backgroundColor: Color(0xFF27AE60),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } else if (tracking.isTracking) {
+      await notifier.stop();
+    }
+  }
+
+  Widget _buildActiveTripBanner() {
+    final tracking = ref.watch(tripTrackingProvider);
+    if (!tracking.isTracking || tracking.trip == null) {
+      return const SizedBox.shrink();
+    }
+    final title = tracking.trip!['schoolRoute'] ??
+        tracking.trip!['tripName'] ??
+        'Trip in progress';
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Material(
+        color: const Color(0xFF27AE60),
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => context.go('/trip', extra: tracking.trip),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                const Icon(Icons.gps_fixed, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Trip in progress',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins')),
+                      Text(title.toString(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                              fontFamily: 'Poppins')),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: Colors.white),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _loadProfile() async {
@@ -331,6 +423,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
 
             const SizedBox(height: 24),
+
+            _buildActiveTripBanner(),
 
             // My Route Today — schedule + passengers, independent of
             // whether a trip has actually been started yet.
