@@ -1,16 +1,38 @@
-# smartvan_driver
+# SmartVan Driver
 
-A new Flutter project.
+Flutter app for school-van drivers: assigned routes, live trip tracking,
+pickup/drop of students, alerts, fee collection and profile/documents.
 
-## Getting Started
+Stack: Flutter 3.5+, Riverpod, go_router, Dio, Socket.IO, Google Maps,
+Firebase Messaging, Hive (offline storage), flutter_secure_storage.
 
-This project is a starting point for a Flutter application.
+## Setup
 
-A few resources to get you started if this is your first Flutter project:
+1. `flutter pub get`
+2. **Google Maps key** (no longer in source code):
+   - Android: add to `android/local.properties` (gitignored)
+     ```
+     MAPS_API_KEY=your_android_maps_key
+     ```
+     or set the `MAPS_API_KEY` environment variable on CI.
+   - iOS: copy `ios/Flutter/Secrets.xcconfig.example` to
+     `ios/Flutter/Secrets.xcconfig` and fill in the key.
+3. `flutter run`
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## How trip tracking works
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- `TripTrackingNotifier` (`lib/features/trip/services/`) owns the GPS
+  stream, Android foreground service and Socket.IO connection for the whole
+  trip. It is independent of which screen is open and stops only when the
+  trip is ended or the driver signs out.
+- Socket `updateLocation` gets every GPS fix (live map for parents);
+  `POST /trips/updateLocation/:tripId` (geofence alerts) at most every 5 s.
+- The active trip is saved locally (`ActiveTripStore`); after the app is
+  killed, Splash reopens it and Home reconciles with the server.
+
+## Offline mode
+
+`SyncQueue` (`lib/core/sync/`) stores pick/drop/location requests in Hive
+when there is no internet and replays them in order when connectivity
+returns. Drivers see a cloud badge on unsynced kids and a banner on the trip
+screen. A trip can't be ended until the queue is empty.
