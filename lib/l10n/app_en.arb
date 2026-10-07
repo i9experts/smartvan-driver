@@ -115,5 +115,52 @@
   "reportThanksBody": "Your concern has been forwarded to the support team. You will be notified once it is resolved.",
   "profileLogout": "Logout",
   "documentsEmptyTitle": "No Documents",
-  "documentsEmptyBody": "No documents to show"
+  "documentsEmptyBody": "No documents to show",
+  "alertsTitle": "Alerts",
+  "alertsSend": "Send Alert",
+  "alertsLoadErrorTitle": "Couldn't Load Alerts",
+  "alertsLoadErrorBody": "Check your connection and try again",
+  "alertsEmptyTitle": "No Alerts",
+  "alertsEmptyBody": "No alerts at the moment",
+  "alertsDefaultTitle": "Alert",
+  "alertsMinutesAgo": "{count}m ago",
+  "@alertsMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "alertsHoursAgo": "{count}h ago",
+  "@alertsHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "alertsDaysAgo": "{count}d ago",
+  "@alertsDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "alertsSendSheetSubtitle": "Type a message for your school admin.",
+  "alertsMessageHint": "Enter your message...",
+  "alertsTypeMessageFirst": "Type a message first.",
+  "alertsSent": "Alert sent to your school admin!",
+  "alertsSendFailed": "Failed to send alert.",
+  "alertDetailTitle": "Alert Details",
+  "alertTitleEmergency": "Emergency Alert",
+  "alertTitlePayment": "Payment Alert",
+  "alertTitleTrip": "Trip Update",
+  "alertTitleProfile": "Profile Update",
+  "alertDetailTripDetails": "Trip Details",
+  "alertDetailDate": "Date",
+  "alertDetailShift": "Shift",
+  "alertDetailStartTime": "Start Time",
+  "alertDetailViewTrip": "View Trip",
+  "alertNotFound": "Alert not found"
 }

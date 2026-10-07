@@ -313,4 +313,88 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get documentsEmptyBody => 'No documents to show';
+
+  @override
+  String get alertsTitle => 'Alerts';
+
+  @override
+  String get alertsSend => 'Send Alert';
+
+  @override
+  String get alertsLoadErrorTitle => 'Couldn\'t Load Alerts';
+
+  @override
+  String get alertsLoadErrorBody => 'Check your connection and try again';
+
+  @override
+  String get alertsEmptyTitle => 'No Alerts';
+
+  @override
+  String get alertsEmptyBody => 'No alerts at the moment';
+
+  @override
+  String get alertsDefaultTitle => 'Alert';
+
+  @override
+  String alertsMinutesAgo(int count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String alertsHoursAgo(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String alertsDaysAgo(int count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String get alertsSendSheetSubtitle => 'Type a message for your school admin.';
+
+  @override
+  String get alertsMessageHint => 'Enter your message...';
+
+  @override
+  String get alertsTypeMessageFirst => 'Type a message first.';
+
+  @override
+  String get alertsSent => 'Alert sent to your school admin!';
+
+  @override
+  String get alertsSendFailed => 'Failed to send alert.';
+
+  @override
+  String get alertDetailTitle => 'Alert Details';
+
+  @override
+  String get alertTitleEmergency => 'Emergency Alert';
+
+  @override
+  String get alertTitlePayment => 'Payment Alert';
+
+  @override
+  String get alertTitleTrip => 'Trip Update';
+
+  @override
+  String get alertTitleProfile => 'Profile Update';
+
+  @override
+  String get alertDetailTripDetails => 'Trip Details';
+
+  @override
+  String get alertDetailDate => 'Date';
+
+  @override
+  String get alertDetailShift => 'Shift';
+
+  @override
+  String get alertDetailStartTime => 'Start Time';
+
+  @override
+  String get alertDetailViewTrip => 'View Trip';
+
+  @override
+  String get alertNotFound => 'Alert not found';
 }

@@ -1,11 +1,11 @@
 {
   "rawList": [
-    { "alertType": "sos", "title": "SOS", "message": "Driver pressed SOS", "createdAt": "2026-10-06T09:00:00.000Z", "tripId": "trip-001" }
+    { "_id": "alert-001", "alertType": "sos", "title": "SOS", "message": "Driver pressed SOS", "createdAt": "2026-10-06T09:00:00.000Z", "tripId": "trip-001" }
   ],
   "dataList": {
     "success": true,
     "data": [
-      { "type": "payment", "message": "Fee received", "createdAt": "2026-10-06T10:00:00.000Z" },
+      { "id": "alert-002", "type": "payment", "message": "Fee received", "createdAt": "2026-10-06T10:00:00.000Z" },
       { "alertType": "NEW_TRIP", "title": "New trip", "description": "A trip was assigned", "date": "2026-10-06T06:00:00.000Z", "startTime": "2026-10-06T08:00:00.000Z" },
       { "alertType": "document_expiry", "body": "Driving licence expires in 7 days", "createdAt": "2026-10-06T03:00:00.000Z" },
       { "type": "weather", "message": "Heavy rain" },

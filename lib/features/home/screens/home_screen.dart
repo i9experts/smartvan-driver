@@ -8,7 +8,7 @@ import '../../trip/services/trip_tracking_service.dart';
 import '../../checklist/checklist_api.dart';
 import '../../chat/chat_api.dart';
 import '../../../core/network/api_errors.dart';
-import '../../alerts/screens/alerts_screen.dart';
+import '../../alerts/presentation/screens/alerts_screen.dart';
 import '../../profile/presentation/screens/profile_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {

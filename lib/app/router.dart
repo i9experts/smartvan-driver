@@ -7,8 +7,9 @@ import '../features/home/screens/home_screen.dart';
 import '../features/trip/screens/trip_screen.dart';
 import '../features/passengers/screens/passengers_screen.dart';
 import '../features/passengers/screens/kid_profile_screen.dart';
-import '../features/alerts/screens/alerts_screen.dart';
-import '../features/alerts/screens/alert_detail_screen.dart';
+import '../features/alerts/data/models/alert.dart';
+import '../features/alerts/presentation/screens/alerts_screen.dart';
+import '../features/alerts/presentation/screens/alert_detail_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../features/profile/presentation/screens/documents_screen.dart';
@@ -65,11 +66,11 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const AlertsScreen(),
     ),
     GoRoute(
-      path: '/alert-detail',
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        return AlertDetailScreen(alert: extra ?? {});
-      },
+      path: AppRoutes.alertDetail,
+      builder: (context, state) => AlertDetailScreen(
+        alertId: state.pathParameters['alertId']!,
+        alert: state.extra is Alert ? state.extra as Alert : null,
+      ),
     ),
     GoRoute(
       path: AppRoutes.profile,

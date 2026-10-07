@@ -10,6 +10,7 @@ void main() {
   test('raw list', () {
     final alerts = Alert.listFrom(shapes['rawList']);
     expect(alerts, hasLength(1));
+    expect(alerts[0].id, 'alert-001'); // `_id`
     expect(alerts[0].type, AlertType.sos);
     expect(alerts[0].title, 'SOS');
     expect(alerts[0].message, 'Driver pressed SOS');
@@ -22,6 +23,7 @@ void main() {
       () {
     final alerts = Alert.listFrom(shapes['dataList']);
     expect(alerts, hasLength(5));
+    expect(alerts[0].id, 'alert-002'); // `id`
     expect(alerts[0].type, AlertType.payment); // `type`
     expect(alerts[0].title, isNull);
     expect(alerts[0].message, 'Fee received');

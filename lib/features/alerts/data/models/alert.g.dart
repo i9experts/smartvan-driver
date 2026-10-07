@@ -7,6 +7,7 @@ part of 'alert.dart';
 // **************************************************************************
 
 _Alert _$AlertFromJson(Map<String, dynamic> json) => _Alert(
+      id: looseString(readId(json, 'id')),
       type: $enumDecodeNullable(_$AlertTypeEnumMap, readAlertType(json, 'type'),
               unknownValue: AlertType.unknown) ??
           AlertType.unknown,
@@ -15,15 +16,20 @@ _Alert _$AlertFromJson(Map<String, dynamic> json) => _Alert(
       createdAt: looseDateTime(readAlertDate(json, 'createdAt')),
       tripId: looseString(json['tripId']),
       startTime: looseDateTime(json['startTime']),
+      date: looseDateTime(json['date']),
+      shift: looseString(json['shift']),
     );
 
 Map<String, dynamic> _$AlertToJson(_Alert instance) => <String, dynamic>{
+      'id': instance.id,
       'type': _$AlertTypeEnumMap[instance.type]!,
       'title': instance.title,
       'message': instance.message,
       'createdAt': instance.createdAt?.toIso8601String(),
       'tripId': instance.tripId,
       'startTime': instance.startTime?.toIso8601String(),
+      'date': instance.date?.toIso8601String(),
+      'shift': instance.shift,
     };
 
 const _$AlertTypeEnumMap = {

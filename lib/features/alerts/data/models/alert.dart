@@ -10,6 +10,10 @@ part 'alert.g.dart';
 @freezed
 abstract class Alert with _$Alert {
   const factory Alert({
+    /// Mongo `_id` (the list used to ignore it; it is what the detail route
+    /// carries).
+    @JsonKey(readValue: readId, fromJson: looseString) String? id,
+
     /// `alertType` | `type`.
     @JsonKey(readValue: readAlertType, unknownEnumValue: AlertType.unknown)
     @Default(AlertType.unknown)
@@ -25,6 +29,11 @@ abstract class Alert with _$Alert {
     DateTime? createdAt,
     @JsonKey(fromJson: looseString) String? tripId,
     @JsonKey(fromJson: looseDateTime) DateTime? startTime,
+
+    /// Read by the detail screen's "Trip Details" card; the backend does not
+    /// send these today.
+    @JsonKey(fromJson: looseDateTime) DateTime? date,
+    @JsonKey(fromJson: looseString) String? shift,
   }) = _Alert;
 
   factory Alert.fromJson(Map<String, dynamic> json) => _$AlertFromJson(json);

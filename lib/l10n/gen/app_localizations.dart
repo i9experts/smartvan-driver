@@ -663,6 +663,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No documents to show'**
   String get documentsEmptyBody;
+
+  /// No description provided for @alertsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get alertsTitle;
+
+  /// No description provided for @alertsSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Alert'**
+  String get alertsSend;
+
+  /// No description provided for @alertsLoadErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t Load Alerts'**
+  String get alertsLoadErrorTitle;
+
+  /// No description provided for @alertsLoadErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again'**
+  String get alertsLoadErrorBody;
+
+  /// No description provided for @alertsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Alerts'**
+  String get alertsEmptyTitle;
+
+  /// No description provided for @alertsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts at the moment'**
+  String get alertsEmptyBody;
+
+  /// No description provided for @alertsDefaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get alertsDefaultTitle;
+
+  /// No description provided for @alertsMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String alertsMinutesAgo(int count);
+
+  /// No description provided for @alertsHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String alertsHoursAgo(int count);
+
+  /// No description provided for @alertsDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String alertsDaysAgo(int count);
+
+  /// No description provided for @alertsSendSheetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message for your school admin.'**
+  String get alertsSendSheetSubtitle;
+
+  /// No description provided for @alertsMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your message...'**
+  String get alertsMessageHint;
+
+  /// No description provided for @alertsTypeMessageFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message first.'**
+  String get alertsTypeMessageFirst;
+
+  /// No description provided for @alertsSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert sent to your school admin!'**
+  String get alertsSent;
+
+  /// No description provided for @alertsSendFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send alert.'**
+  String get alertsSendFailed;
+
+  /// No description provided for @alertDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert Details'**
+  String get alertDetailTitle;
+
+  /// No description provided for @alertTitleEmergency.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Alert'**
+  String get alertTitleEmergency;
+
+  /// No description provided for @alertTitlePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Alert'**
+  String get alertTitlePayment;
+
+  /// No description provided for @alertTitleTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip Update'**
+  String get alertTitleTrip;
+
+  /// No description provided for @alertTitleProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Update'**
+  String get alertTitleProfile;
+
+  /// No description provided for @alertDetailTripDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip Details'**
+  String get alertDetailTripDetails;
+
+  /// No description provided for @alertDetailDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get alertDetailDate;
+
+  /// No description provided for @alertDetailShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift'**
+  String get alertDetailShift;
+
+  /// No description provided for @alertDetailStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Time'**
+  String get alertDetailStartTime;
+
+  /// No description provided for @alertDetailViewTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'View Trip'**
+  String get alertDetailViewTrip;
+
+  /// No description provided for @alertNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert not found'**
+  String get alertNotFound;
 }
 
 class _AppLocalizationsDelegate

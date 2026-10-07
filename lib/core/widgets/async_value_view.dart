@@ -16,6 +16,7 @@ class AsyncValueView<T> extends StatelessWidget {
     this.onRetry,
     this.errorFallback,
     this.loading,
+    this.errorBuilder,
   });
 
   final AsyncValue<T> value;
@@ -30,16 +31,21 @@ class AsyncValueView<T> extends StatelessWidget {
   /// Replaces the default spinner.
   final Widget? loading;
 
+  /// Replaces the default error view (receives the error and [onRetry]).
+  final Widget Function(Object error, VoidCallback? retry)? errorBuilder;
+
   @override
   Widget build(BuildContext context) {
     return value.when(
       skipLoadingOnRefresh: true,
       loading: () => loading ?? const AppLoading(),
-      error: (error, _) => AppErrorView(
-        message: context.errorText(error, fallback: errorFallback),
-        onRetry: onRetry,
-        retryLabel: onRetry == null ? null : context.l10n.commonRetry,
-      ),
+      error: (error, _) =>
+          errorBuilder?.call(error, onRetry) ??
+          AppErrorView(
+            message: context.errorText(error, fallback: errorFallback),
+            onRetry: onRetry,
+            retryLabel: onRetry == null ? null : context.l10n.commonRetry,
+          ),
       data: data,
     );
   }
