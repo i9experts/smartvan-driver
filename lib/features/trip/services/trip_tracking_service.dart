@@ -99,6 +99,12 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
   StreamSubscription<loc.LocationData>? _positionSub;
   DateTime? _lastHttpUpdate;
 
+  /// Parent marked (or un-marked) a kid absent for today while the trip is
+  /// running. Payload: { kidId, fullname, tripType, cancelled }.
+  final StreamController<Map<String, dynamic>> _absenceEvents =
+      StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get absenceEvents => _absenceEvents.stream;
+
   /// The HTTP endpoint drives geofence push alerts; the socket drives the
   /// live map. The socket gets every fix, HTTP at most this often.
   static const _httpInterval = Duration(seconds: 5);
@@ -320,6 +326,16 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
       SyncQueue.instance.flush();
     });
     socket.onDisconnect((_) => state = state.copyWith(socketConnected: false));
+    socket.on('kidAbsence', (data) {
+      if (data is Map) {
+        _absenceEvents.add({...Map<String, dynamic>.from(data), 'cancelled': false});
+      }
+    });
+    socket.on('kidAbsenceCancelled', (data) {
+      if (data is Map) {
+        _absenceEvents.add({...Map<String, dynamic>.from(data), 'cancelled': true});
+      }
+    });
     socket.onConnectError((e) => debugPrint('[Tracking] socket connect error: $e'));
     socket.connect();
     _socket = socket;

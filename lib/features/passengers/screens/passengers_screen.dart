@@ -7,6 +7,7 @@ import '../../../core/network/api_service.dart';
 import '../../../core/sync/sync_queue.dart';
 import '../../trip/services/trip_tracking_service.dart';
 import '../kid_status.dart';
+import '../stop_api.dart';
 import '../../chat/chat_api.dart';
 
 class PassengersScreen extends ConsumerStatefulWidget {
@@ -25,6 +26,13 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   Map<String, String> _pendingSync = const {};
   final Set<String> _busyKidIds = {};
   StreamSubscription<void>? _syncedSub;
+  StreamSubscription<Map<String, dynamic>>? _absenceSub;
+  /// Refreshes the "waiting 1:23" timers on cards.
+  Timer? _ticker;
+  final Set<String> _stopBusy = {};
+
+  /// How long the driver should wait before "move on" is offered.
+  static const _waitBeforeNoShow = Duration(minutes: 2);
 
   String? get _tripId => TripTrackingState.tripIdOf(widget.trip) ??
       ref.read(tripTrackingProvider).tripId;
@@ -35,11 +43,26 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
     _loadPassengers();
     // When queued picks/drops reach the server, reload real statuses.
     _syncedSub = SyncQueue.instance.onSynced.listen((_) => _loadPassengers());
+    // A parent marked a child absent (or cancelled it) during the trip.
+    _absenceSub = ref.read(tripTrackingProvider.notifier).absenceEvents.listen((e) {
+      _loadPassengers();
+      final name = e['fullname'] ?? 'A student';
+      _showSnack(
+          e['cancelled'] == true ? '$name will ride today after all.' : '$name is absent today (parent informed).',
+          const Color(0xFF1B2B6B));
+    });
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted && _passengers.any((p) => p is Map && p['waitingSince'] != null)) {
+        setState(() {});
+      }
+    });
   }
 
   @override
   void dispose() {
     _syncedSub?.cancel();
+    _absenceSub?.cancel();
+    _ticker?.cancel();
     super.dispose();
   }
 
@@ -59,7 +82,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
         final raw = response.data;
         final data = raw['data'] ?? raw ?? [];
         setState(() {
-          _passengers = data is List ? data : [];
+          _passengers = _sorted(data is List ? data : []);
           _recount();
         });
       }
@@ -80,7 +103,153 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
     }
   }
 
+  /// Riders first; absent and no-show kids at the bottom.
+  List<dynamic> _sorted(List<dynamic> list) {
+    int rank(dynamic p) => p is Map && (p['absent'] == true || p['noShow'] == true) ? 1 : 0;
+    final indexed = list.asMap().entries.toList()
+      ..sort((a, b) {
+        final r = rank(a.value).compareTo(rank(b.value));
+        return r != 0 ? r : a.key.compareTo(b.key);
+      });
+    return indexed.map((e) => e.value).toList();
+  }
+
+  Future<void> _arrivedAtStop(Map<String, dynamic> kid) async {
+    final kidId = KidStatus.idOf(kid);
+    final tripId = (kid['tripId'] ?? _tripId)?.toString();
+    if (kidId == null || tripId == null || _stopBusy.contains(kidId)) return;
+    setState(() => _stopBusy.add(kidId));
+    try {
+      final at = await StopApi.arrived(tripId, kidId);
+      if (!mounted) return;
+      setState(() => kid['waitingSince'] = at.toIso8601String());
+      _showSnack('Parent told the van is at the stop.', const Color(0xFF27AE60));
+    } catch (e) {
+      _showSnack(ApiErrors.message(e, fallback: 'Could not notify the parent.'), const Color(0xFFFF4B4B));
+    } finally {
+      if (mounted) setState(() => _stopBusy.remove(kidId));
+    }
+  }
+
+  Future<void> _markNoShow(Map<String, dynamic> kid) async {
+    final kidId = KidStatus.idOf(kid);
+    final tripId = (kid['tripId'] ?? _tripId)?.toString();
+    if (kidId == null || tripId == null || _stopBusy.contains(kidId)) return;
+    final note = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('${kid['fullname'] ?? 'Student'} not at stop?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('The parent will be told the van moved on.'),
+            const SizedBox(height: 8),
+            TextField(
+              controller: note,
+              maxLength: 200,
+              decoration: const InputDecoration(hintText: 'Note (optional)'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Keep waiting')),
+          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Move on')),
+        ],
+      ),
+    );
+    final text = note.text;
+    note.dispose();
+    if (ok != true || !mounted) return;
+    setState(() => _stopBusy.add(kidId));
+    try {
+      await StopApi.noShow(tripId, kidId, note: text);
+      if (!mounted) return;
+      setState(() {
+        kid['noShow'] = true;
+        _passengers = _sorted(_passengers);
+      });
+    } catch (e) {
+      _showSnack(ApiErrors.message(e, fallback: 'Could not mark as not at stop.'), const Color(0xFFFF4B4B));
+    } finally {
+      if (mounted) setState(() => _stopBusy.remove(kidId));
+    }
+  }
+
+  /// Small row under the card: absent / no-show / at-stop / waiting timer.
+  Widget? _buildStopRow(Map<String, dynamic> kid, bool isPicked, bool isDropped) {
+    Widget chip(IconData icon, String text, Color color) => Row(
+          children: [
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(text,
+                  style: TextStyle(fontSize: 12, color: color, fontFamily: 'Poppins', fontWeight: FontWeight.w600)),
+            ),
+          ],
+        );
+
+    if (kid['absent'] == true && !isPicked && !isDropped) {
+      final note = kid['absenceNote']?.toString();
+      return chip(Icons.event_busy, 'Absent today${note != null && note.isNotEmpty ? ' — $note' : ' (parent informed)'}',
+          const Color(0xFF8A94A6));
+    }
+    if (kid['noShow'] == true && !isPicked) {
+      return chip(Icons.directions_walk, 'Not at stop — moved on', const Color(0xFFE53935));
+    }
+    if (isDropped) return null;
+
+    final tripType = kid['tripType']?.toString();
+    final relevant = tripType == 'drop' ? isPicked : !isPicked;
+    if (!relevant) return null;
+
+    final kidId = KidStatus.idOf(kid) ?? '';
+    final busy = _stopBusy.contains(kidId);
+    final since = DateTime.tryParse(kid['waitingSince']?.toString() ?? '')?.toLocal();
+    if (since == null) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: busy ? null : () => _arrivedAtStop(kid),
+          icon: const Icon(Icons.where_to_vote_outlined, size: 18),
+          label: Text(tripType == 'drop' ? 'At home — tell parent' : 'At stop — tell parent'),
+          style: TextButton.styleFrom(
+              padding: EdgeInsets.zero, visualDensity: VisualDensity.compact, foregroundColor: const Color(0xFF1B2B6B)),
+        ),
+      );
+    }
+
+    final waited = DateTime.now().difference(since);
+    final mm = waited.inMinutes;
+    final ss = (waited.inSeconds % 60).toString().padLeft(2, '0');
+    return Row(
+      children: [
+        Expanded(child: chip(Icons.timer_outlined, 'Waiting $mm:$ss', const Color(0xFFFFB800))),
+        if (tripType != 'drop' && waited >= _waitBeforeNoShow)
+          TextButton(
+            onPressed: busy ? null : () => _markNoShow(kid),
+            style: TextButton.styleFrom(foregroundColor: const Color(0xFFE53935), visualDensity: VisualDensity.compact),
+            child: const Text('Not here — move on'),
+          ),
+      ],
+    );
+  }
+
   Future<void> _pickStudent(Map<String, dynamic> kid) async {
+    if (kid['absent'] == true) {
+      final pick = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Marked absent'),
+          content: Text('${kid['fullname'] ?? 'This student'}\'s parent said they are absent today. Pick up anyway?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Pick up')),
+          ],
+        ),
+      );
+      if (pick != true || !mounted) return;
+    }
     final kidId = KidStatus.idOf(kid);
     final tripId = (kid['tripId'] ?? _tripId)?.toString();
     if (kidId == null || tripId == null || _busyKidIds.contains(kidId)) return;
@@ -415,8 +584,12 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
     final String schoolName =
         kid['school']?['schoolName'] ?? kid['schoolName'] ?? '—';
     final String distance = kid['distance'] ?? '—';
+    final stopRow = _buildStopRow(kid, isPicked, isDropped);
 
-    return Container(
+    return Opacity(
+      // Absent / no-show kids are dimmed so the driver's eye goes to riders.
+      opacity: (kid['absent'] == true || kid['noShow'] == true) && !isPicked && !isDropped ? 0.6 : 1,
+      child: Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -431,7 +604,10 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+        Row(
           children: [
             // Avatar
             // Avatar — tap to view full profile (address, parent contact,
@@ -530,6 +706,13 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
             _buildActionButton(kid, isPicked, isDropped),
           ],
         ),
+            if (stopRow != null) ...[
+              const SizedBox(height: 6),
+              stopRow,
+            ],
+          ],
+        ),
+      ),
       ),
     );
   }
