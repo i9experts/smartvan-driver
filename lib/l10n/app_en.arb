@@ -162,5 +162,128 @@
   "alertDetailShift": "Shift",
   "alertDetailStartTime": "Start Time",
   "alertDetailViewTrip": "View Trip",
-  "alertNotFound": "Alert not found"
+  "alertNotFound": "Alert not found",
+  "feesTitle": "Fee Collection",
+  "feesLoadFailed": "Could not load students. Pull down to try again.",
+  "feesEmpty": "No students assigned to your van yet.",
+  "feesSummaryHeading": "This month · {paid}/{students} paid",
+  "@feesSummaryHeading": {
+    "placeholders": {
+      "paid": {
+        "type": "int"
+      },
+      "students": {
+        "type": "int"
+      }
+    }
+  },
+  "feesCollectedByYou": "Collected by you",
+  "feesPaidOnline": "Paid online",
+  "feesPending": "Pending",
+  "feesConfirmTitle": "Confirm Payment",
+  "feesConfirmBody": "Mark {name}'s transport fee as paid (cash collected)?",
+  "@feesConfirmBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "feesConfirm": "Confirm",
+  "feesPaymentRecorded": "Payment recorded for {name}",
+  "@feesPaymentRecorded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "feesPaymentFailed": "Failed to record payment.",
+  "feesStatusPaid": "Paid",
+  "feesStatusOverdue": "Overdue",
+  "feesStatusPending": "Pending",
+  "feesStatusNotSetUp": "Not Set Up",
+  "feesGrade": "Grade {grade}",
+  "@feesGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "feesReceipt": "Receipt",
+  "feesMarkPaidCash": "Mark as Paid (Cash)",
+  "feesUnknownStudent": "Unknown",
+  "receiptDefaultTitle": "Transport fee receipt",
+  "receiptNumber": "Receipt #",
+  "receiptStudent": "Student",
+  "receiptGrade": "Grade",
+  "receiptMonth": "Month",
+  "receiptPaidVia": "Paid via",
+  "receiptDate": "Date",
+  "receiptShareWhatsApp": "Share on WhatsApp",
+  "receiptLoadFailed": "Could not load the receipt.",
+  "receiptShareTitle": "🧾 {school} — Transport fee receipt",
+  "@receiptShareTitle": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptShareNumber": "Receipt #: {number}",
+  "@receiptShareNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptShareStudent": "Student: {name}",
+  "@receiptShareStudent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptShareMonth": "Month: {month}",
+  "@receiptShareMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptShareAmount": "Amount: {amount}",
+  "@receiptShareAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptSharePaidVia": "Paid via: {method}",
+  "@receiptSharePaidVia": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptShareDate": "Date: {date}",
+  "@receiptShareDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentMethodCash": "Cash",
+  "paymentMethodJazzcash": "JazzCash",
+  "paymentMethodEasypaisa": "Easypaisa",
+  "paymentMethodRaast": "Raast",
+  "paymentMethodBankTransfer": "Bank transfer",
+  "paymentMethodCard": "Card",
+  "paymentMethodOther": "Other"
 }

@@ -397,4 +397,156 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertNotFound => 'Alert not found';
+
+  @override
+  String get feesTitle => 'Fee Collection';
+
+  @override
+  String get feesLoadFailed =>
+      'Could not load students. Pull down to try again.';
+
+  @override
+  String get feesEmpty => 'No students assigned to your van yet.';
+
+  @override
+  String feesSummaryHeading(int paid, int students) {
+    return 'This month · $paid/$students paid';
+  }
+
+  @override
+  String get feesCollectedByYou => 'Collected by you';
+
+  @override
+  String get feesPaidOnline => 'Paid online';
+
+  @override
+  String get feesPending => 'Pending';
+
+  @override
+  String get feesConfirmTitle => 'Confirm Payment';
+
+  @override
+  String feesConfirmBody(String name) {
+    return 'Mark $name\'s transport fee as paid (cash collected)?';
+  }
+
+  @override
+  String get feesConfirm => 'Confirm';
+
+  @override
+  String feesPaymentRecorded(String name) {
+    return 'Payment recorded for $name';
+  }
+
+  @override
+  String get feesPaymentFailed => 'Failed to record payment.';
+
+  @override
+  String get feesStatusPaid => 'Paid';
+
+  @override
+  String get feesStatusOverdue => 'Overdue';
+
+  @override
+  String get feesStatusPending => 'Pending';
+
+  @override
+  String get feesStatusNotSetUp => 'Not Set Up';
+
+  @override
+  String feesGrade(String grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String get feesReceipt => 'Receipt';
+
+  @override
+  String get feesMarkPaidCash => 'Mark as Paid (Cash)';
+
+  @override
+  String get feesUnknownStudent => 'Unknown';
+
+  @override
+  String get receiptDefaultTitle => 'Transport fee receipt';
+
+  @override
+  String get receiptNumber => 'Receipt #';
+
+  @override
+  String get receiptStudent => 'Student';
+
+  @override
+  String get receiptGrade => 'Grade';
+
+  @override
+  String get receiptMonth => 'Month';
+
+  @override
+  String get receiptPaidVia => 'Paid via';
+
+  @override
+  String get receiptDate => 'Date';
+
+  @override
+  String get receiptShareWhatsApp => 'Share on WhatsApp';
+
+  @override
+  String get receiptLoadFailed => 'Could not load the receipt.';
+
+  @override
+  String receiptShareTitle(String school) {
+    return '🧾 $school — Transport fee receipt';
+  }
+
+  @override
+  String receiptShareNumber(String number) {
+    return 'Receipt #: $number';
+  }
+
+  @override
+  String receiptShareStudent(String name) {
+    return 'Student: $name';
+  }
+
+  @override
+  String receiptShareMonth(String month) {
+    return 'Month: $month';
+  }
+
+  @override
+  String receiptShareAmount(String amount) {
+    return 'Amount: $amount';
+  }
+
+  @override
+  String receiptSharePaidVia(String method) {
+    return 'Paid via: $method';
+  }
+
+  @override
+  String receiptShareDate(String date) {
+    return 'Date: $date';
+  }
+
+  @override
+  String get paymentMethodCash => 'Cash';
+
+  @override
+  String get paymentMethodJazzcash => 'JazzCash';
+
+  @override
+  String get paymentMethodEasypaisa => 'Easypaisa';
+
+  @override
+  String get paymentMethodRaast => 'Raast';
+
+  @override
+  String get paymentMethodBankTransfer => 'Bank transfer';
+
+  @override
+  String get paymentMethodCard => 'Card';
+
+  @override
+  String get paymentMethodOther => 'Other';
 }

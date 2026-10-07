@@ -819,6 +819,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Alert not found'**
   String get alertNotFound;
+
+  /// No description provided for @feesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee Collection'**
+  String get feesTitle;
+
+  /// No description provided for @feesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load students. Pull down to try again.'**
+  String get feesLoadFailed;
+
+  /// No description provided for @feesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No students assigned to your van yet.'**
+  String get feesEmpty;
+
+  /// No description provided for @feesSummaryHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'This month · {paid}/{students} paid'**
+  String feesSummaryHeading(int paid, int students);
+
+  /// No description provided for @feesCollectedByYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Collected by you'**
+  String get feesCollectedByYou;
+
+  /// No description provided for @feesPaidOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid online'**
+  String get feesPaidOnline;
+
+  /// No description provided for @feesPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get feesPending;
+
+  /// No description provided for @feesConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Payment'**
+  String get feesConfirmTitle;
+
+  /// No description provided for @feesConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {name}\'s transport fee as paid (cash collected)?'**
+  String feesConfirmBody(String name);
+
+  /// No description provided for @feesConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get feesConfirm;
+
+  /// No description provided for @feesPaymentRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment recorded for {name}'**
+  String feesPaymentRecorded(String name);
+
+  /// No description provided for @feesPaymentFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to record payment.'**
+  String get feesPaymentFailed;
+
+  /// No description provided for @feesStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get feesStatusPaid;
+
+  /// No description provided for @feesStatusOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get feesStatusOverdue;
+
+  /// No description provided for @feesStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get feesStatusPending;
+
+  /// No description provided for @feesStatusNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Set Up'**
+  String get feesStatusNotSetUp;
+
+  /// No description provided for @feesGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String feesGrade(String grade);
+
+  /// No description provided for @feesReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get feesReceipt;
+
+  /// No description provided for @feesMarkPaidCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Paid (Cash)'**
+  String get feesMarkPaidCash;
+
+  /// No description provided for @feesUnknownStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get feesUnknownStudent;
+
+  /// No description provided for @receiptDefaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport fee receipt'**
+  String get receiptDefaultTitle;
+
+  /// No description provided for @receiptNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt #'**
+  String get receiptNumber;
+
+  /// No description provided for @receiptStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get receiptStudent;
+
+  /// No description provided for @receiptGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get receiptGrade;
+
+  /// No description provided for @receiptMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get receiptMonth;
+
+  /// No description provided for @receiptPaidVia.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid via'**
+  String get receiptPaidVia;
+
+  /// No description provided for @receiptDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get receiptDate;
+
+  /// No description provided for @receiptShareWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Share on WhatsApp'**
+  String get receiptShareWhatsApp;
+
+  /// No description provided for @receiptLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the receipt.'**
+  String get receiptLoadFailed;
+
+  /// No description provided for @receiptShareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🧾 {school} — Transport fee receipt'**
+  String receiptShareTitle(String school);
+
+  /// No description provided for @receiptShareNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt #: {number}'**
+  String receiptShareNumber(String number);
+
+  /// No description provided for @receiptShareStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student: {name}'**
+  String receiptShareStudent(String name);
+
+  /// No description provided for @receiptShareMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month: {month}'**
+  String receiptShareMonth(String month);
+
+  /// No description provided for @receiptShareAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount: {amount}'**
+  String receiptShareAmount(String amount);
+
+  /// No description provided for @receiptSharePaidVia.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid via: {method}'**
+  String receiptSharePaidVia(String method);
+
+  /// No description provided for @receiptShareDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date: {date}'**
+  String receiptShareDate(String date);
+
+  /// No description provided for @paymentMethodCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get paymentMethodCash;
+
+  /// No description provided for @paymentMethodJazzcash.
+  ///
+  /// In en, this message translates to:
+  /// **'JazzCash'**
+  String get paymentMethodJazzcash;
+
+  /// No description provided for @paymentMethodEasypaisa.
+  ///
+  /// In en, this message translates to:
+  /// **'Easypaisa'**
+  String get paymentMethodEasypaisa;
+
+  /// No description provided for @paymentMethodRaast.
+  ///
+  /// In en, this message translates to:
+  /// **'Raast'**
+  String get paymentMethodRaast;
+
+  /// No description provided for @paymentMethodBankTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer'**
+  String get paymentMethodBankTransfer;
+
+  /// No description provided for @paymentMethodCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get paymentMethodCard;
+
+  /// No description provided for @paymentMethodOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get paymentMethodOther;
 }
 
 class _AppLocalizationsDelegate

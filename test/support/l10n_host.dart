@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,4 +56,11 @@ Widget routerHost(
       routerConfig: router,
     ),
   );
+}
+
+/// Makes the test surface tall so list screens build every row.
+void useTallView(WidgetTester tester, {double height = 3200}) {
+  tester.view.physicalSize = Size(800, height);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
 }
