@@ -14,6 +14,7 @@ analyzer:
 
 custom_lint:
   rules:
-    # TripTrackingNotifier exposes a public `tripId` getter used across the
-    # app; it is restructured in R.4 (trip/tracking), not in the foundation.
+    # TODO(R.4, trip/tracking step): turn this rule back on. TripTrackingNotifier
+    # exposes a public `tripId` getter used across the app; it is restructured
+    # in that step.
     - avoid_public_notifier_properties: false

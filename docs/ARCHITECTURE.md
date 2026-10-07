@@ -70,7 +70,9 @@ lib/
       widgets/         pieces of the screen
 ```
 
-**`core/` must never import `features/`.** Cross-cutting events (sign-out,
+**`core/` must never import `features/`.** (TODO: today `core/session/app_session.dart`
+still imports the trip-tracking provider; this goes away by the end of R.4, and CI
+then gets a check that fails if anything under `lib/core/` imports `features/`.) Cross-cutting events (sign-out,
 "trip ended") go through providers/listeners, not direct imports.
 
 ## 3. Dependency injection
@@ -104,7 +106,9 @@ last screen is migrated, then it's deleted.
   repository unwraps by hand.
 - Errors: a sealed `AppException`:
   `NetworkException`, `UnauthorizedException`, `ServerException`,
-  `ApiError(code, message, status)`, `UnknownException`.
+  `ApiError(code, message, status, data)`, `UnknownException`. `ApiError.data`
+  is the raw error body, for the few endpoints that put extra payload in it
+  (e.g. the kids list of `KIDS_NOT_DROPPED`).
   The Dio interceptor converts every failure into one of these.
   `ApiError.code` carries the backend codes (`KIDS_NOT_DROPPED`,
   `CHECKLIST_REQUIRED`, `INVALID_QR`, ...).
