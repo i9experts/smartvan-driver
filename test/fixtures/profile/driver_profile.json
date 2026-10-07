@@ -1,0 +1,21 @@
+{
+  "data": {
+    "_id": "65f000000000000000000c01",
+    "fullname": "Test Driver",
+    "email": "test.driver@example.test",
+    "phoneNo": "0300-0000010",
+    "alternatePhoneNo": "0300-0000011",
+    "address": "10 Example Road, Test City",
+    "NIC": "00000-0000000-0",
+    "image": "https://example.test/img/driver.png",
+    "vanModel": "Sample Hiace",
+    "plateNumber": "TST-1234",
+    "seats": 14,
+    "licenceImageFront": "https://example.test/doc/licence-front.png",
+    "licenceImageBack": "https://example.test/doc/licence-back.png",
+    "vehicleCardImageFront": "https://example.test/doc/card-front.png",
+    "vehicleCardImageBack": "",
+    "expiryDateLicense": "2027-03-15",
+    "expiryDateVehicleCard": "2026-11-30T00:00:00.000Z"
+  }
+}

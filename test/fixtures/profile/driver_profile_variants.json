@@ -1,0 +1,9 @@
+{
+  "id": "driver-2",
+  "name": "Test Driver Two",
+  "seats": "12",
+  "licenseImageFront": "https://example.test/doc/licence-front-2.png",
+  "licenseImageBack": "https://example.test/doc/licence-back-2.png",
+  "expiryDateLicence": "15/03/2027",
+  "expiryDateVehicleCard": "not a date"
+}
