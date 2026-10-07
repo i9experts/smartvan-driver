@@ -1359,6 +1359,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your child is not at the pickup point. Please call me.'**
   String get chatQuickNotAtStop;
+
+  /// No description provided for @scanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan student card'**
+  String get scanTitle;
+
+  /// No description provided for @scanTorch.
+  ///
+  /// In en, this message translates to:
+  /// **'Torch'**
+  String get scanTorch;
+
+  /// No description provided for @scanHintFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the student\'s QR card.'**
+  String get scanHintFirst;
+
+  /// No description provided for @scanHintSession.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} scanned this session. Keep scanning.'**
+  String scanHintSession(int count);
+
+  /// No description provided for @scanNotACardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a SmartVan card'**
+  String get scanNotACardTitle;
+
+  /// No description provided for @scanNotACardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the student\'s SmartVan QR card.'**
+  String get scanNotACardBody;
+
+  /// No description provided for @scanNoTripTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No active trip'**
+  String get scanNoTripTitle;
+
+  /// No description provided for @scanNoTripBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a trip before scanning.'**
+  String get scanNoTripBody;
+
+  /// No description provided for @scanPickedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get scanPickedUp;
+
+  /// No description provided for @scanDroppedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped off'**
+  String get scanDroppedOff;
+
+  /// No description provided for @scanErrInvalidQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Card not recognised'**
+  String get scanErrInvalidQr;
+
+  /// No description provided for @scanErrKidNotOnTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on this van'**
+  String get scanErrKidNotOnTrip;
+
+  /// No description provided for @scanErrAlreadyPicked.
+  ///
+  /// In en, this message translates to:
+  /// **'Already picked up'**
+  String get scanErrAlreadyPicked;
+
+  /// No description provided for @scanErrAlreadyDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Already dropped'**
+  String get scanErrAlreadyDropped;
+
+  /// No description provided for @scanErrLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS needed'**
+  String get scanErrLocationRequired;
+
+  /// No description provided for @scanErrTripNotOngoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip not in progress'**
+  String get scanErrTripNotOngoing;
+
+  /// No description provided for @scanErrNoInternetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet'**
+  String get scanErrNoInternetTitle;
+
+  /// No description provided for @scanErrNoInternetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet. Scanning needs a connection — use the Passengers list instead (it works offline).'**
+  String get scanErrNoInternetBody;
+
+  /// No description provided for @scanErrDefaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan failed'**
+  String get scanErrDefaultTitle;
+
+  /// No description provided for @scanErrDefaultBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan failed. Try again.'**
+  String get scanErrDefaultBody;
+
+  /// No description provided for @scanCameraPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera permission is needed to scan cards. Enable it in app settings.'**
+  String get scanCameraPermission;
+
+  /// No description provided for @scanCameraFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera could not start ({code}).'**
+  String scanCameraFailed(String code);
+
+  /// No description provided for @scanStudentFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get scanStudentFallback;
 }
 
 class _AppLocalizationsDelegate

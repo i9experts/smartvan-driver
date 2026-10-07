@@ -44,6 +44,7 @@ If something here doesn't fit the real code, stop and ask; don't improvise.
 | build_runner (dev) | 2.5.4 | |
 | mocktail (dev) | 1.0.5 | |
 | http_mock_adapter (dev) | 0.6.1 | |
+| fake_async (dev) | 1.3.3 | timers in controller tests |
 | dio | 5.9.2 | already a dependency |
 | intl | 0.20.2 | bumped from 0.19.0, required by `flutter_localizations` |
 | flutter_lints (dev) | 4.0.0 | unchanged |

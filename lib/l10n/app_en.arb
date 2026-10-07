@@ -411,5 +411,42 @@
   "chatQuickSendOut": "Please send your child out.",
   "chatQuickRunningLate": "Running about 10 minutes late.",
   "chatQuickTraffic": "Stuck in traffic, will be there soon.",
-  "chatQuickNotAtStop": "Your child is not at the pickup point. Please call me."
+  "chatQuickNotAtStop": "Your child is not at the pickup point. Please call me.",
+  "scanTitle": "Scan student card",
+  "scanTorch": "Torch",
+  "scanHintFirst": "Point the camera at the student's QR card.",
+  "scanHintSession": "{count} scanned this session. Keep scanning.",
+  "@scanHintSession": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scanNotACardTitle": "Not a SmartVan card",
+  "scanNotACardBody": "Scan the student's SmartVan QR card.",
+  "scanNoTripTitle": "No active trip",
+  "scanNoTripBody": "Start a trip before scanning.",
+  "scanPickedUp": "Picked up",
+  "scanDroppedOff": "Dropped off",
+  "scanErrInvalidQr": "Card not recognised",
+  "scanErrKidNotOnTrip": "Not on this van",
+  "scanErrAlreadyPicked": "Already picked up",
+  "scanErrAlreadyDropped": "Already dropped",
+  "scanErrLocationRequired": "GPS needed",
+  "scanErrTripNotOngoing": "Trip not in progress",
+  "scanErrNoInternetTitle": "No internet",
+  "scanErrNoInternetBody": "No internet. Scanning needs a connection — use the Passengers list instead (it works offline).",
+  "scanErrDefaultTitle": "Scan failed",
+  "scanErrDefaultBody": "Scan failed. Try again.",
+  "scanCameraPermission": "Camera permission is needed to scan cards. Enable it in app settings.",
+  "scanCameraFailed": "Camera could not start ({code}).",
+  "@scanCameraFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "scanStudentFallback": "Student"
 }

@@ -16,7 +16,7 @@ import '../features/profile/presentation/screens/documents_screen.dart';
 import '../features/profile/presentation/screens/change_password_screen.dart';
 import '../features/profile/presentation/screens/report_issue_screen.dart';
 import '../features/fees/presentation/screens/fee_collection_screen.dart';
-import '../features/scan/screens/scan_screen.dart';
+import '../features/scan/presentation/screens/scan_screen.dart';
 import '../features/checklist/presentation/screens/checklist_screen.dart';
 import '../features/stats/presentation/screens/driver_stats_screen.dart';
 import '../features/chat/data/models/conversation.dart';

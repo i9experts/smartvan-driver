@@ -731,4 +731,79 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get chatQuickNotAtStop =>
       'Your child is not at the pickup point. Please call me.';
+
+  @override
+  String get scanTitle => 'Scan student card';
+
+  @override
+  String get scanTorch => 'Torch';
+
+  @override
+  String get scanHintFirst => 'Point the camera at the student\'s QR card.';
+
+  @override
+  String scanHintSession(int count) {
+    return '$count scanned this session. Keep scanning.';
+  }
+
+  @override
+  String get scanNotACardTitle => 'Not a SmartVan card';
+
+  @override
+  String get scanNotACardBody => 'Scan the student\'s SmartVan QR card.';
+
+  @override
+  String get scanNoTripTitle => 'No active trip';
+
+  @override
+  String get scanNoTripBody => 'Start a trip before scanning.';
+
+  @override
+  String get scanPickedUp => 'Picked up';
+
+  @override
+  String get scanDroppedOff => 'Dropped off';
+
+  @override
+  String get scanErrInvalidQr => 'Card not recognised';
+
+  @override
+  String get scanErrKidNotOnTrip => 'Not on this van';
+
+  @override
+  String get scanErrAlreadyPicked => 'Already picked up';
+
+  @override
+  String get scanErrAlreadyDropped => 'Already dropped';
+
+  @override
+  String get scanErrLocationRequired => 'GPS needed';
+
+  @override
+  String get scanErrTripNotOngoing => 'Trip not in progress';
+
+  @override
+  String get scanErrNoInternetTitle => 'No internet';
+
+  @override
+  String get scanErrNoInternetBody =>
+      'No internet. Scanning needs a connection — use the Passengers list instead (it works offline).';
+
+  @override
+  String get scanErrDefaultTitle => 'Scan failed';
+
+  @override
+  String get scanErrDefaultBody => 'Scan failed. Try again.';
+
+  @override
+  String get scanCameraPermission =>
+      'Camera permission is needed to scan cards. Enable it in app settings.';
+
+  @override
+  String scanCameraFailed(String code) {
+    return 'Camera could not start ($code).';
+  }
+
+  @override
+  String get scanStudentFallback => 'Student';
 }
