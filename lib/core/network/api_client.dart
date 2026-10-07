@@ -1,0 +1,105 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'app_exception.dart';
+import 'json_helpers.dart';
+
+/// Turns the (already unwrapped) response body into a model.
+typedef JsonParser<T> = T Function(Object? json);
+
+/// Typed HTTP client. Repositories use [get] / [post] / [put] / [patch] /
+/// [delete]: they get a parsed model back or an [AppException] thrown.
+/// The `*Raw` methods return the Dio `Response` and only exist for the
+/// legacy static `ApiService` until the last screen is migrated.
+class ApiClient {
+  ApiClient(this._dio);
+
+  final Dio _dio;
+
+  Future<T> get<T>(String path, JsonParser<T> parse,
+          {Map<String, dynamic>? query}) =>
+      _typed(() => _dio.get<Object?>(path, queryParameters: query), parse);
+
+  Future<T> post<T>(String path, JsonParser<T> parse,
+          {Object? body, Map<String, dynamic>? query}) =>
+      _typed(
+          () => _dio.post<Object?>(path, data: body, queryParameters: query),
+          parse);
+
+  Future<T> put<T>(String path, JsonParser<T> parse,
+          {Object? body, Map<String, dynamic>? query}) =>
+      _typed(
+          () => _dio.put<Object?>(path, data: body, queryParameters: query),
+          parse);
+
+  Future<T> patch<T>(String path, JsonParser<T> parse,
+          {Object? body, Map<String, dynamic>? query}) =>
+      _typed(
+          () => _dio.patch<Object?>(path, data: body, queryParameters: query),
+          parse);
+
+  Future<T> delete<T>(String path, JsonParser<T> parse,
+          {Map<String, dynamic>? query}) =>
+      _typed(() => _dio.delete<Object?>(path, queryParameters: query), parse);
+
+  /// Multipart upload to `/upload/image` (field `file`); returns the hosted
+  /// URL, or null if the server answered 2xx without one.
+  Future<String?> uploadImage(File file) async {
+    try {
+      return await uploadImageRaw(file);
+    } on DioException catch (e) {
+      throw AppException.from(e);
+    }
+  }
+
+  // ---- legacy, for ApiService only ----------------------------------
+
+  /// Same as [uploadImage] but lets the `DioException` through.
+  Future<String?> uploadImageRaw(File file) async {
+    final form = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        file.path,
+        filename: file.path.split(Platform.pathSeparator).last,
+      ),
+    });
+    final response = await _dio.post<Object?>(
+      '/upload/image',
+      data: form,
+      options: Options(contentType: Headers.multipartFormDataContentType),
+    );
+    final body = response.data;
+    return body is Map && body['url'] is String ? body['url'] as String : null;
+  }
+
+  Future<Response<dynamic>> getRaw(String path) => _dio.get<dynamic>(path);
+
+  Future<Response<dynamic>> postRaw(String path, Map<String, dynamic> data) =>
+      _dio.post<dynamic>(path, data: data);
+
+  Future<Response<dynamic>> putRaw(String path, Map<String, dynamic> data) =>
+      _dio.put<dynamic>(path, data: data);
+
+  Future<Response<dynamic>> patchRaw(String path, Map<String, dynamic> data) =>
+      _dio.patch<dynamic>(path, data: data);
+
+  Future<Response<dynamic>> deleteRaw(String path) =>
+      _dio.delete<dynamic>(path);
+
+  Future<T> _typed<T>(
+    Future<Response<Object?>> Function() send,
+    JsonParser<T> parse,
+  ) async {
+    final Response<Object?> response;
+    try {
+      response = await send();
+    } on DioException catch (e) {
+      throw AppException.from(e);
+    }
+    try {
+      return parse(unwrapData(response.data));
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw UnknownException(e);
+    }
+  }
+}
