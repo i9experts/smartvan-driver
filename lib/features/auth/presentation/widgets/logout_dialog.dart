@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
-import '../../../../core/session/app_session.dart';
+import '../../application/session_controller.dart';
 import '../../../../l10n/l10n.dart';
 
 /// Confirmation before signing out. Warns when pickups/drops are still
 /// waiting to sync, because a manual logout discards them.
 Future<void> showLogoutDialog(BuildContext context, WidgetRef ref) {
   final pending = ref.read(syncQueueProvider).pending.value;
+  final session = ref.read(sessionProvider);
   final l10n = context.l10n;
   return showDialog<void>(
     context: context,
@@ -15,8 +16,8 @@ Future<void> showLogoutDialog(BuildContext context, WidgetRef ref) {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text(
         l10n.logoutTitle,
-        style: const TextStyle(
-            fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+        style:
+            const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
       ),
       content: Text(
         pending == 0 ? l10n.logoutConfirm : l10n.logoutPendingSync(pending),
@@ -34,7 +35,7 @@ Future<void> showLogoutDialog(BuildContext context, WidgetRef ref) {
         ElevatedButton(
           onPressed: () async {
             Navigator.pop(dialogContext);
-            await AppSession.signOut();
+            await session.signOut();
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFFF4B4B),

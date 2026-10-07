@@ -215,24 +215,4 @@ void main() {
       expect(unauthorizedCalls, 1);
     });
   });
-
-  group('legacy raw helpers', () {
-    test('return the Response and keep DioException with the AppException',
-        () async {
-      adapter
-        ..onGet('/ok', (s) => s.reply(200, {'data': 1}))
-        ..onGet('/err', (s) => s.reply(400, {'message': 'nope'}));
-      final res = await client().getRaw('/ok');
-      expect(res.statusCode, 200);
-      expect(res.data, {'data': 1});
-
-      try {
-        await client().getRaw('/err');
-        fail('should throw');
-      } on DioException catch (e) {
-        expect(e.response?.statusCode, 400);
-        expect(e.error, isA<ApiError>());
-      }
-    });
-  });
 }

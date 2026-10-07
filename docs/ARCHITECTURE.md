@@ -71,10 +71,11 @@ lib/
       widgets/         pieces of the screen
 ```
 
-**`core/` must never import `features/`.** (TODO: today `core/session/app_session.dart`
-still imports the trip-tracking provider; this goes away by the end of R.4, and CI
-then gets a check that fails if anything under `lib/core/` imports `features/`.) Cross-cutting events (sign-out,
-"trip ended") go through providers/listeners, not direct imports.
+**`core/` must never import `features/`.** CI fails if anything under `lib/core/`
+imports `features/`. Cross-cutting events (sign-out, "trip ended") go through
+providers/listeners, not direct imports: core exposes a provider (e.g.
+`unauthorizedHandlerProvider`, `routerProvider`) and `lib/app/app_container.dart`
+wires it to the feature that handles it (`SessionController`).
 
 ## 3. Dependency injection
 
@@ -89,13 +90,12 @@ override it:
 | `syncQueueProvider` | `SyncQueue.instance` |
 | `locationServiceProvider` | `Location()` created inside `TripTrackingNotifier` |
 | `socketFactoryProvider` | `io.io(...)` created inline |
-| `routerProvider` | global `appRouter` |
+| `routerProvider` (core, overridden in `app/app_container.dart`) | global `appRouter` |
+| `sessionProvider` (`SessionController`) | static `AppSession` |
 
-`appContainer` stays only in `bootstrap.dart`, for code that runs outside the
-widget tree (FCM background handler).
-
-Transition: `ApiService` becomes a thin wrapper around `ApiClient` until the
-last screen is migrated, then it's deleted.
+`appContainer` (in `lib/app/app_container.dart`) is used only by `bootstrap.dart`
+and `FCMService`, for code that runs outside the widget tree. `ApiService` and
+the `*Raw` methods of `ApiClient` are gone.
 
 ## 4. Networking and errors
 
@@ -196,7 +196,7 @@ last screen is migrated, then it's deleted.
 | R.2 | All models + fixtures + tests |
 | R.3 | Repositories per feature + tests |
 | R.4 | Feature by feature to controllers + typed routes: auth → profile/documents → alerts → fees → stats → checklist → chat → scan → passengers → trip/tracking → home. **Every string the feature shows moves to `app_en.arb` in the same commit.** |
-| R.5 | withOpacity migration, delete ApiService/old statics, file splits, remaining widget tests |
+| R.5 | withOpacity migration, file splits, remaining widget tests |
 | R.6 | Urdu: `app_ur.arb` complete, RTL pass on every screen, language switch (§12) |
 | R.7 | Driver voice prompts (§13) |
 

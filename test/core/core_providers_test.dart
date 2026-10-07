@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:location/location.dart' as loc;
 import 'package:mocktail/mocktail.dart';
 import 'package:smartvan_driver/core/providers/core_providers.dart';
-import 'package:smartvan_driver/app/router.dart';
+import 'package:smartvan_driver/core/router/router_provider.dart';
 import 'package:smartvan_driver/core/sync/sync_queue.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -16,11 +16,10 @@ class _FakeLocation extends Mock implements loc.Location {}
 class _FakeSocket extends Mock implements io.Socket {}
 
 void main() {
-  test('defaults point at the existing singletons', () {
+  test('defaults give a real sync queue', () {
     final c = ProviderContainer();
     addTearDown(c.dispose);
     expect(c.read(syncQueueProvider), isA<SyncQueue>());
-    expect(c.read(routerProvider), same(appRouter));
   });
 
   test('every seam can be replaced with a fake', () {

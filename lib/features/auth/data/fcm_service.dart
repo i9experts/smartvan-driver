@@ -2,7 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/providers/app_container.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderContainer;
 import '../../../core/storage/token_store.dart';
 import 'auth_repository.dart';
 
@@ -18,7 +18,12 @@ class FCMService {
     importance: Importance.high,
   );
 
-  static Future<void> initialize() async {
+  /// Where the token is saved from: the app's container, given to
+  /// [initialize]. Without it (push not set up) saving a token is skipped.
+  static ProviderContainer? _container;
+
+  static Future<void> initialize(ProviderContainer container) async {
+    _container = container;
     await _messaging.requestPermission(
       alert: true,
       badge: true,
@@ -70,10 +75,12 @@ class FCMService {
   }
 
   static Future<void> _saveFCMToken(String token) async {
+    final container = _container;
+    if (container == null) return;
     try {
       final prefs = await SharedPreferences.getInstance();
-      if (await appContainer.read(tokenStorageProvider).hasToken()) {
-        await appContainer.read(authRepositoryProvider).registerFcmToken(token);
+      if (await container.read(tokenStorageProvider).hasToken()) {
+        await container.read(authRepositoryProvider).registerFcmToken(token);
       }
       await prefs.setString('fcm_token', token);
     } catch (e) {

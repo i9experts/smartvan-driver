@@ -6,11 +6,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../core/providers/app_container.dart';
 import '../core/providers/core_providers.dart';
 import '../features/auth/data/fcm_service.dart';
 import '../features/trip/data/active_trip_store.dart';
 import 'app.dart';
+import 'app_container.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -34,7 +34,7 @@ Future<void> bootstrap() async {
       // Push setup (permission prompt, APNs/FCM token) can stall for a long
       // time - e.g. on the iOS simulator there is no APNs token - so never
       // block the first frame on it.
-      unawaited(FCMService.initialize()
+      unawaited(FCMService.initialize(appContainer)
           .timeout(const Duration(seconds: 20))
           .catchError((Object e) {
         debugPrint('FCM init failed, continuing without push: $e');

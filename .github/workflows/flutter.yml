@@ -25,8 +25,13 @@ jobs:
       - name: Generated code is committed
         run: git diff --exit-code
 
-      # TODO(end of R.4): add a step that fails if any file under lib/core/
-      # imports features/ (docs/ARCHITECTURE.md §2).
+      - name: core/ must not import features/
+        run: |
+          if grep -rnE "^(import|export) .*(/|')features/" lib/core; then
+            echo "lib/core must not import features/ (docs/ARCHITECTURE.md §2)"
+            exit 1
+          fi
+
       - name: Analyze
         run: flutter analyze
 

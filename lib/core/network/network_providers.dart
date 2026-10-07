@@ -7,7 +7,7 @@ import 'interceptors.dart';
 
 /// What to do when the server says the session is no longer valid. The
 /// default does nothing; the app container wires it to sign-out
-/// (see core/providers/app_container.dart) so `core/network` never has to
+/// (see app/app_container.dart) so `core/network` never has to
 /// import the session or any feature.
 final unauthorizedHandlerProvider =
     Provider<Future<void> Function()>((ref) => () async {});
