@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:location/location.dart' as loc;
 import 'package:mocktail/mocktail.dart';
 import 'package:smartvan_driver/core/providers/core_providers.dart';
-import 'package:smartvan_driver/core/router/app_router.dart';
+import 'package:smartvan_driver/app/router.dart';
 import 'package:smartvan_driver/core/sync/sync_queue.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 

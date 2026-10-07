@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import '../../features/trip/services/trip_tracking_service.dart';
 import '../providers/app_container.dart';
-import '../router/app_router.dart';
+import '../../app/router.dart';
+import '../router/app_routes.dart';
 import '../storage/token_storage.dart';
 import '../sync/sync_queue.dart';
 
@@ -34,7 +35,7 @@ class AppSession {
       await appContainer.read(tripTrackingProvider.notifier).stop();
       await TokenStorage.clear();
       if (reason == 'logout') await SyncQueue.instance.clear();
-      appRouter.go('/login');
+      appRouter.go(AppRoutes.login);
     } finally {
       _signingOut = false;
     }

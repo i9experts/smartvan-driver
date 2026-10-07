@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smartvan_driver/app/app.dart';
-import 'package:smartvan_driver/core/providers/core_providers.dart';
+import 'package:smartvan_driver/app/router.dart';
 
 void main() {
   testWidgets('app shell uses routerProvider and the l10n title',

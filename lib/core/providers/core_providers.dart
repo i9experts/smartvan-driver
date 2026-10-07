@@ -1,8 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:location/location.dart' as loc;
 import 'package:socket_io_client/socket_io_client.dart' as io;
-import '../router/app_router.dart';
 import '../sync/sync_queue.dart';
 
 /// Dependency-injection seams from docs/ARCHITECTURE.md §3. Each wraps the
@@ -24,6 +22,3 @@ typedef SocketFactory = io.Socket Function(
 final socketFactoryProvider = Provider<SocketFactory>(
   (ref) => (url, options) => io.io(url, options),
 );
-
-/// The app router (was the global `appRouter`).
-final routerProvider = Provider<GoRouter>((ref) => appRouter);

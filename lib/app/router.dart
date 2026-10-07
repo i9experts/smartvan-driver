@@ -1,38 +1,42 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/auth/screens/splash_screen.dart';
-import '../../features/auth/screens/login_screen.dart';
-import '../../features/home/screens/home_screen.dart';
-import '../../features/trip/screens/trip_screen.dart';
-import '../../features/passengers/screens/passengers_screen.dart';
-import '../../features/passengers/screens/kid_profile_screen.dart';
-import '../../features/alerts/screens/alerts_screen.dart';
-import '../../features/alerts/screens/alert_detail_screen.dart';
-import '../../features/profile/screens/profile_screen.dart';
-import '../../features/profile/screens/edit_profile_screen.dart';
-import '../../features/profile/screens/documents_screen.dart';
-import '../../features/profile/screens/change_password_screen.dart';
-import '../../features/profile/screens/report_issue_screen.dart';
-import '../../features/fees/screens/fee_collection_screen.dart';
-import '../../features/scan/screens/scan_screen.dart';
-import '../../features/checklist/screens/checklist_screen.dart';
-import '../../features/stats/screens/driver_stats_screen.dart';
-import '../../features/chat/chat_api.dart';
-import '../../features/chat/screens/chat_screen.dart';
-import '../../features/chat/screens/conversations_screen.dart';
+import '../core/router/app_routes.dart';
+import '../features/auth/screens/splash_screen.dart';
+import '../features/auth/screens/login_screen.dart';
+import '../features/home/screens/home_screen.dart';
+import '../features/trip/screens/trip_screen.dart';
+import '../features/passengers/screens/passengers_screen.dart';
+import '../features/passengers/screens/kid_profile_screen.dart';
+import '../features/alerts/screens/alerts_screen.dart';
+import '../features/alerts/screens/alert_detail_screen.dart';
+import '../features/profile/screens/profile_screen.dart';
+import '../features/profile/screens/edit_profile_screen.dart';
+import '../features/profile/screens/documents_screen.dart';
+import '../features/profile/screens/change_password_screen.dart';
+import '../features/profile/screens/report_issue_screen.dart';
+import '../features/fees/screens/fee_collection_screen.dart';
+import '../features/scan/screens/scan_screen.dart';
+import '../features/checklist/screens/checklist_screen.dart';
+import '../features/stats/screens/driver_stats_screen.dart';
+import '../features/chat/chat_api.dart';
+import '../features/chat/screens/chat_screen.dart';
+import '../features/chat/screens/conversations_screen.dart';
 
+/// The one GoRouter. Transitional global: sign-out still navigates through it
+/// until AppSession moves into the auth feature.
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/splash',
+  initialLocation: AppRoutes.splash,
   routes: [
     GoRoute(
-      path: '/splash',
+      path: AppRoutes.splash,
       builder: (context, state) => const SplashScreen(),
     ),
     GoRoute(
-      path: '/login',
+      path: AppRoutes.login,
       builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
-      path: '/home',
+      path: AppRoutes.home,
       builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
@@ -57,7 +61,7 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: '/alerts',
+      path: AppRoutes.alerts,
       builder: (context, state) => const AlertsScreen(),
     ),
     GoRoute(
@@ -68,27 +72,27 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: '/profile',
+      path: AppRoutes.profile,
       builder: (context, state) => const ProfileScreen(),
     ),
     GoRoute(
-      path: '/edit-profile',
+      path: AppRoutes.editProfile,
       builder: (context, state) => const EditProfileScreen(),
     ),
     GoRoute(
-      path: '/documents',
+      path: AppRoutes.documents,
       builder: (context, state) => const DocumentsScreen(),
     ),
     GoRoute(
-      path: '/change-password',
+      path: AppRoutes.changePassword,
       builder: (context, state) => const ChangePasswordScreen(),
     ),
     GoRoute(
-      path: '/report-issue',
+      path: AppRoutes.reportIssue,
       builder: (context, state) => const ReportIssueScreen(),
     ),
     GoRoute(
-      path: '/chats',
+      path: AppRoutes.chats,
       builder: (context, state) => const ConversationsScreen(),
     ),
     GoRoute(
@@ -97,23 +101,25 @@ final GoRouter appRouter = GoRouter(
           ChatScreen(conversation: state.extra as Conversation),
     ),
     GoRoute(
-      path: '/stats',
+      path: AppRoutes.stats,
       builder: (context, state) => const DriverStatsScreen(),
     ),
     GoRoute(
-      path: '/checklist',
+      path: AppRoutes.checklist,
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
         return ChecklistScreen(routeId: extra?['routeId']?.toString());
       },
     ),
     GoRoute(
-      path: '/scan',
+      path: AppRoutes.scan,
       builder: (context, state) => const ScanScreen(),
     ),
     GoRoute(
-      path: '/fee-collection',
+      path: AppRoutes.feeCollection,
       builder: (context, state) => const FeeCollectionScreen(),
     ),
   ],
 );
+
+final routerProvider = Provider<GoRouter>((ref) => appRouter);
