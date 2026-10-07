@@ -18,7 +18,7 @@ import '../features/profile/presentation/screens/report_issue_screen.dart';
 import '../features/fees/presentation/screens/fee_collection_screen.dart';
 import '../features/scan/screens/scan_screen.dart';
 import '../features/checklist/screens/checklist_screen.dart';
-import '../features/stats/screens/driver_stats_screen.dart';
+import '../features/stats/presentation/screens/driver_stats_screen.dart';
 import '../features/chat/chat_api.dart';
 import '../features/chat/screens/chat_screen.dart';
 import '../features/chat/screens/conversations_screen.dart';

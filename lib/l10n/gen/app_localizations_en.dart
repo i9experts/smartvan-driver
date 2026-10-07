@@ -549,4 +549,86 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paymentMethodOther => 'Other';
+
+  @override
+  String get statsTitle => 'My driving stats';
+
+  @override
+  String statsDaysOption(int count) {
+    return '$count days';
+  }
+
+  @override
+  String get statsLoadFailed => 'Could not load your stats.';
+
+  @override
+  String get statsSafetyScore => 'Safety score';
+
+  @override
+  String get statsNoOverspeed => 'No overspeeding — great job!';
+
+  @override
+  String statsOverspeedEvents(int count, int limit) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count overspeed events (limit $limit km/h)',
+      one: '1 overspeed event (limit $limit km/h)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statsOverspeedEventsNoLimit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count overspeed events',
+      one: '1 overspeed event',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statsTrips => 'Trips';
+
+  @override
+  String get statsDistance => 'Distance';
+
+  @override
+  String get statsDrivingTime => 'Driving time';
+
+  @override
+  String get statsOnTimeStarts => 'On-time starts';
+
+  @override
+  String get statsDropOffs => 'Drop-offs';
+
+  @override
+  String get statsTopSpeed => 'Top speed';
+
+  @override
+  String statsKm(String value) {
+    return '$value km';
+  }
+
+  @override
+  String statsKmh(String value) {
+    return '$value km/h';
+  }
+
+  @override
+  String statsPercent(String value) {
+    return '$value%';
+  }
+
+  @override
+  String statsDurationHm(int hours, int minutes) {
+    return '${hours}h ${minutes}m';
+  }
+
+  @override
+  String statsDurationM(int minutes) {
+    return '${minutes}m';
+  }
 }

@@ -1077,6 +1077,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other'**
   String get paymentMethodOther;
+
+  /// No description provided for @statsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My driving stats'**
+  String get statsTitle;
+
+  /// No description provided for @statsDaysOption.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String statsDaysOption(int count);
+
+  /// No description provided for @statsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your stats.'**
+  String get statsLoadFailed;
+
+  /// No description provided for @statsSafetyScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety score'**
+  String get statsSafetyScore;
+
+  /// No description provided for @statsNoOverspeed.
+  ///
+  /// In en, this message translates to:
+  /// **'No overspeeding — great job!'**
+  String get statsNoOverspeed;
+
+  /// No description provided for @statsOverspeedEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 overspeed event (limit {limit} km/h)} other{{count} overspeed events (limit {limit} km/h)}}'**
+  String statsOverspeedEvents(int count, int limit);
+
+  /// No description provided for @statsOverspeedEventsNoLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 overspeed event} other{{count} overspeed events}}'**
+  String statsOverspeedEventsNoLimit(int count);
+
+  /// No description provided for @statsTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get statsTrips;
+
+  /// No description provided for @statsDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get statsDistance;
+
+  /// No description provided for @statsDrivingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Driving time'**
+  String get statsDrivingTime;
+
+  /// No description provided for @statsOnTimeStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'On-time starts'**
+  String get statsOnTimeStarts;
+
+  /// No description provided for @statsDropOffs.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop-offs'**
+  String get statsDropOffs;
+
+  /// No description provided for @statsTopSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Top speed'**
+  String get statsTopSpeed;
+
+  /// No description provided for @statsKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} km'**
+  String statsKm(String value);
+
+  /// No description provided for @statsKmh.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} km/h'**
+  String statsKmh(String value);
+
+  /// No description provided for @statsPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}%'**
+  String statsPercent(String value);
+
+  /// No description provided for @statsDurationHm.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h {minutes}m'**
+  String statsDurationHm(int hours, int minutes);
+
+  /// No description provided for @statsDurationM.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m'**
+  String statsDurationM(int minutes);
 }
 
 class _AppLocalizationsDelegate

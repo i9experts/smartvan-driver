@@ -285,5 +285,85 @@
   "paymentMethodRaast": "Raast",
   "paymentMethodBankTransfer": "Bank transfer",
   "paymentMethodCard": "Card",
-  "paymentMethodOther": "Other"
+  "paymentMethodOther": "Other",
+  "statsTitle": "My driving stats",
+  "statsDaysOption": "{count} days",
+  "@statsDaysOption": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsLoadFailed": "Could not load your stats.",
+  "statsSafetyScore": "Safety score",
+  "statsNoOverspeed": "No overspeeding — great job!",
+  "statsOverspeedEvents": "{count, plural, =1{1 overspeed event (limit {limit} km/h)} other{{count} overspeed events (limit {limit} km/h)}}",
+  "@statsOverspeedEvents": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "statsOverspeedEventsNoLimit": "{count, plural, =1{1 overspeed event} other{{count} overspeed events}}",
+  "@statsOverspeedEventsNoLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsTrips": "Trips",
+  "statsDistance": "Distance",
+  "statsDrivingTime": "Driving time",
+  "statsOnTimeStarts": "On-time starts",
+  "statsDropOffs": "Drop-offs",
+  "statsTopSpeed": "Top speed",
+  "statsKm": "{value} km",
+  "@statsKm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "statsKmh": "{value} km/h",
+  "@statsKmh": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "statsPercent": "{value}%",
+  "@statsPercent": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "statsDurationHm": "{hours}h {minutes}m",
+  "@statsDurationHm": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "statsDurationM": "{minutes}m",
+  "@statsDurationM": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  }
 }
