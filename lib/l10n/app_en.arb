@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "appTitle": "SmartVan Driver",
+  "@appTitle": {
+    "description": "Application title (task switcher, MaterialApp.title)."
+  }
+}
