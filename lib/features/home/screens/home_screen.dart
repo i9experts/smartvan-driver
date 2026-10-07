@@ -28,7 +28,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    // ref.invalidate reads the ProviderScope inherited widget, which isn't
+    // allowed during initState - defer to after the first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadData();
+    });
   }
 
   int _chatUnread = 0;

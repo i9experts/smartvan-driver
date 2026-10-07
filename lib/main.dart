@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,20 +24,22 @@ void main() async {
   await Hive.initFlutter();
   await SyncQueue.instance.init();
   await ActiveTripStore.init();
-  // This app has no web push (VAPID) setup or firebase_options.dart for web,
-  // so it isn't a supported target for Firebase Messaging there. On web,
-  // the JS SDK's dynamic import() hangs the whole app on any network/CSP
-  // block instead of rejecting, so it can't even be try/caught - skip it
-  // outright rather than risk indefinitely blocking app startup.
-  // Push notifications are otherwise non-essential to app startup, so a
-  // failure to init on supported platforms shouldn't block the rest of the app.
   if (!kIsWeb) {
     try {
       await Firebase.initializeApp();
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-      await FCMService.initialize();
+      FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler);
+      // Push setup (permission prompt, APNs/FCM token) can stall for a long
+      // time - e.g. on the iOS simulator there is no APNs token - so never
+      // block the first frame on it.
+      unawaited(FCMService.initialize()
+          .timeout(const Duration(seconds: 20))
+          .catchError((Object e) {
+        debugPrint('FCM init failed, continuing without push: $e');
+      }));
     } catch (e) {
-      debugPrint('Firebase init failed, continuing without push notifications: $e');
+      debugPrint(
+          'Firebase init failed, continuing without push notifications: $e');
     }
   }
   runApp(UncontrolledProviderScope(
