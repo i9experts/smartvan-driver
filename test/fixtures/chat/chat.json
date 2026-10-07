@@ -1,0 +1,34 @@
+{
+  "conversations": {
+    "success": true,
+    "data": [
+      {
+        "conversationId": "conv-001",
+        "otherUser": { "id": "parent-001", "type": "parent", "name": "Test Parent", "image": "https://example.test/img/p1.png" },
+        "kids": [ { "fullname": "Test Kid One" }, { "fullname": "" }, { "fullname": "Test Kid Two" } ],
+        "lastMessage": { "text": "  On my way  ", "senderType": "parent", "at": "2026-10-06T08:15:00.000Z" },
+        "unread": 2
+      },
+      {
+        "conversationId": "conv-002",
+        "otherUser": { "id": "parent-002", "type": "parent", "name": "Another Parent" },
+        "kids": [],
+        "lastMessage": null,
+        "unread": "3"
+      },
+      { "conversationId": "conv-003" }
+    ]
+  },
+  "start": { "success": true, "data": { "conversationId": "conv-004", "otherUser": { "id": "parent-004", "type": "parent", "name": "Fourth Parent" }, "kids": [ { "fullname": "Test Kid Four" } ] } },
+  "unread": { "success": true, "data": { "unread": 5 } },
+  "messages": {
+    "success": true,
+    "hasMore": true,
+    "data": [
+      { "messageId": "m-3", "conversationId": "conv-001", "senderType": "driver", "text": "Arriving in 5 minutes", "createdAt": "2026-10-06T08:20:00.000Z", "readAt": "2026-10-06T08:21:00.000Z" },
+      { "messageId": "m-2", "conversationId": "conv-001", "senderType": "parent", "text": " ok ", "createdAt": "2026-10-06T08:15:00.000Z", "readAt": null },
+      { "messageId": "m-1", "conversationId": "conv-001", "senderType": "parent", "text": "Hello", "createdAt": "broken" }
+    ]
+  },
+  "socketMessage": { "messageId": "m-4", "conversationId": "conv-001", "senderType": "parent", "text": "Thanks", "createdAt": "2026-10-06T08:30:00.000Z" }
+}

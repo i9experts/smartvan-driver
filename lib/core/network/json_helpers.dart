@@ -196,3 +196,6 @@ DateTime? looseDate(Object? value) {
   }
   return DateTime.tryParse(v);
 }
+
+/// ISO-8601 → local [DateTime]; null if missing or unparsable.
+DateTime? looseLocalDateTime(Object? value) => looseDateTime(value)?.toLocal();

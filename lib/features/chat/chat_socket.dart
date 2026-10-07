@@ -28,7 +28,9 @@ class ChatSocket {
           .build(),
     );
     socket.on('chatMessage', (data) {
-      if (data is Map) _messages.add(ChatMessage.fromJson(data));
+      if (data is Map) {
+        _messages.add(ChatMessage.fromJson(Map<String, dynamic>.from(data)));
+      }
     });
     socket.on('chatRead', (data) {
       if (data is Map && data['conversationId'] != null) {
