@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import '../../../core/session/app_session.dart';
 import '../../../core/network/api_service.dart';
-import '../../trip/services/trip_tracking_service.dart';
+import '../../trip/application/trip_tracking.dart';
+import '../../trip/data/models/active_trip.dart';
 import '../../../core/router/app_routes.dart';
 import '../../checklist/application/checklist_providers.dart';
 import '../../chat/data/chat_repository.dart';
@@ -93,13 +94,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     if (ongoing != null) {
-      final id = TripTrackingState.tripIdOf(ongoing);
+      final id = ActiveTrip.fromJson(ongoing).id;
       if (!tracking.isTracking || tracking.tripId != id) {
-        final result = await notifier.start(ongoing);
+        final result = await notifier.start(ActiveTrip.fromJson(ongoing));
         if (result == TrackingStartResult.started && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Your ongoing trip was resumed — location sharing is on.'),
+              content: Text(
+                  'Your ongoing trip was resumed — location sharing is on.'),
               backgroundColor: Color(0xFF27AE60),
               behavior: SnackBarBehavior.floating,
             ),
@@ -116,9 +118,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (!tracking.isTracking || tracking.trip == null) {
       return const SizedBox.shrink();
     }
-    final title = tracking.trip!['schoolRoute'] ??
-        tracking.trip!['tripName'] ??
-        'Trip in progress';
+    final title =
+        tracking.trip!.routeTitle ?? tracking.trip!.name ?? 'Trip in progress';
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       child: Material(
@@ -126,7 +127,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: () => context.go('/trip', extra: tracking.trip),
+          onTap: () => context.go('/trip', extra: tracking.trip!.toJson()),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
@@ -196,19 +197,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Logout',
-            style: TextStyle(
-                fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+            style:
+                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         content: Text(AppSession.logoutConfirmText(),
             style: const TextStyle(fontFamily: 'Poppins')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel',
-                style: TextStyle(
-                    color: Color(0xFF8A94A6), fontFamily: 'Poppins')),
+                style:
+                    TextStyle(color: Color(0xFF8A94A6), fontFamily: 'Poppins')),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -221,8 +221,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('Logout',
-                style:
-                    TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
           ),
         ],
       ),
@@ -298,8 +297,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                  color: const Color(0xFFFFB800),
-                                  width: 2.5),
+                                  color: const Color(0xFFFFB800), width: 2.5),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.2),
@@ -372,10 +370,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: IconButton(
-                              icon: const Icon(
-                                  Icons.notifications_outlined,
-                                  color: Colors.white,
-                                  size: 22),
+                              icon: const Icon(Icons.notifications_outlined,
+                                  color: Colors.white, size: 22),
                               onPressed: () =>
                                   setState(() => _currentIndex = 1),
                             ),
@@ -444,10 +440,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           _buildStatChip(Icons.directions_bus_outlined,
                               '${_trips.length}', 'Trips Today'),
                           const SizedBox(width: 12),
-                          _buildStatChip(
-                              Icons.people_outline,
-                              '${_totalPassengerCount()}',
-                              'Passengers'),
+                          _buildStatChip(Icons.people_outline,
+                              '${_totalPassengerCount()}', 'Passengers'),
                           const SizedBox(width: 12),
                           _buildStatChip(
                               Icons.check_circle_outline,
@@ -666,7 +660,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     DateTime? d;
     final dmy = RegExp(r'^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$').firstMatch(v);
     if (dmy != null) {
-      d = DateTime(int.parse(dmy.group(3)!), int.parse(dmy.group(2)!), int.parse(dmy.group(1)!));
+      d = DateTime(int.parse(dmy.group(3)!), int.parse(dmy.group(2)!),
+          int.parse(dmy.group(1)!));
     } else {
       d = DateTime.tryParse(v)?.toLocal();
     }
@@ -713,7 +708,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text('$text. Tap to upload the renewed copy.',
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                      style:
+                          const TextStyle(fontFamily: 'Poppins', fontSize: 13)),
                 ),
               ],
             ),
@@ -736,7 +732,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ? 'Daily van check not done'
             : (t.allOk ? 'Van check done' : 'Van check done — issues reported');
         final subtitle = !done
-            ? (t.required ? 'Required before you can start a trip' : 'Takes less than a minute')
+            ? (t.required
+                ? 'Required before you can start a trip'
+                : 'Takes less than a minute')
             : 'Tap to update';
         return Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -751,14 +749,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ref.invalidate(todayChecklistProvider);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: color.withOpacity(0.6)),
                 ),
                 child: Row(
                   children: [
-                    Icon(done ? Icons.fact_check : Icons.checklist, color: color),
+                    Icon(done ? Icons.fact_check : Icons.checklist,
+                        color: color),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -766,7 +766,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         children: [
                           Text(title,
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Poppins')),
                           Text(subtitle,
                               style: const TextStyle(
                                   color: Color(0xFF8A94A6),
@@ -798,9 +799,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final startTimeRaw = route['startTime'] != null
         ? DateTime.tryParse(route['startTime'].toString())?.toLocal()
         : null;
-    final startTimeText = startTimeRaw != null
-        ? _formatTime12Hour(startTimeRaw)
-        : '—';
+    final startTimeText =
+        startTimeRaw != null ? _formatTime12Hour(startTimeRaw) : '—';
 
     // Mirrors the backend's 1-hour start window so the driver understands
     // *why* the button might be disabled, instead of it just failing silently.
@@ -1001,7 +1001,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 );
               }).toList(),
             ),
-
           if (!tripStarted) ...[
             const SizedBox(height: 16),
             SizedBox(
@@ -1083,8 +1082,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildStatChip(IconData icon, String value, String label) {
     return Expanded(
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.12),
           borderRadius: BorderRadius.circular(14),
@@ -1193,19 +1191,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 20),
           Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
               color: const Color(0xFFFFB800).withOpacity(0.1),
               borderRadius: BorderRadius.circular(30),
-              border: Border.all(
-                  color: const Color(0xFFFFB800).withOpacity(0.3)),
+              border:
+                  Border.all(color: const Color(0xFFFFB800).withOpacity(0.3)),
             ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.info_outline,
-                    color: Color(0xFFFFB800), size: 16),
+                Icon(Icons.info_outline, color: Color(0xFFFFB800), size: 16),
                 SizedBox(width: 6),
                 Text(
                   'You\'ll be notified when assigned',
@@ -1225,8 +1221,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildTripCard(Map<String, dynamic> trip) {
-    final String tripName =
-        trip['tripName'] ?? trip['name'] ?? trip['schoolRoute'] ?? 'School Trip';
+    final String tripName = trip['tripName'] ??
+        trip['name'] ??
+        trip['schoolRoute'] ??
+        'School Trip';
 
     // The Trip schema stores these nested/differently than what was
     // guessed here before (trip['date'], trip['tripDate'], trip['shift']
@@ -1238,24 +1236,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ? '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year}'
         : '—';
 
-    final tripStartRaw = trip['tripStart'] is Map ? trip['tripStart']['startTime'] : null;
+    final tripStartRaw =
+        trip['tripStart'] is Map ? trip['tripStart']['startTime'] : null;
     final startTimeParsed = tripStartRaw != null
         ? DateTime.tryParse(tripStartRaw.toString())?.toLocal()
         : null;
     final String startTime =
         startTimeParsed != null ? _formatTime12Hour(startTimeParsed) : '—';
 
-    final String shift =
-        (trip['type'] ?? '').toString().toLowerCase() == 'drop'
-            ? 'Drop Off'
-            : 'Pick Up';
+    final String shift = (trip['type'] ?? '').toString().toLowerCase() == 'drop'
+        ? 'Drop Off'
+        : 'Pick Up';
 
     final String status = trip['status'] ?? 'pending';
     final bool isActive = status.toLowerCase() == 'active' ||
         status.toLowerCase() == 'ongoing' ||
         status.toLowerCase() == 'start';
-    final bool isCompleted = status.toLowerCase() == 'end' ||
-        status.toLowerCase() == 'completed';
+    final bool isCompleted =
+        status.toLowerCase() == 'end' || status.toLowerCase() == 'completed';
 
     Color statusColor = const Color(0xFFFFB800);
     String statusText = 'Starting';
@@ -1288,19 +1286,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: isCompleted
-                    ? [
-                        const Color(0xFF8A94A6),
-                        const Color(0xFF8A94A6)
-                      ]
+                    ? [const Color(0xFF8A94A6), const Color(0xFF8A94A6)]
                     : isActive
-                        ? [
-                            const Color(0xFF27AE60),
-                            const Color(0xFF2ECC71)
-                          ]
-                        : [
-                            const Color(0xFF1B2B6B),
-                            const Color(0xFF2D4099)
-                          ],
+                        ? [const Color(0xFF27AE60), const Color(0xFF2ECC71)]
+                        : [const Color(0xFF1B2B6B), const Color(0xFF2D4099)],
               ),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
@@ -1372,8 +1361,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    _buildInfoChip(
-                        Icons.calendar_today_outlined, date),
+                    _buildInfoChip(Icons.calendar_today_outlined, date),
                     const SizedBox(width: 8),
                     _buildInfoChip(Icons.wb_sunny_outlined, shift),
                     const SizedBox(width: 8),
@@ -1432,8 +1420,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildInfoChip(IconData icon, String text) {
     return Expanded(
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
           color: const Color(0xFFF0F3FF),
           borderRadius: BorderRadius.circular(8),

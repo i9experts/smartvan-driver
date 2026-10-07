@@ -2,8 +2,7 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/network/app_exception.dart';
 import '../../../core/providers/core_providers.dart';
-import '../../trip/data/models/geo_point.dart';
-import '../../trip/services/trip_tracking_service.dart';
+import '../../trip/application/trip_tracking.dart';
 import '../data/scan_repository.dart';
 import 'scan_state.dart';
 
@@ -64,9 +63,7 @@ class ScanController extends _$ScanController {
       final result = await ref.read(scanRepositoryProvider).scan(
             tripId: tripId,
             qrPayload: raw,
-            position: position == null
-                ? null
-                : GeoPoint(lat: position.latitude, lng: position.longitude),
+            position: position,
           );
       state = state.copyWith(session: [result, ...state.session]);
       _show(ScanSucceeded(result));

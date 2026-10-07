@@ -17,10 +17,6 @@ analyzer:
 
 custom_lint:
   rules:
-    # TODO(R.4, trip/tracking step): turn this rule back on. TripTrackingNotifier
-    # exposes a public `tripId` getter used across the app; it is restructured
-    # in that step.
-    - avoid_public_notifier_properties: false
     # The DI and repository providers (docs/ARCHITECTURE.md §3) are written by
     # hand (`Provider<...>`); controllers are generated and depend on them.
     - avoid_manual_providers_as_generated_provider_dependency: false

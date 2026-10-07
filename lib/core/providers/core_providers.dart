@@ -26,3 +26,6 @@ typedef SocketFactory = io.Socket Function(
 final socketFactoryProvider = Provider<SocketFactory>(
   (ref) => (url, options) => io.io(url, options),
 );
+
+/// "Now" — a provider so time-dependent logic can be tested.
+final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);

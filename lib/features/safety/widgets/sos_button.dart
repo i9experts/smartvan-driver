@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_errors.dart';
-import '../../trip/services/trip_tracking_service.dart';
+import '../../trip/application/trip_tracking.dart';
 import '../sos_service.dart';
 
 /// Red SOS button. Must be held for [_holdDuration] to fire, so it can't be
@@ -60,8 +60,8 @@ class _SosButtonState extends ConsumerState<SosButton>
       }
       final parents = await SosService.send(
         tripId: tracking.tripId,
-        lat: position.latitude,
-        lng: position.longitude,
+        lat: position.lat,
+        lng: position.lng,
       );
       _showResult(
         ok: true,
@@ -86,7 +86,8 @@ class _SosButtonState extends ConsumerState<SosButton>
     }
   }
 
-  void _showResult({required bool ok, required String title, required String body}) {
+  void _showResult(
+      {required bool ok, required String title, required String body}) {
     if (!mounted) return;
     showModalBottomSheet<void>(
       context: context,
@@ -104,11 +105,14 @@ class _SosButtonState extends ConsumerState<SosButton>
               Text(title,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins')),
               const SizedBox(height: 6),
               Text(body,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Color(0xFF8A94A6), fontFamily: 'Poppins')),
+                  style: const TextStyle(
+                      color: Color(0xFF8A94A6), fontFamily: 'Poppins')),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -137,7 +141,8 @@ class _SosButtonState extends ConsumerState<SosButton>
         ),
         child: Column(
           children: [
-            Text(label, style: const TextStyle(fontFamily: 'Poppins', fontSize: 12)),
+            Text(label,
+                style: const TextStyle(fontFamily: 'Poppins', fontSize: 12)),
             Text(number,
                 style: const TextStyle(
                     fontFamily: 'Poppins', fontWeight: FontWeight.bold)),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:smartvan_driver/core/sync/sync_queue.dart';
 
@@ -18,6 +19,20 @@ class FakeSyncQueue extends Mock implements SyncQueue {
   SubmitOutcome outcome = SubmitOutcome.sent;
   Object? error;
   Map<String, String> pendingStatusMap = {};
+
+  /// What [flush] answers (true = queue empty afterwards).
+  bool flushResult = true;
+  int flushes = 0;
+
+  @override
+  final ValueNotifier<int> pending = ValueNotifier<int>(0);
+
+  @override
+  Future<bool> flush() async {
+    flushes++;
+    return flushResult;
+  }
+
   String? pendingQueriedFor;
 
   @override

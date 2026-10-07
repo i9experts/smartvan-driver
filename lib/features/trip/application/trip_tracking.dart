@@ -1,17 +1,22 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
-import '../../../core/constants/app_constants.dart';
-import '../../../core/network/api_errors.dart';
-import '../../../core/network/api_service.dart';
-import '../../../core/storage/token_storage.dart';
+import '../../../core/config/app_config.dart';
+import '../../../core/network/app_exception.dart';
 import '../../../core/providers/core_providers.dart';
-import '../../../core/sync/sync_queue.dart';
-import 'active_trip_store.dart';
+import '../../../core/storage/token_store.dart';
+import '../../passengers/data/models/kid_absence_event.dart';
+import '../data/active_trip_store.dart';
+import '../data/models/active_trip.dart';
+import '../data/kids_not_dropped_error.dart';
+import '../data/models/geo_point.dart';
+import '../data/trip_repository.dart';
+import 'kid_absence_events.dart';
+import 'tracking_state.dart';
+
+part 'trip_tracking.g.dart';
 
 enum TrackingStartResult {
   started,
@@ -21,111 +26,47 @@ enum TrackingStartResult {
   permissionDeniedForever,
 }
 
-/// Thrown by [TripTrackingNotifier.endTrip] when pickups/drops are still
-/// waiting to sync — ending the trip first would lose them on the server.
+/// Thrown by [TripTracking.endTrip] when pickups/drops are still waiting to
+/// sync — ending the trip first would lose them on the server.
 class PendingSyncException implements Exception {
-  final int pending;
   PendingSyncException(this.pending);
-  @override
-  String toString() =>
-      '$pending pickup/drop update${pending == 1 ? '' : 's'} not synced yet. '
-      'Connect to the internet, wait for sync, then end the trip.';
+
+  final int pending;
 }
-
-/// Thrown by [TripTrackingNotifier.endTrip] when the backend refuses to end
-/// a drop trip because kids are still marked as picked (409
-/// KIDS_NOT_DROPPED). [kids] = [{kidId, fullname}].
-class KidsNotDroppedException implements Exception {
-  final List<Map<String, dynamic>> kids;
-  final String message;
-  KidsNotDroppedException(this.kids, this.message);
-  @override
-  String toString() => message;
-}
-
-@immutable
-class TripTrackingState {
-  final Map<String, dynamic>? trip;
-  final bool isTracking;
-  final bool socketConnected;
-  final LatLng? lastPosition;
-
-  /// Metres per second from the GPS fix (null if the device doesn't report
-  /// it). Kept for upcoming overspeed monitoring.
-  final double? lastSpeed;
-
-  const TripTrackingState({
-    this.trip,
-    this.isTracking = false,
-    this.socketConnected = false,
-    this.lastPosition,
-    this.lastSpeed,
-  });
-
-  String? get tripId => tripIdOf(trip);
-
-  static String? tripIdOf(Map<String, dynamic>? trip) {
-    final id = trip?['_id'] ?? trip?['id'];
-    return id?.toString();
-  }
-
-  TripTrackingState copyWith({
-    Map<String, dynamic>? trip,
-    bool? isTracking,
-    bool? socketConnected,
-    LatLng? lastPosition,
-    double? lastSpeed,
-  }) {
-    return TripTrackingState(
-      trip: trip ?? this.trip,
-      isTracking: isTracking ?? this.isTracking,
-      socketConnected: socketConnected ?? this.socketConnected,
-      lastPosition: lastPosition ?? this.lastPosition,
-      lastSpeed: lastSpeed ?? this.lastSpeed,
-    );
-  }
-}
-
-final tripTrackingProvider =
-    NotifierProvider<TripTrackingNotifier, TripTrackingState>(
-        TripTrackingNotifier.new);
 
 /// Owns everything that must keep running for the whole trip — GPS stream,
 /// Android foreground service, Socket.IO connection — independent of which
-/// screen is open. Previously all of this lived inside TripScreen and died
-/// whenever that screen was disposed.
-class TripTrackingNotifier extends Notifier<TripTrackingState> {
-  final loc.Location _location = loc.Location();
+/// screen is open.
+@Riverpod(keepAlive: true)
+class TripTracking extends _$TripTracking {
   io.Socket? _socket;
   StreamSubscription<loc.LocationData>? _positionSub;
   DateTime? _lastHttpUpdate;
 
-  /// Parent marked (or un-marked) a kid absent for today while the trip is
-  /// running. Payload: { kidId, fullname, tripType, cancelled }.
-  final StreamController<Map<String, dynamic>> _absenceEvents =
-      StreamController<Map<String, dynamic>>.broadcast();
-  Stream<Map<String, dynamic>> get absenceEvents => _absenceEvents.stream;
-
   /// The HTTP endpoint drives geofence push alerts; the socket drives the
   /// live map. The socket gets every fix, HTTP at most this often.
-  static const _httpInterval = Duration(seconds: 5);
+  static const httpInterval = Duration(seconds: 5);
+
+  /// Captured in [build] so teardown never has to read a provider.
+  late loc.Location _location;
 
   @override
   TripTrackingState build() {
+    _location = ref.read(locationServiceProvider);
     ref.onDispose(_teardown);
     return const TripTrackingState();
   }
 
   /// Starts (or continues) tracking [trip]. Safe to call repeatedly — if the
   /// same trip is already being tracked it only refreshes the trip details.
-  Future<TrackingStartResult> start(Map<String, dynamic> trip) async {
-    final id = TripTrackingState.tripIdOf(trip);
-    if (id == null || id == 'null') return TrackingStartResult.permissionDenied;
+  Future<TrackingStartResult> start(ActiveTrip trip) async {
+    final id = trip.id;
+    if (id.isEmpty || id == 'null') return TrackingStartResult.permissionDenied;
 
     if (state.isTracking && state.tripId == id) {
-      final merged = {...?state.trip, ...trip};
+      final merged = _merge(state.trip, trip);
       state = state.copyWith(trip: merged);
-      await ActiveTripStore.save(merged);
+      await ref.read(activeTripStoreProvider).save(merged);
       return TrackingStartResult.alreadyRunning;
     }
     if (state.isTracking) await _teardown();
@@ -138,7 +79,7 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
     }
 
     state = TripTrackingState(trip: trip, isTracking: true);
-    await ActiveTripStore.save(trip);
+    await ref.read(activeTripStoreProvider).save(trip);
     await _connectSocket(id);
     await _enableBackgroundMode();
 
@@ -155,63 +96,60 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
     return TrackingStartResult.started;
   }
 
+  /// Newer values win; what [update] does not know stays as it was.
+  ActiveTrip _merge(ActiveTrip? old, ActiveTrip update) => old == null
+      ? update
+      : update.copyWith(
+          routeId: update.routeId ?? old.routeId,
+          routeTitle: update.routeTitle ?? old.routeTitle,
+          name: update.name ?? old.name,
+        );
+
   /// Stops tracking without touching the trip on the server.
   Future<void> stop() async {
     await _teardown();
-    await ActiveTripStore.clear();
+    await ref.read(activeTripStoreProvider).clear();
     state = const TripTrackingState();
   }
 
   /// Ends the trip on the server, but only after every queued pickup/drop
   /// has been delivered. Throws [PendingSyncException] if that's not
-  /// possible right now, or the API error if /trips/endTrip fails.
+  /// possible right now, or the `AppException` if the end-trip call fails —
+  /// for 409 `KIDS_NOT_DROPPED` an `ApiError` whose `kidsNotDropped` lists
+  /// the kids.
   ///
   /// [forceEnd] + [confirmationNote]: end a drop trip even though kids are
   /// still marked as picked (the driver confirmed they checked the van).
-  /// Throws [KidsNotDroppedException] when the server refuses.
-  Future<void> endTrip({bool forceEnd = false, String? confirmationNote}) async {
+  Future<void> endTrip(
+      {bool forceEnd = false, String? confirmationNote}) async {
     final id = state.tripId;
     if (id == null) {
       await stop();
       return;
     }
-    final synced = await ref.read(syncQueueProvider).flush();
-    if (!synced) throw PendingSyncException(ref.read(syncQueueProvider).pending.value);
+    final queue = ref.read(syncQueueProvider);
+    final synced = await queue.flush();
+    if (!synced) throw PendingSyncException(queue.pending.value);
 
-    final position = state.lastPosition;
-    try {
-      await ApiService.post('/trips/endTrip', {
-        'tripId': id,
-        if (position != null) 'lat': position.latitude,
-        if (position != null) 'long': position.longitude,
-        if (forceEnd) 'forceEnd': true,
-        if (forceEnd) 'confirmationNote': confirmationNote ?? '',
-      });
-    } on DioException catch (e) {
-      if (ApiErrors.code(e) == 'KIDS_NOT_DROPPED') {
-        final data = e.response?.data;
-        final rawKids = data is Map ? data['kids'] : null;
-        final kids = rawKids is List
-            ? rawKids.whereType<Map>().map((k) => Map<String, dynamic>.from(k)).toList()
-            : <Map<String, dynamic>>[];
-        throw KidsNotDroppedException(kids, ApiErrors.message(e));
-      }
-      rethrow;
-    }
+    await ref.read(tripRepositoryProvider).endTrip(
+          tripId: id,
+          position: state.lastPosition,
+          forceEnd: forceEnd,
+          confirmationNote: confirmationNote,
+        );
     await stop();
   }
 
   /// Best available current position: the last streamed fix, otherwise a
   /// fresh one-shot read. Null if GPS is genuinely unavailable.
-  Future<LatLng?> currentPosition() async {
+  Future<GeoPoint?> currentPosition() async {
     final last = state.lastPosition;
     if (last != null) return last;
     try {
-      final fix = await _location
-          .getLocation()
-          .timeout(const Duration(seconds: 8));
+      final fix =
+          await _location.getLocation().timeout(const Duration(seconds: 8));
       if (fix.latitude != null && fix.longitude != null) {
-        return LatLng(fix.latitude!, fix.longitude!);
+        return GeoPoint(lat: fix.latitude!, lng: fix.longitude!);
       }
     } catch (e) {
       debugPrint('[Tracking] one-shot location failed: $e');
@@ -225,42 +163,36 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
     final id = state.tripId;
     if (lat == null || lng == null || id == null) return;
 
-    state = state.copyWith(lastPosition: LatLng(lat, lng), lastSpeed: fix.speed);
+    final point = GeoPoint(lat: lat, lng: lng);
+    state = state.copyWith(lastPosition: point, lastSpeed: fix.speed);
 
     if (_socket?.connected == true) {
-      _socket!.emit('updateLocation', {
-        'tripId': id,
-        'location': {'lat': lat, 'long': lng},
-      });
+      _socket!.emit(
+          'updateLocation', TripRepository.socketLocationPayload(id, point));
     }
 
-    final now = DateTime.now();
-    if (_lastHttpUpdate == null || now.difference(_lastHttpUpdate!) >= _httpInterval) {
+    final now = ref.read(clockProvider)();
+    if (_lastHttpUpdate == null ||
+        now.difference(_lastHttpUpdate!) >= httpInterval) {
       _lastHttpUpdate = now;
       ref
-          .read(syncQueueProvider)
-          .submit(
-            kind: SyncKind.location,
-            path: '/trips/updateLocation/$id',
-            body: {
-              'lat': lat,
-              'lng': lng,
-              // m/s — the server records overspeed events from it.
-              if (fix.speed != null && fix.speed! >= 0) 'speed': fix.speed,
-            },
+          .read(tripRepositoryProvider)
+          .sendLocation(
             tripId: id,
+            position: point,
+            // m/s — the server records overspeed events from it.
+            speedMetersPerSecond: fix.speed,
           )
-          .catchError((Object e) {
+          .then((_) {}, onError: (Object e) {
         // The trip was ended elsewhere (admin panel / another device):
         // stop GPS + foreground service instead of tracking forever.
-        if (ApiErrors.code(e) == 'TRIP_NOT_ONGOING') {
+        if (e is ApiError && e.code == TripErrorCodes.tripNotOngoing) {
           debugPrint('[Tracking] server says trip is over — stopping');
           stop();
-          return SubmitOutcome.sent;
+          return;
         }
         // Otherwise non-fatal — live map still works via the socket.
         debugPrint('[Tracking] updateLocation rejected: $e');
-        return SubmitOutcome.queued;
       });
     }
   }
@@ -308,13 +240,16 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
   }
 
   Future<void> _connectSocket(String tripId) async {
-    final token = await TokenStorage.read() ?? '';
     _socket?.dispose();
-    final socket = io.io(
-      AppConstants.socketUrl,
+    final tokens = ref.read(tokenStorageProvider);
+    final socket = ref.read(socketFactoryProvider)(
+      ref.read(appConfigProvider).socketUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
-          .setAuth({'token': token})
+          // Asked for on every connect and reconnect (see chat events).
+          .setAuthFn((callback) async {
+            callback({'token': await tokens.read() ?? ''});
+          })
           .enableReconnection()
           .setReconnectionDelay(2000)
           .setReconnectionDelayMax(10000)
@@ -328,19 +263,23 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
       ref.read(syncQueueProvider).flush();
     });
     socket.onDisconnect((_) => state = state.copyWith(socketConnected: false));
-    socket.on('kidAbsence', (data) {
-      if (data is Map) {
-        _absenceEvents.add({...Map<String, dynamic>.from(data), 'cancelled': false});
-      }
-    });
-    socket.on('kidAbsenceCancelled', (data) {
-      if (data is Map) {
-        _absenceEvents.add({...Map<String, dynamic>.from(data), 'cancelled': true});
-      }
-    });
-    socket.onConnectError((e) => debugPrint('[Tracking] socket connect error: $e'));
+    socket.on('kidAbsence', (data) => _onAbsence(data, cancelled: false));
+    socket.on(
+        'kidAbsenceCancelled', (data) => _onAbsence(data, cancelled: true));
+    socket.onConnectError(
+        (e) => debugPrint('[Tracking] socket connect error: $e'));
     socket.connect();
     _socket = socket;
+  }
+
+  /// A parent marked (or un-marked) a kid absent for today while the trip is
+  /// running.
+  void _onAbsence(dynamic data, {required bool cancelled}) {
+    if (data is! Map) return;
+    ref.read(kidAbsenceBusProvider).add(
+          KidAbsenceEvent.fromJson(Map<String, dynamic>.from(data))
+              .copyWith(cancelled: cancelled),
+        );
   }
 
   Future<void> _teardown() async {

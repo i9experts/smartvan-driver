@@ -1,21 +1,25 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:smartvan_driver/features/trip/services/trip_tracking_service.dart';
+import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
+import 'package:smartvan_driver/features/trip/application/tracking_state.dart';
+import 'package:smartvan_driver/features/trip/data/models/active_trip.dart';
+import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
 
 /// Stands in for the real tracking notifier (GPS, socket, foreground
 /// service): fixed state and position.
-class FakeTracking extends TripTrackingNotifier {
-  FakeTracking({this.tripId, this.position});
+class FakeTracking extends TripTracking {
+  FakeTracking({String? tripId, GeoPoint? position})
+      : _tripId = tripId,
+        _position = position;
 
-  final String? tripId;
-  final LatLng? position;
+  final String? _tripId;
+  final GeoPoint? _position;
 
   @override
   TripTrackingState build() => TripTrackingState(
-        trip: tripId == null ? null : {'_id': tripId},
-        isTracking: tripId != null,
-        lastPosition: position,
+        trip: _tripId == null ? null : ActiveTrip(id: _tripId),
+        isTracking: _tripId != null,
+        lastPosition: _position,
       );
 
   @override
-  Future<LatLng?> currentPosition() async => position;
+  Future<GeoPoint?> currentPosition() async => _position;
 }

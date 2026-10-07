@@ -2,7 +2,6 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:smartvan_driver/core/network/app_exception.dart';
 import 'package:smartvan_driver/core/providers/core_providers.dart';
@@ -13,7 +12,7 @@ import 'package:smartvan_driver/features/scan/data/scan_repository.dart';
 import 'package:smartvan_driver/features/scan/presentation/screens/scan_screen.dart';
 import 'package:smartvan_driver/features/scan/presentation/widgets/qr_scanner_view.dart';
 import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
-import 'package:smartvan_driver/features/trip/services/trip_tracking_service.dart';
+import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
 
 import '../../support/fake_sync_queue.dart';
 import '../../support/fake_tracking.dart';
@@ -21,26 +20,17 @@ import '../../support/l10n_host.dart';
 
 class _FakeScanRepo extends Mock implements ScanRepository {}
 
-class _FlushQueue extends FakeSyncQueue {
-  int flushes = 0;
-  @override
-  Future<bool> flush() async {
-    flushes++;
-    return true;
-  }
-}
-
 void main() {
   const card = 'smartvan:kid:AbCdEfGhIjKlMnOpQrStUvWx';
   const card2 = 'smartvan:kid:ZyXwVuTsRqPoNmLkJiHgFeDc';
   late _FakeScanRepo repo;
-  late _FlushQueue queue;
+  late FakeSyncQueue queue;
 
   setUpAll(() => registerFallbackValue(const GeoPoint(lat: 0, lng: 0)));
 
   setUp(() {
     repo = _FakeScanRepo();
-    queue = _FlushQueue();
+    queue = FakeSyncQueue();
     when(() => repo.scan(
               tripId: any(named: 'tripId'),
               qrPayload: any(named: 'qrPayload'),
@@ -52,12 +42,13 @@ void main() {
             fullname: 'Test Kid One'));
   });
 
-  List<Override> overrides({String? tripId = 'trip-001', LatLng? position}) => [
+  List<Override> overrides({String? tripId = 'trip-001', GeoPoint? position}) =>
+      [
         scanRepositoryProvider.overrideWithValue(repo),
         syncQueueProvider.overrideWithValue(queue),
         tripTrackingProvider.overrideWith(() => FakeTracking(
             tripId: tripId,
-            position: position ?? const LatLng(24.8607, 67.0011))),
+            position: position ?? const GeoPoint(lat: 24.8607, lng: 67.0011))),
       ];
 
   ProviderContainer container([List<Override>? o]) {

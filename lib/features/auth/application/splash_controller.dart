@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/storage/token_store.dart';
+import '../../trip/data/models/active_trip.dart';
 import 'session_providers.dart';
 
 part 'splash_controller.g.dart';
@@ -20,7 +21,7 @@ class GoToHome extends SplashDestination {
 /// The app was killed mid-trip: go straight back to it.
 class ResumeTrip extends SplashDestination {
   const ResumeTrip(this.trip);
-  final Map<String, dynamic> trip;
+  final ActiveTrip trip;
 }
 
 @riverpod

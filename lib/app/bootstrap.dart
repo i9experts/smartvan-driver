@@ -9,7 +9,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../core/providers/app_container.dart';
 import '../core/providers/core_providers.dart';
 import '../features/auth/data/fcm_service.dart';
-import '../features/trip/services/active_trip_store.dart';
+import '../features/trip/data/active_trip_store.dart';
 import 'app.dart';
 
 @pragma('vm:entry-point')
@@ -24,7 +24,7 @@ Future<void> bootstrap() async {
   // any screen can record a pickup/drop or resume a trip.
   await Hive.initFlutter();
   await appContainer.read(syncQueueProvider).init();
-  await ActiveTripStore.init();
+  await HiveActiveTripStore().init();
   if (!kIsWeb) {
     try {
       await Firebase.initializeApp();

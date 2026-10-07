@@ -8,6 +8,7 @@ import 'package:smartvan_driver/features/auth/application/login_controller.dart'
 import 'package:smartvan_driver/features/auth/application/session_providers.dart';
 import 'package:smartvan_driver/features/auth/application/splash_controller.dart';
 import 'package:smartvan_driver/features/auth/data/auth_repository.dart';
+import 'package:smartvan_driver/features/trip/data/models/active_trip.dart';
 
 class _FakeAuthRepo extends Mock implements AuthRepository {}
 
@@ -18,7 +19,7 @@ void main() {
   late _FakeTokens tokens;
   late int pushCalls;
   late ProviderContainer container;
-  Map<String, dynamic>? resumable;
+  ActiveTrip? resumable;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -117,19 +118,19 @@ void main() {
     });
 
     test('a token and a trip in progress resumes the trip', () async {
-      resumable = {'_id': 'trip-001'};
+      resumable = const ActiveTrip(id: 'trip-001');
       final fresh = ProviderContainer(overrides: [
         tokenStorageProvider.overrideWithValue(tokens),
         resumableTripProvider.overrideWith((ref) => resumable),
       ]);
       addTearDown(fresh.dispose);
       final d = await fresh.read(splashControllerProvider.notifier).decide();
-      expect((d as ResumeTrip).trip['_id'], 'trip-001');
+      expect((d as ResumeTrip).trip.id, 'trip-001');
     });
 
     test('a trip in progress without a token still goes to login', () async {
       when(() => tokens.hasToken()).thenAnswer((_) async => false);
-      resumable = {'_id': 'trip-001'};
+      resumable = const ActiveTrip(id: 'trip-001');
       final fresh = ProviderContainer(overrides: [
         tokenStorageProvider.overrideWithValue(tokens),
         resumableTripProvider.overrideWith((ref) => resumable),

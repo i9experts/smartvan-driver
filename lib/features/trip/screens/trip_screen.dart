@@ -8,7 +8,12 @@ import '../../../core/network/api_service.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../passengers/kid_status.dart';
 import '../../safety/widgets/sos_button.dart';
-import '../services/trip_tracking_service.dart';
+import '../application/trip_tracking.dart';
+import '../application/tracking_state.dart';
+import '../data/kids_not_dropped_error.dart';
+import '../data/models/active_trip.dart';
+import '../data/models/geo_point.dart';
+import '../../../core/network/app_exception.dart';
 import '../widgets/kids_not_dropped_sheet.dart';
 
 class TripScreen extends ConsumerStatefulWidget {
@@ -36,15 +41,17 @@ class _TripScreenState extends ConsumerState<TripScreen> {
 
   /// Trip details: the route's extra if given, otherwise whatever the
   /// tracking service is holding (e.g. after resuming a killed app).
-  Map<String, dynamic> get _trip =>
-      widget.trip.isNotEmpty ? widget.trip : (ref.read(tripTrackingProvider).trip ?? {});
+  Map<String, dynamic> get _trip => widget.trip.isNotEmpty
+      ? widget.trip
+      : (ref.read(tripTrackingProvider).trip?.toJson() ?? {});
 
   @override
   void initState() {
     super.initState();
     _loadProfile();
     _loadPassengers();
-    _syncedSub = ref.read(syncQueueProvider).onSynced.listen((_) => _loadPassengers());
+    _syncedSub =
+        ref.read(syncQueueProvider).onSynced.listen((_) => _loadPassengers());
     WidgetsBinding.instance.addPostFrameCallback((_) => _startTracking());
   }
 
@@ -60,7 +67,9 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   Future<void> _startTracking() async {
     final trip = _trip;
     if (trip.isEmpty) return;
-    final result = await ref.read(tripTrackingProvider.notifier).start(trip);
+    final result = await ref
+        .read(tripTrackingProvider.notifier)
+        .start(ActiveTrip.fromJson(trip));
     if (!mounted) return;
     final message = switch (result) {
       TrackingStartResult.locationServiceOff =>
@@ -92,14 +101,14 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       // their pickup state for this trip — that only lives on
       // /Route/getMergedActivePassengers (same endpoint the Passengers
       // screen uses), so this has to match it to get a real picked count.
-      final response =
-          await ApiService.get('/Route/getMergedActivePassengers');
+      final response = await ApiService.get('/Route/getMergedActivePassengers');
       if (response.statusCode == 200 && mounted) {
         final raw = response.data;
         final data = raw['data'] ?? raw ?? [];
         final list = data is List ? data : [];
-        final pending = ref.read(syncQueueProvider)
-            .pendingKidStatuses(TripTrackingState.tripIdOf(_trip));
+        final pending = ref
+            .read(syncQueueProvider)
+            .pendingKidStatuses(ActiveTrip.fromJson(_trip).id);
         setState(() {
           _passengers = list;
           _totalPassengers = list.length;
@@ -135,19 +144,18 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('End Trip',
-            style: TextStyle(
-                fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+            style:
+                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         content: const Text('Are you sure you want to end this trip?',
             style: TextStyle(fontFamily: 'Poppins')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel',
-                style: TextStyle(
-                    color: Color(0xFF8A94A6), fontFamily: 'Poppins')),
+                style:
+                    TextStyle(color: Color(0xFF8A94A6), fontFamily: 'Poppins')),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -157,8 +165,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                   borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('End Trip',
-                style: TextStyle(
-                    color: Colors.white, fontFamily: 'Poppins')),
+                style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
           ),
         ],
       ),
@@ -180,10 +187,20 @@ class _TripScreenState extends ConsumerState<TripScreen> {
               : 'Trip ended successfully!',
           color: const Color(0xFF27AE60));
       context.go('/home');
-    } on KidsNotDroppedException catch (e) {
+    } on ApiError catch (e) {
+      if (!e.isKidsNotDropped) {
+        if (mounted) {
+          setState(() => _isEndingTrip = false);
+          _showSnack(e.userMessage, isError: true);
+        }
+        return;
+      }
       if (!mounted) return;
       setState(() => _isEndingTrip = false);
-      final choice = await KidsNotDroppedSheet.show(context, e.kids);
+      final choice = await KidsNotDroppedSheet.show(context, [
+        for (final k in e.kidsNotDropped)
+          {'kidId': k.kidId, 'fullname': k.fullname}
+      ]);
       if (!mounted) return;
       switch (choice) {
         case OpenPassengersChoice():
@@ -200,7 +217,10 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     } on PendingSyncException catch (e) {
       if (mounted) {
         setState(() => _isEndingTrip = false);
-        _showSnack(e.toString(), isError: true);
+        _showSnack(
+            '${e.pending} pickup/drop update${e.pending == 1 ? '' : 's'} not synced yet. '
+            'Connect to the internet, wait for sync, then end the trip.',
+            isError: true);
       }
     } catch (e) {
       if (mounted) {
@@ -220,8 +240,8 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor:
-            color ?? (isError ? const Color(0xFFFF4B4B) : const Color(0xFF1B2B6B)),
+        backgroundColor: color ??
+            (isError ? const Color(0xFFFF4B4B) : const Color(0xFF1B2B6B)),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -284,19 +304,21 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   @override
   Widget build(BuildContext context) {
     final tracking = ref.watch(tripTrackingProvider);
-    ref.listen<LatLng?>(
+    ref.listen<GeoPoint?>(
       tripTrackingProvider.select((s) => s.lastPosition),
-      (_, next) => _onPositionChanged(next),
+      (_, next) =>
+          _onPositionChanged(next == null ? null : LatLng(next.lat, next.lng)),
     );
-    final driverPosition = tracking.lastPosition ?? _fallbackCenter;
+    final lastPosition = tracking.lastPosition;
+    final driverPosition = lastPosition == null
+        ? _fallbackCenter
+        : LatLng(lastPosition.lat, lastPosition.lng);
     final bool isConnected = tracking.socketConnected;
     final trip = _trip;
 
-    final String tripName =
-        trip['tripName'] ?? trip['name'] ?? 'Morning Trip';
+    final String tripName = trip['tripName'] ?? trip['name'] ?? 'Morning Trip';
     final String shift = trip['shift'] ?? 'Morning';
-    final String schoolRoute =
-        trip['schoolRoute'] ?? trip['route'] ?? '—';
+    final String schoolRoute = trip['schoolRoute'] ?? trip['route'] ?? '—';
     final String driverName =
         _profile?['fullname'] ?? _profile?['name'] ?? 'Driver';
 
@@ -320,8 +342,8 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios,
-                          color: Colors.white),
+                      icon:
+                          const Icon(Icons.arrow_back_ios, color: Colors.white),
                       onPressed: () => context.go('/home'),
                     ),
                     Expanded(
@@ -392,8 +414,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                     target: driverPosition,
                     zoom: 14,
                   ),
-                  onMapCreated: (controller) =>
-                      _mapController = controller,
+                  onMapCreated: (controller) => _mapController = controller,
                   markers: _markersFor(driverPosition),
                   myLocationEnabled: true,
                   myLocationButtonEnabled: false,
@@ -504,8 +525,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     driverName,
@@ -531,8 +551,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF1B2B6B)
-                                    .withOpacity(0.1),
+                                color: const Color(0xFF1B2B6B).withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
@@ -551,21 +570,16 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                         const Divider(color: Color(0xFFEAECF0)),
                         const SizedBox(height: 12),
                         Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceAround,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildTripStat(
-                                Icons.calendar_today_outlined,
-                                trip['date'] ?? '—',
-                                'Date'),
-                            _buildStatDivider(),
-                            _buildTripStat(Icons.wb_sunny_outlined,
-                                shift, 'Shift'),
+                            _buildTripStat(Icons.calendar_today_outlined,
+                                trip['date'] ?? '—', 'Date'),
                             _buildStatDivider(),
                             _buildTripStat(
-                                Icons.people_outline,
-                                '$_pickedCount/$_totalPassengers',
-                                'Picked'),
+                                Icons.wb_sunny_outlined, shift, 'Shift'),
+                            _buildStatDivider(),
+                            _buildTripStat(Icons.people_outline,
+                                '$_pickedCount/$_totalPassengers', 'Picked'),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -618,8 +632,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                                     ),
                                   )
                                 : Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
                                         _isTripStarted
@@ -639,8 +652,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                                         ),
                                       ),
                                       const SizedBox(width: 8),
-                                      const Icon(Icons.arrow_forward,
-                                          size: 18),
+                                      const Icon(Icons.arrow_forward, size: 18),
                                     ],
                                   ),
                           ),

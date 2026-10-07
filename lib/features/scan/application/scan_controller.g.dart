@@ -6,7 +6,7 @@ part of 'scan_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$scanControllerHash() => r'1cb02908059992363943c49ae42b8fc26ca31e9c';
+String _$scanControllerHash() => r'5d17d1ef1af57fbf2096446d16ea14a7a24bfec2';
 
 /// Reads QR cards continuously while the scan screen is open: filters
 /// repeats, checks there is a trip, flushes the offline queue, scans, and

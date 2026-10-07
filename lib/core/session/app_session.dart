@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../features/trip/services/trip_tracking_service.dart';
+import '../../features/trip/application/trip_tracking.dart';
 import '../providers/app_container.dart';
 import '../../app/router.dart';
 import '../../features/profile/application/driver_profile_provider.dart';
@@ -38,7 +38,9 @@ class AppSession {
       if (appContainer.exists(driverProfileProvider)) {
         appContainer.invalidate(driverProfileProvider);
       }
-      if (reason == 'logout') await appContainer.read(syncQueueProvider).clear();
+      if (reason == 'logout') {
+        await appContainer.read(syncQueueProvider).clear();
+      }
       appRouter.go(AppRoutes.login);
     } finally {
       _signingOut = false;

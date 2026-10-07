@@ -6,7 +6,10 @@ import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../core/sync/sync_queue.dart';
-import '../../trip/services/trip_tracking_service.dart';
+import '../../trip/application/kid_absence_events.dart';
+import '../../trip/application/trip_tracking.dart';
+import '../../trip/data/models/active_trip.dart';
+import '../../passengers/data/models/kid_absence_event.dart';
 import '../kid_status.dart';
 import '../stop_api.dart';
 import '../../../core/router/app_routes.dart';
@@ -28,7 +31,8 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   Map<String, String> _pendingSync = const {};
   final Set<String> _busyKidIds = {};
   StreamSubscription<void>? _syncedSub;
-  StreamSubscription<Map<String, dynamic>>? _absenceSub;
+  StreamSubscription<KidAbsenceEvent>? _absenceSub;
+
   /// Refreshes the "waiting 1:23" timers on cards.
   Timer? _ticker;
   final Set<String> _stopBusy = {};
@@ -36,25 +40,33 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   /// How long the driver should wait before "move on" is offered.
   static const _waitBeforeNoShow = Duration(minutes: 2);
 
-  String? get _tripId => TripTrackingState.tripIdOf(widget.trip) ??
-      ref.read(tripTrackingProvider).tripId;
+  String? get _tripId {
+    final fromRoute = ActiveTrip.fromJson(widget.trip).id;
+    return fromRoute.isNotEmpty
+        ? fromRoute
+        : ref.read(tripTrackingProvider).tripId;
+  }
 
   @override
   void initState() {
     super.initState();
     _loadPassengers();
     // When queued picks/drops reach the server, reload real statuses.
-    _syncedSub = ref.read(syncQueueProvider).onSynced.listen((_) => _loadPassengers());
+    _syncedSub =
+        ref.read(syncQueueProvider).onSynced.listen((_) => _loadPassengers());
     // A parent marked a child absent (or cancelled it) during the trip.
-    _absenceSub = ref.read(tripTrackingProvider.notifier).absenceEvents.listen((e) {
+    _absenceSub = ref.read(kidAbsenceBusProvider).stream.listen((e) {
       _loadPassengers();
-      final name = e['fullname'] ?? 'A student';
+      final name = e.fullname.isEmpty ? 'A student' : e.fullname;
       _showSnack(
-          e['cancelled'] == true ? '$name will ride today after all.' : '$name is absent today (parent informed).',
+          e.cancelled
+              ? '$name will ride today after all.'
+              : '$name is absent today (parent informed).',
           const Color(0xFF1B2B6B));
     });
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted && _passengers.any((p) => p is Map && p['waitingSince'] != null)) {
+      if (mounted &&
+          _passengers.any((p) => p is Map && p['waitingSince'] != null)) {
         setState(() {});
       }
     });
@@ -107,7 +119,8 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
 
   /// Riders first; absent and no-show kids at the bottom.
   List<dynamic> _sorted(List<dynamic> list) {
-    int rank(dynamic p) => p is Map && (p['absent'] == true || p['noShow'] == true) ? 1 : 0;
+    int rank(dynamic p) =>
+        p is Map && (p['absent'] == true || p['noShow'] == true) ? 1 : 0;
     final indexed = list.asMap().entries.toList()
       ..sort((a, b) {
         final r = rank(a.value).compareTo(rank(b.value));
@@ -125,9 +138,11 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
       final at = await StopApi.arrived(tripId, kidId);
       if (!mounted) return;
       setState(() => kid['waitingSince'] = at.toIso8601String());
-      _showSnack('Parent told the van is at the stop.', const Color(0xFF27AE60));
+      _showSnack(
+          'Parent told the van is at the stop.', const Color(0xFF27AE60));
     } catch (e) {
-      _showSnack(ApiErrors.message(e, fallback: 'Could not notify the parent.'), const Color(0xFFFF4B4B));
+      _showSnack(ApiErrors.message(e, fallback: 'Could not notify the parent.'),
+          const Color(0xFFFF4B4B));
     } finally {
       if (mounted) setState(() => _stopBusy.remove(kidId));
     }
@@ -155,8 +170,12 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Keep waiting')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Move on')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Keep waiting')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Move on')),
         ],
       ),
     );
@@ -172,32 +191,42 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
         _passengers = _sorted(_passengers);
       });
     } catch (e) {
-      _showSnack(ApiErrors.message(e, fallback: 'Could not mark as not at stop.'), const Color(0xFFFF4B4B));
+      _showSnack(
+          ApiErrors.message(e, fallback: 'Could not mark as not at stop.'),
+          const Color(0xFFFF4B4B));
     } finally {
       if (mounted) setState(() => _stopBusy.remove(kidId));
     }
   }
 
   /// Small row under the card: absent / no-show / at-stop / waiting timer.
-  Widget? _buildStopRow(Map<String, dynamic> kid, bool isPicked, bool isDropped) {
+  Widget? _buildStopRow(
+      Map<String, dynamic> kid, bool isPicked, bool isDropped) {
     Widget chip(IconData icon, String text, Color color) => Row(
           children: [
             Icon(icon, size: 14, color: color),
             const SizedBox(width: 4),
             Flexible(
               child: Text(text,
-                  style: TextStyle(fontSize: 12, color: color, fontFamily: 'Poppins', fontWeight: FontWeight.w600)),
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: color,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600)),
             ),
           ],
         );
 
     if (kid['absent'] == true && !isPicked && !isDropped) {
       final note = kid['absenceNote']?.toString();
-      return chip(Icons.event_busy, 'Absent today${note != null && note.isNotEmpty ? ' — $note' : ' (parent informed)'}',
+      return chip(
+          Icons.event_busy,
+          'Absent today${note != null && note.isNotEmpty ? ' — $note' : ' (parent informed)'}',
           const Color(0xFF8A94A6));
     }
     if (kid['noShow'] == true && !isPicked) {
-      return chip(Icons.directions_walk, 'Not at stop — moved on', const Color(0xFFE53935));
+      return chip(Icons.directions_walk, 'Not at stop — moved on',
+          const Color(0xFFE53935));
     }
     if (isDropped) return null;
 
@@ -207,16 +236,21 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
 
     final kidId = KidStatus.idOf(kid) ?? '';
     final busy = _stopBusy.contains(kidId);
-    final since = DateTime.tryParse(kid['waitingSince']?.toString() ?? '')?.toLocal();
+    final since =
+        DateTime.tryParse(kid['waitingSince']?.toString() ?? '')?.toLocal();
     if (since == null) {
       return Align(
         alignment: Alignment.centerLeft,
         child: TextButton.icon(
           onPressed: busy ? null : () => _arrivedAtStop(kid),
           icon: const Icon(Icons.where_to_vote_outlined, size: 18),
-          label: Text(tripType == 'drop' ? 'At home — tell parent' : 'At stop — tell parent'),
+          label: Text(tripType == 'drop'
+              ? 'At home — tell parent'
+              : 'At stop — tell parent'),
           style: TextButton.styleFrom(
-              padding: EdgeInsets.zero, visualDensity: VisualDensity.compact, foregroundColor: const Color(0xFF1B2B6B)),
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              foregroundColor: const Color(0xFF1B2B6B)),
         ),
       );
     }
@@ -226,11 +260,15 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
     final ss = (waited.inSeconds % 60).toString().padLeft(2, '0');
     return Row(
       children: [
-        Expanded(child: chip(Icons.timer_outlined, 'Waiting $mm:$ss', const Color(0xFFFFB800))),
+        Expanded(
+            child: chip(Icons.timer_outlined, 'Waiting $mm:$ss',
+                const Color(0xFFFFB800))),
         if (tripType != 'drop' && waited >= _waitBeforeNoShow)
           TextButton(
             onPressed: busy ? null : () => _markNoShow(kid),
-            style: TextButton.styleFrom(foregroundColor: const Color(0xFFE53935), visualDensity: VisualDensity.compact),
+            style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFE53935),
+                visualDensity: VisualDensity.compact),
             child: const Text('Not here — move on'),
           ),
       ],
@@ -243,10 +281,15 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Marked absent'),
-          content: Text('${kid['fullname'] ?? 'This student'}\'s parent said they are absent today. Pick up anyway?'),
+          content: Text(
+              '${kid['fullname'] ?? 'This student'}\'s parent said they are absent today. Pick up anyway?'),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-            ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Pick up')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel')),
+            ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Pick up')),
           ],
         ),
       );
@@ -258,12 +301,12 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
     setState(() => _busyKidIds.add(kidId));
     try {
       final outcome = await ref.read(syncQueueProvider).submit(
-        kind: SyncKind.pick,
-        path: '/trips/pickStudent',
-        body: {'tripId': tripId, 'kidId': kidId},
-        tripId: tripId,
-        kidId: kidId,
-      );
+            kind: SyncKind.pick,
+            path: '/trips/pickStudent',
+            body: {'tripId': tripId, 'kidId': kidId},
+            tripId: tripId,
+            kidId: kidId,
+          );
       final name = kid['fullname'] ?? 'Kid';
       if (outcome == SubmitOutcome.sent) {
         await _loadPassengers();
@@ -292,35 +335,38 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
       final position =
           await ref.read(tripTrackingProvider.notifier).currentPosition();
       if (position == null) {
-        _showSnack('Could not get your GPS location. Turn on location and try again.',
+        _showSnack(
+            'Could not get your GPS location. Turn on location and try again.',
             const Color(0xFFFF4B4B));
         return;
       }
       final outcome = await ref.read(syncQueueProvider).submit(
-        kind: SyncKind.drop,
-        path: '/trips/dropStudentForHome',
-        body: {
-          'tripId': tripId,
-          'kidId': kidId,
-          'lat': position.latitude,
-          'long': position.longitude,
-        },
-        tripId: tripId,
-        kidId: kidId,
-      );
+            kind: SyncKind.drop,
+            path: '/trips/dropStudentForHome',
+            body: {
+              'tripId': tripId,
+              'kidId': kidId,
+              'lat': position.lat,
+              'long': position.lng,
+            },
+            tripId: tripId,
+            kidId: kidId,
+          );
       final name = kid['fullname'] ?? 'Kid';
       if (outcome == SubmitOutcome.sent) {
         await _loadPassengers();
         _showSnack('$name dropped off!', const Color(0xFF1B2B6B));
       } else {
         if (mounted) setState(_recount);
-        _showSnack('$name dropped off — saved offline, will sync automatically.',
+        _showSnack(
+            '$name dropped off — saved offline, will sync automatically.',
             const Color(0xFFFFB800));
       }
     } catch (e) {
       _showSnack(
           ApiErrors.message(e,
-              fallback: 'Failed to drop off ${kid['fullname'] ?? 'kid'}. Please try again.'),
+              fallback:
+                  'Failed to drop off ${kid['fullname'] ?? 'kid'}. Please try again.'),
           const Color(0xFFFF4B4B));
     } finally {
       if (mounted) setState(() => _busyKidIds.remove(kidId));
@@ -331,7 +377,8 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
     try {
       final conversation = await ref.read(chatRepositoryProvider).start(kidId);
       if (mounted) {
-        await context.push(AppRoutes.chatOf(conversation.id), extra: conversation);
+        await context.push(AppRoutes.chatOf(conversation.id),
+            extra: conversation);
       }
     } catch (e) {
       _showSnack(ApiErrors.message(e, fallback: 'Could not open chat.'),
@@ -413,10 +460,8 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
                         _buildHeaderStat('Picked', _pickedCount.toString(),
                             const Color(0xFF27AE60)),
                         const SizedBox(width: 12),
-                        _buildHeaderStat(
-                            'Remaining',
-                            (total - _pickedCount).toString(),
-                            Colors.white70),
+                        _buildHeaderStat('Remaining',
+                            (total - _pickedCount).toString(), Colors.white70),
                       ],
                     ),
                   ],
@@ -429,24 +474,22 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
           Expanded(
             child: _isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(
-                        color: Color(0xFF1B2B6B)))
+                    child: CircularProgressIndicator(color: Color(0xFF1B2B6B)))
                 : _hasError && _passengers.isEmpty
                     ? _buildErrorState()
                     : _passengers.isEmpty
                         ? _buildEmptyState()
                         : RefreshIndicator(
-                        onRefresh: _loadPassengers,
-                        color: const Color(0xFF1B2B6B),
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: _passengers.length,
-                          itemBuilder: (context, index) {
-                            return _buildPassengerCard(
-                                _passengers[index]);
-                          },
-                        ),
-                      ),
+                            onRefresh: _loadPassengers,
+                            color: const Color(0xFF1B2B6B),
+                            child: ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: _passengers.length,
+                              itemBuilder: (context, index) {
+                                return _buildPassengerCard(_passengers[index]);
+                              },
+                            ),
+                          ),
           ),
         ],
       ),
@@ -456,8 +499,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   Widget _buildHeaderStat(String label, String value, Color color) {
     return Expanded(
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.12),
           borderRadius: BorderRadius.circular(12),
@@ -592,131 +634,135 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
 
     return Opacity(
       // Absent / no-show kids are dimmed so the driver's eye goes to riders.
-      opacity: (kid['absent'] == true || kid['noShow'] == true) && !isPicked && !isDropped ? 0.6 : 1,
+      opacity: (kid['absent'] == true || kid['noShow'] == true) &&
+              !isPicked &&
+              !isDropped
+          ? 0.6
+          : 1,
       child: Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-        Row(
-          children: [
-            // Avatar
-            // Avatar — tap to view full profile (address, parent contact,
-            // alternate phone). This screen already existed and worked
-            // correctly, but was completely unreachable from anywhere.
-            GestureDetector(
-              onTap: () => context.push('/kid-profile', extra: kid),
-              child: Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isPicked
-                      ? const Color(0xFF27AE60)
-                      : isDropped
-                          ? const Color(0xFF1B2B6B)
-                          : const Color(0xFFEAECF0),
-                  width: 2,
-                ),
-              ),
-              child: ClipOval(
-                child: image != null
-                    ? Image.network(image,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            _buildAvatarFallback(name))
-                    : _buildAvatarFallback(name),
-              ),
-              ),
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
-            const SizedBox(width: 12),
-
-            // Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          name,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1A2E),
-                            fontFamily: 'Poppins',
-                          ),
+                  // Avatar
+                  // Avatar — tap to view full profile (address, parent contact,
+                  // alternate phone). This screen already existed and worked
+                  // correctly, but was completely unreachable from anywhere.
+                  GestureDetector(
+                    onTap: () => context.push('/kid-profile', extra: kid),
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isPicked
+                              ? const Color(0xFF27AE60)
+                              : isDropped
+                                  ? const Color(0xFF1B2B6B)
+                                  : const Color(0xFFEAECF0),
+                          width: 2,
                         ),
                       ),
-                      if (isUnsynced) ...[
-                        const SizedBox(width: 6),
-                        const Tooltip(
-                          message: 'Saved offline — waiting to sync',
-                          child: Icon(Icons.cloud_upload_outlined,
-                              size: 16, color: Color(0xFFFFB800)),
+                      child: ClipOval(
+                        child: image != null
+                            ? Image.network(image,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    _buildAvatarFallback(name))
+                            : _buildAvatarFallback(name),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+
+                  // Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                name,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1A1A2E),
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ),
+                            if (isUnsynced) ...[
+                              const SizedBox(width: 6),
+                              const Tooltip(
+                                message: 'Saved offline — waiting to sync',
+                                child: Icon(Icons.cloud_upload_outlined,
+                                    size: 16, color: Color(0xFFFFB800)),
+                              ),
+                            ],
+                            if (kidId != null)
+                              IconButton(
+                                tooltip: 'Message parent',
+                                visualDensity: VisualDensity.compact,
+                                icon: const Icon(Icons.chat_bubble_outline,
+                                    size: 18, color: Color(0xFF1B2B6B)),
+                                onPressed: () => _messageParent(kidId),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.location_on_outlined,
+                                size: 12, color: Color(0xFF8A94A6)),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                distance != '—' ? '$distance Away' : schoolName,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF8A94A6),
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                      if (kidId != null)
-                        IconButton(
-                          tooltip: 'Message parent',
-                          visualDensity: VisualDensity.compact,
-                          icon: const Icon(Icons.chat_bubble_outline,
-                              size: 18, color: Color(0xFF1B2B6B)),
-                          onPressed: () => _messageParent(kidId),
-                        ),
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined,
-                          size: 12, color: Color(0xFF8A94A6)),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          distance != '—' ? '$distance Away' : schoolName,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF8A94A6),
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+
+                  // Action Button
+                  _buildActionButton(kid, isPicked, isDropped),
                 ],
               ),
-            ),
-
-            // Action Button
-            _buildActionButton(kid, isPicked, isDropped),
-          ],
-        ),
-            if (stopRow != null) ...[
-              const SizedBox(height: 6),
-              stopRow,
+              if (stopRow != null) ...[
+                const SizedBox(height: 6),
+                stopRow,
+              ],
             ],
-          ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -746,8 +792,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
       return Row(
         children: [
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               color: const Color(0xFF27AE60).withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
@@ -766,13 +811,12 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
           GestureDetector(
             onTap: () => _dropStudent(kid),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 color: const Color(0xFF1B2B6B).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: const Color(0xFF1B2B6B).withOpacity(0.3)),
+                border:
+                    Border.all(color: const Color(0xFF1B2B6B).withOpacity(0.3)),
               ),
               child: const Text(
                 'Drop',
@@ -796,13 +840,11 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFFFB800).withOpacity(0.1),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-              color: const Color(0xFFFFB800).withOpacity(0.5)),
+          border: Border.all(color: const Color(0xFFFFB800).withOpacity(0.5)),
         ),
         child: const Row(
           children: [
-            Icon(Icons.arrow_upward,
-                size: 14, color: Color(0xFFFFB800)),
+            Icon(Icons.arrow_upward, size: 14, color: Color(0xFFFFB800)),
             SizedBox(width: 4),
             Text(
               'Pick Up',
