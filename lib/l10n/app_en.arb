@@ -3,5 +3,15 @@
   "appTitle": "SmartVan Driver",
   "@appTitle": {
     "description": "Application title (task switcher, MaterialApp.title)."
-  }
+  },
+  "commonRetry": "Retry",
+  "@commonRetry": {
+    "description": "Button that repeats a failed load."
+  },
+  "commonNoInternet": "No internet connection. Please check your network and try again.",
+  "commonServerTrouble": "Server is having trouble right now. Please try again shortly.",
+  "commonSomethingWrong": "Something went wrong. Please try again.",
+  "commonSessionExpired": "Your session has expired. Please log in again.",
+  "commonUploadFailed": "Image upload failed. Please try again.",
+  "commonLoginFailed": "Login failed. Please try again."
 }

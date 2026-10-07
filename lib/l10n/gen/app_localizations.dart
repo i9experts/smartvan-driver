@@ -99,6 +99,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'SmartVan Driver'**
   String get appTitle;
+
+  /// Button that repeats a failed load.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get commonRetry;
+
+  /// No description provided for @commonNoInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please check your network and try again.'**
+  String get commonNoInternet;
+
+  /// No description provided for @commonServerTrouble.
+  ///
+  /// In en, this message translates to:
+  /// **'Server is having trouble right now. Please try again shortly.'**
+  String get commonServerTrouble;
+
+  /// No description provided for @commonSomethingWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get commonSomethingWrong;
+
+  /// No description provided for @commonSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please log in again.'**
+  String get commonSessionExpired;
+
+  /// No description provided for @commonUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Image upload failed. Please try again.'**
+  String get commonUploadFailed;
+
+  /// No description provided for @commonLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed. Please try again.'**
+  String get commonLoginFailed;
 }
 
 class _AppLocalizationsDelegate

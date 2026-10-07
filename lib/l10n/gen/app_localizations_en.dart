@@ -10,4 +10,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appTitle => 'SmartVan Driver';
+
+  @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String get commonNoInternet =>
+      'No internet connection. Please check your network and try again.';
+
+  @override
+  String get commonServerTrouble =>
+      'Server is having trouble right now. Please try again shortly.';
+
+  @override
+  String get commonSomethingWrong => 'Something went wrong. Please try again.';
+
+  @override
+  String get commonSessionExpired =>
+      'Your session has expired. Please log in again.';
+
+  @override
+  String get commonUploadFailed => 'Image upload failed. Please try again.';
+
+  @override
+  String get commonLoginFailed => 'Login failed. Please try again.';
 }
