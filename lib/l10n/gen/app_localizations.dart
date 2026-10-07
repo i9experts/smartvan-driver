@@ -2145,6 +2145,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edhi'**
   String get sosEdhi;
+
+  /// No description provided for @homeGreetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Morning,'**
+  String get homeGreetingMorning;
+
+  /// No description provided for @homeGreetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Afternoon,'**
+  String get homeGreetingAfternoon;
+
+  /// No description provided for @homeGreetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Evening,'**
+  String get homeGreetingEvening;
+
+  /// No description provided for @homeDriverFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get homeDriverFallback;
+
+  /// No description provided for @homeMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get homeMessages;
+
+  /// No description provided for @homeDefaultLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Karachi, Pakistan'**
+  String get homeDefaultLocation;
+
+  /// No description provided for @homeStatTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips Today'**
+  String get homeStatTrips;
+
+  /// No description provided for @homeStatPassengers.
+  ///
+  /// In en, this message translates to:
+  /// **'Passengers'**
+  String get homeStatPassengers;
+
+  /// No description provided for @homeStatCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get homeStatCompleted;
+
+  /// No description provided for @homeNavHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeNavHome;
+
+  /// No description provided for @homeNavAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get homeNavAlerts;
+
+  /// No description provided for @homeNavProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get homeNavProfile;
+
+  /// No description provided for @homeTripInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip in progress'**
+  String get homeTripInProgress;
+
+  /// No description provided for @homeChecklistNotDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily van check not done'**
+  String get homeChecklistNotDone;
+
+  /// No description provided for @homeChecklistDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Van check done'**
+  String get homeChecklistDone;
+
+  /// No description provided for @homeChecklistDoneIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Van check done — issues reported'**
+  String get homeChecklistDoneIssues;
+
+  /// No description provided for @homeChecklistRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required before you can start a trip'**
+  String get homeChecklistRequired;
+
+  /// No description provided for @homeChecklistQuick.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes less than a minute'**
+  String get homeChecklistQuick;
+
+  /// No description provided for @homeChecklistUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to update'**
+  String get homeChecklistUpdate;
+
+  /// No description provided for @homeDocLicence.
+  ///
+  /// In en, this message translates to:
+  /// **'Driving licence'**
+  String get homeDocLicence;
+
+  /// No description provided for @homeDocVehicleCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle card'**
+  String get homeDocVehicleCard;
+
+  /// No description provided for @homeDocExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'{doc} expired'**
+  String homeDocExpired(String doc);
+
+  /// No description provided for @homeDocExpiresToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{doc} expires today'**
+  String homeDocExpiresToday(String doc);
+
+  /// No description provided for @homeDocExpiresIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{{doc} expires in 1 day} other{{doc} expires in {days} days}}'**
+  String homeDocExpiresIn(String doc, int days);
+
+  /// No description provided for @homeDocBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'{text}. Tap to upload the renewed copy.'**
+  String homeDocBanner(String text);
+
+  /// No description provided for @homeMyRouteToday.
+  ///
+  /// In en, this message translates to:
+  /// **'My Route Today'**
+  String get homeMyRouteToday;
+
+  /// No description provided for @homeTodaysTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Trips'**
+  String get homeTodaysTrips;
+
+  /// No description provided for @homeTripsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} trips'**
+  String homeTripsCount(int count);
+
+  /// No description provided for @homeRouteFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get homeRouteFallback;
+
+  /// No description provided for @homeRouteInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get homeRouteInProgress;
+
+  /// No description provided for @homeRouteNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Started'**
+  String get homeRouteNotStarted;
+
+  /// No description provided for @homeRouteDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop'**
+  String get homeRouteDrop;
+
+  /// No description provided for @homeRoutePickUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Up'**
+  String get homeRoutePickUp;
+
+  /// No description provided for @homeRoutePassengers.
+  ///
+  /// In en, this message translates to:
+  /// **'Passengers ({count})'**
+  String homeRoutePassengers(int count);
+
+  /// No description provided for @homeRouteNoStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'No students on this route yet.'**
+  String get homeRouteNoStudents;
+
+  /// No description provided for @homeGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade {grade}'**
+  String homeGrade(String grade);
+
+  /// No description provided for @homeStartTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Trip'**
+  String get homeStartTrip;
+
+  /// No description provided for @homeAvailableAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Available at {time}'**
+  String homeAvailableAt(String time);
+
+  /// No description provided for @homeContinueTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Trip'**
+  String get homeContinueTrip;
+
+  /// No description provided for @homeUnknownKid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get homeUnknownKid;
+
+  /// No description provided for @homeEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Trip Today'**
+  String get homeEmptyTitle;
+
+  /// No description provided for @homeEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No active trips have been assigned\nto you today. Check back later.'**
+  String get homeEmptyBody;
+
+  /// No description provided for @homeEmptyNotified.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll be notified when assigned'**
+  String get homeEmptyNotified;
+
+  /// No description provided for @homeTripFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'School Trip'**
+  String get homeTripFallback;
+
+  /// No description provided for @homeTripDropOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop Off'**
+  String get homeTripDropOff;
+
+  /// No description provided for @homeTripPickUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Up'**
+  String get homeTripPickUp;
+
+  /// No description provided for @homeTripActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get homeTripActive;
+
+  /// No description provided for @homeTripCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get homeTripCompleted;
+
+  /// No description provided for @homeTripStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting'**
+  String get homeTripStarting;
+
+  /// No description provided for @homeViewTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'View Trip'**
+  String get homeViewTrip;
+
+  /// No description provided for @homeStartFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to start trip. Please try again.'**
+  String get homeStartFailed;
+
+  /// No description provided for @homeChecklistFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please complete today\'s van check first.'**
+  String get homeChecklistFirst;
+
+  /// No description provided for @homeTripResumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ongoing trip was resumed — location sharing is on.'**
+  String get homeTripResumed;
 }
 
 class _AppLocalizationsDelegate

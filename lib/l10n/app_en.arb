@@ -699,5 +699,117 @@
   },
   "sosPolice": "Police",
   "sosRescue": "Rescue",
-  "sosEdhi": "Edhi"
+  "sosEdhi": "Edhi",
+  "homeGreetingMorning": "Good Morning,",
+  "homeGreetingAfternoon": "Good Afternoon,",
+  "homeGreetingEvening": "Good Evening,",
+  "homeDriverFallback": "Driver",
+  "homeMessages": "Messages",
+  "homeDefaultLocation": "Karachi, Pakistan",
+  "homeStatTrips": "Trips Today",
+  "homeStatPassengers": "Passengers",
+  "homeStatCompleted": "Completed",
+  "homeNavHome": "Home",
+  "homeNavAlerts": "Alerts",
+  "homeNavProfile": "Profile",
+  "homeTripInProgress": "Trip in progress",
+  "homeChecklistNotDone": "Daily van check not done",
+  "homeChecklistDone": "Van check done",
+  "homeChecklistDoneIssues": "Van check done — issues reported",
+  "homeChecklistRequired": "Required before you can start a trip",
+  "homeChecklistQuick": "Takes less than a minute",
+  "homeChecklistUpdate": "Tap to update",
+  "homeDocLicence": "Driving licence",
+  "homeDocVehicleCard": "Vehicle card",
+  "homeDocExpired": "{doc} expired",
+  "@homeDocExpired": {
+    "placeholders": {
+      "doc": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDocExpiresToday": "{doc} expires today",
+  "@homeDocExpiresToday": {
+    "placeholders": {
+      "doc": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDocExpiresIn": "{days, plural, =1{{doc} expires in 1 day} other{{doc} expires in {days} days}}",
+  "@homeDocExpiresIn": {
+    "placeholders": {
+      "doc": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "homeDocBanner": "{text}. Tap to upload the renewed copy.",
+  "@homeDocBanner": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "homeMyRouteToday": "My Route Today",
+  "homeTodaysTrips": "Today's Trips",
+  "homeTripsCount": "{count} trips",
+  "@homeTripsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeRouteFallback": "Route",
+  "homeRouteInProgress": "In Progress",
+  "homeRouteNotStarted": "Not Started",
+  "homeRouteDrop": "Drop",
+  "homeRoutePickUp": "Pick Up",
+  "homeRoutePassengers": "Passengers ({count})",
+  "@homeRoutePassengers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeRouteNoStudents": "No students on this route yet.",
+  "homeGrade": "Grade {grade}",
+  "@homeGrade": {
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      }
+    }
+  },
+  "homeStartTrip": "Start Trip",
+  "homeAvailableAt": "Available at {time}",
+  "@homeAvailableAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "homeContinueTrip": "Continue Trip",
+  "homeUnknownKid": "Unknown",
+  "homeEmptyTitle": "No Trip Today",
+  "homeEmptyBody": "No active trips have been assigned\nto you today. Check back later.",
+  "homeEmptyNotified": "You'll be notified when assigned",
+  "homeTripFallback": "School Trip",
+  "homeTripDropOff": "Drop Off",
+  "homeTripPickUp": "Pick Up",
+  "homeTripActive": "Active",
+  "homeTripCompleted": "Completed",
+  "homeTripStarting": "Starting",
+  "homeViewTrip": "View Trip",
+  "homeStartFailed": "Failed to start trip. Please try again.",
+  "homeChecklistFirst": "Please complete today's van check first.",
+  "homeTripResumed": "Your ongoing trip was resumed — location sharing is on."
 }

@@ -193,5 +193,25 @@ class _ConversationByIdProviderElement
   String get conversationId =>
       (origin as ConversationByIdProvider).conversationId;
 }
+
+String _$chatUnreadHash() => r'3549615905fa7566ed8bf8ea2e42954c73d8a9b3';
+
+/// Unread messages for the home screen's badge. Chat not being available
+/// (offline, backend without chat) is not an error there: no badge (0).
+///
+/// Copied from [chatUnread].
+@ProviderFor(chatUnread)
+final chatUnreadProvider = AutoDisposeFutureProvider<int>.internal(
+  chatUnread,
+  name: r'chatUnreadProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$chatUnreadHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ChatUnreadRef = AutoDisposeFutureProviderRef<int>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

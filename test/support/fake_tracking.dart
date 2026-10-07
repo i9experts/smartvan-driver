@@ -7,6 +7,7 @@ import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
 class TrackingProbe {
   final List<ActiveTrip> started = [];
   int ends = 0;
+  int stops = 0;
   bool? lastForceEnd;
   String? lastNote;
   TrackingStartResult startResult = TrackingStartResult.started;
@@ -53,6 +54,12 @@ class FakeTracking extends TripTracking {
   Future<TrackingStartResult> start(ActiveTrip trip) async {
     _probe.started.add(trip);
     return _probe.startResult;
+  }
+
+  @override
+  Future<void> stop() async {
+    _probe.stops += 1;
+    state = const TripTrackingState();
   }
 
   @override

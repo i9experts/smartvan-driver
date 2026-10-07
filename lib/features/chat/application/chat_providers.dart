@@ -17,3 +17,14 @@ Future<Conversation?> conversationById(Ref ref, String conversationId) async {
   final all = await ref.watch(conversationsProvider.future);
   return all.where((c) => c.id == conversationId).firstOrNull;
 }
+
+/// Unread messages for the home screen's badge. Chat not being available
+/// (offline, backend without chat) is not an error there: no badge (0).
+@riverpod
+Future<int> chatUnread(Ref ref) async {
+  try {
+    return await ref.watch(chatRepositoryProvider).unread();
+  } catch (_) {
+    return 0;
+  }
+}

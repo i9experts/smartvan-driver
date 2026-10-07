@@ -1208,4 +1208,187 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sosEdhi => 'Edhi';
+
+  @override
+  String get homeGreetingMorning => 'Good Morning,';
+
+  @override
+  String get homeGreetingAfternoon => 'Good Afternoon,';
+
+  @override
+  String get homeGreetingEvening => 'Good Evening,';
+
+  @override
+  String get homeDriverFallback => 'Driver';
+
+  @override
+  String get homeMessages => 'Messages';
+
+  @override
+  String get homeDefaultLocation => 'Karachi, Pakistan';
+
+  @override
+  String get homeStatTrips => 'Trips Today';
+
+  @override
+  String get homeStatPassengers => 'Passengers';
+
+  @override
+  String get homeStatCompleted => 'Completed';
+
+  @override
+  String get homeNavHome => 'Home';
+
+  @override
+  String get homeNavAlerts => 'Alerts';
+
+  @override
+  String get homeNavProfile => 'Profile';
+
+  @override
+  String get homeTripInProgress => 'Trip in progress';
+
+  @override
+  String get homeChecklistNotDone => 'Daily van check not done';
+
+  @override
+  String get homeChecklistDone => 'Van check done';
+
+  @override
+  String get homeChecklistDoneIssues => 'Van check done — issues reported';
+
+  @override
+  String get homeChecklistRequired => 'Required before you can start a trip';
+
+  @override
+  String get homeChecklistQuick => 'Takes less than a minute';
+
+  @override
+  String get homeChecklistUpdate => 'Tap to update';
+
+  @override
+  String get homeDocLicence => 'Driving licence';
+
+  @override
+  String get homeDocVehicleCard => 'Vehicle card';
+
+  @override
+  String homeDocExpired(String doc) {
+    return '$doc expired';
+  }
+
+  @override
+  String homeDocExpiresToday(String doc) {
+    return '$doc expires today';
+  }
+
+  @override
+  String homeDocExpiresIn(String doc, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$doc expires in $days days',
+      one: '$doc expires in 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeDocBanner(String text) {
+    return '$text. Tap to upload the renewed copy.';
+  }
+
+  @override
+  String get homeMyRouteToday => 'My Route Today';
+
+  @override
+  String get homeTodaysTrips => 'Today\'s Trips';
+
+  @override
+  String homeTripsCount(int count) {
+    return '$count trips';
+  }
+
+  @override
+  String get homeRouteFallback => 'Route';
+
+  @override
+  String get homeRouteInProgress => 'In Progress';
+
+  @override
+  String get homeRouteNotStarted => 'Not Started';
+
+  @override
+  String get homeRouteDrop => 'Drop';
+
+  @override
+  String get homeRoutePickUp => 'Pick Up';
+
+  @override
+  String homeRoutePassengers(int count) {
+    return 'Passengers ($count)';
+  }
+
+  @override
+  String get homeRouteNoStudents => 'No students on this route yet.';
+
+  @override
+  String homeGrade(String grade) {
+    return 'Grade $grade';
+  }
+
+  @override
+  String get homeStartTrip => 'Start Trip';
+
+  @override
+  String homeAvailableAt(String time) {
+    return 'Available at $time';
+  }
+
+  @override
+  String get homeContinueTrip => 'Continue Trip';
+
+  @override
+  String get homeUnknownKid => 'Unknown';
+
+  @override
+  String get homeEmptyTitle => 'No Trip Today';
+
+  @override
+  String get homeEmptyBody =>
+      'No active trips have been assigned\nto you today. Check back later.';
+
+  @override
+  String get homeEmptyNotified => 'You\'ll be notified when assigned';
+
+  @override
+  String get homeTripFallback => 'School Trip';
+
+  @override
+  String get homeTripDropOff => 'Drop Off';
+
+  @override
+  String get homeTripPickUp => 'Pick Up';
+
+  @override
+  String get homeTripActive => 'Active';
+
+  @override
+  String get homeTripCompleted => 'Completed';
+
+  @override
+  String get homeTripStarting => 'Starting';
+
+  @override
+  String get homeViewTrip => 'View Trip';
+
+  @override
+  String get homeStartFailed => 'Failed to start trip. Please try again.';
+
+  @override
+  String get homeChecklistFirst => 'Please complete today\'s van check first.';
+
+  @override
+  String get homeTripResumed =>
+      'Your ongoing trip was resumed — location sharing is on.';
 }

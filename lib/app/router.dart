@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../core/router/app_routes.dart';
 import '../features/auth/presentation/screens/splash_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
-import '../features/home/screens/home_screen.dart';
+import '../features/home/presentation/screens/home_screen.dart';
 import '../features/trip/presentation/screens/trip_screen.dart';
 import '../features/passengers/presentation/screens/passengers_screen.dart';
 import '../features/passengers/presentation/screens/kid_profile_screen.dart';
