@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "data": [
+    { "absenceId": "abs-001", "kidId": "kid-002", "date": "2026-10-06", "tripType": "both", "note": "Fever, back on Monday", "createdAt": "2026-10-05T17:30:00.000Z" },
+    { "absenceId": "abs-002", "kidId": "kid-005", "date": "2026-10-06", "tripType": "drop" },
+    { "absenceId": "abs-003", "kidId": "kid-006", "date": "2026-10-06", "tripType": "weekend", "note": "  " }
+  ]
+}

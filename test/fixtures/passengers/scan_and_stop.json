@@ -1,0 +1,6 @@
+{
+  "scanPicked": { "success": true, "data": { "action": "picked", "kidId": "kid-001", "fullname": "Test Kid One" } },
+  "scanDropped": { "success": true, "data": { "action": "dropped", "kidId": "kid-001", "fullname": "Test Kid One" } },
+  "scanOdd": { "data": { "action": "teleported", "kidId": "kid-009" } },
+  "arrived": { "success": true, "data": { "kidId": "kid-002", "waitingSince": "2026-10-06T08:12:00.000Z" } }
+}

@@ -1,0 +1,45 @@
+{
+  "data": [
+    {
+      "kidId": "kid-001",
+      "fullname": "Test Kid One",
+      "image": "https://example.test/img/1.png",
+      "tripStatus": "PICKED",
+      "tripId": "trip-001",
+      "grade": "3",
+      "school": { "schoolName": "Sample School" },
+      "distance": "1.2 km",
+      "parent": { "phoneNo": "0300-0000001", "alternatePhoneNo": "0300-0000002", "address": "1 Example Street, Test City" },
+      "absent": false,
+      "absenceNote": null,
+      "waitingSince": null,
+      "noShow": false
+    },
+    {
+      "_id": "kid-002",
+      "name": "Test Kid Two",
+      "profileImage": "https://example.test/img/2.png",
+      "status": "pending",
+      "schoolName": "Sample School",
+      "grade": 4,
+      "distance": 2.5,
+      "parentPhone": "0300-0000003",
+      "alternatePhone": "0300-0000004",
+      "address": "2 Example Street, Test City",
+      "absent": true,
+      "absenceNote": "Fever, back on Monday",
+      "waitingSince": "2026-10-06T08:12:00.000Z",
+      "noShow": true
+    },
+    {
+      "id": "kid-003",
+      "fullname": "Test Kid Three",
+      "phoneNo": "0300-0000005"
+    },
+    {
+      "kidId": "kid-004",
+      "fullname": "Test Kid Four",
+      "tripStatus": "no_show_yet"
+    }
+  ]
+}

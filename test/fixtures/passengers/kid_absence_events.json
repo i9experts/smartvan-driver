@@ -1,0 +1,4 @@
+{
+  "kidAbsence": { "kidId": "kid-002", "fullname": "Test Kid Two", "date": "2026-10-06", "tripType": "pick" },
+  "kidAbsenceCancelled": { "kidId": "kid-002", "fullname": "Test Kid Two", "date": "2026-10-06", "tripType": "both", "cancelled": true }
+}
