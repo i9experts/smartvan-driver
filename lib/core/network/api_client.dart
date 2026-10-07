@@ -6,6 +6,25 @@ import 'json_helpers.dart';
 /// Turns the (already unwrapped) response body into a model.
 typedef JsonParser<T> = T Function(Object? json);
 
+/// The whole response body, for the few endpoints that put data next to
+/// `data` — e.g. `required` of `/trips/checklist/today`, `hasMore` of
+/// `/chat/{id}/messages`.
+class Envelope {
+  const Envelope(this.raw);
+
+  /// Body exactly as received (a map, a list, or null).
+  final Object? raw;
+
+  /// The payload, unwrapped like [unwrapData] does for the typed helpers.
+  Object? get data => unwrapData(raw);
+
+  /// A top-level key next to `data`; null when the body is not a map.
+  Object? operator [](String key) => raw is Map ? (raw! as Map)[key] : null;
+}
+
+/// Turns the whole response body into a model.
+typedef EnvelopeParser<T> = T Function(Envelope envelope);
+
 /// Typed HTTP client. Repositories use [get] / [post] / [put] / [patch] /
 /// [delete]: they get a parsed model back or an [AppException] thrown.
 /// The `*Raw` methods return the Dio `Response` and only exist for the
@@ -21,14 +40,12 @@ class ApiClient {
 
   Future<T> post<T>(String path, JsonParser<T> parse,
           {Object? body, Map<String, dynamic>? query}) =>
-      _typed(
-          () => _dio.post<Object?>(path, data: body, queryParameters: query),
+      _typed(() => _dio.post<Object?>(path, data: body, queryParameters: query),
           parse);
 
   Future<T> put<T>(String path, JsonParser<T> parse,
           {Object? body, Map<String, dynamic>? query}) =>
-      _typed(
-          () => _dio.put<Object?>(path, data: body, queryParameters: query),
+      _typed(() => _dio.put<Object?>(path, data: body, queryParameters: query),
           parse);
 
   Future<T> patch<T>(String path, JsonParser<T> parse,
@@ -40,6 +57,18 @@ class ApiClient {
   Future<T> delete<T>(String path, JsonParser<T> parse,
           {Map<String, dynamic>? query}) =>
       _typed(() => _dio.delete<Object?>(path, queryParameters: query), parse);
+
+  /// Like [get], but [parse] sees the whole body (see [Envelope]).
+  Future<T> getEnvelope<T>(String path, EnvelopeParser<T> parse,
+          {Map<String, dynamic>? query}) =>
+      _typedRaw(() => _dio.get<Object?>(path, queryParameters: query), parse);
+
+  /// Like [post], but [parse] sees the whole body (see [Envelope]).
+  Future<T> postEnvelope<T>(String path, EnvelopeParser<T> parse,
+          {Object? body, Map<String, dynamic>? query}) =>
+      _typedRaw(
+          () => _dio.post<Object?>(path, data: body, queryParameters: query),
+          parse);
 
   /// Multipart upload to `/upload/image` (field `file`); returns the hosted
   /// URL, or null if the server answered 2xx without one.
@@ -87,6 +116,12 @@ class ApiClient {
   Future<T> _typed<T>(
     Future<Response<Object?>> Function() send,
     JsonParser<T> parse,
+  ) =>
+      _typedRaw(send, (envelope) => parse(envelope.data));
+
+  Future<T> _typedRaw<T>(
+    Future<Response<Object?>> Function() send,
+    EnvelopeParser<T> parse,
   ) async {
     final Response<Object?> response;
     try {
@@ -95,7 +130,7 @@ class ApiClient {
       throw AppException.from(e);
     }
     try {
-      return parse(unwrapData(response.data));
+      return parse(Envelope(response.data));
     } on AppException {
       rethrow;
     } catch (e) {

@@ -117,6 +117,49 @@ void main() {
     });
   });
 
+  group('envelope helpers', () {
+    test('getEnvelope exposes data and top-level siblings', () async {
+      adapter.onGet(
+          '/trips/checklist/today',
+          (s) => s.reply(200, {
+                'required': true,
+                'data': {'allOk': true}
+              }));
+      final result = await client().getEnvelope('/trips/checklist/today',
+          (e) => (e['required'], asJsonMap(e.data)['allOk']));
+      expect(result, (true, true));
+    });
+
+    test('getEnvelope on a raw list: data is the list, siblings are null',
+        () async {
+      adapter.onGet('/raw', (s) => s.reply(200, [1, 2]));
+      final result =
+          await client().getEnvelope('/raw', (e) => (e.data, e['hasMore']));
+      expect(result.$1, [1, 2]);
+      expect(result.$2, isNull);
+    });
+
+    test('postEnvelope sends the body', () async {
+      adapter.onPost(
+          '/chat/c1/messages',
+          (s) => s.reply(201, {
+                'data': {'id': 1},
+                'hasMore': false
+              }),
+          data: {'text': 'hi'});
+      final more = await client().postEnvelope(
+          '/chat/c1/messages', (e) => e['hasMore'],
+          body: {'text': 'hi'});
+      expect(more, false);
+    });
+
+    test('errors still map to AppException', () async {
+      adapter.onGet('/e', (s) => s.reply(409, {'code': 'X', 'message': 'm'}));
+      expect(client().getEnvelope('/e', (e) => e),
+          throwsA(isA<ApiError>().having((e) => e.code, 'code', 'X')));
+    });
+  });
+
   group('error mapping', () {
     test('4xx with a code becomes ApiError', () async {
       adapter.onPost(
