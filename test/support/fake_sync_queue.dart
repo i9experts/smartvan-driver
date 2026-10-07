@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:smartvan_driver/core/sync/sync_queue.dart';
 
@@ -40,14 +39,4 @@ class FakeSyncQueue extends Mock implements SyncQueue {
     pendingQueriedFor = tripId;
     return pendingStatusMap;
   }
-}
-
-/// The DioException the real queue rethrows for a rejected request.
-DioException dioStatus(int status, Object? body) {
-  final req = RequestOptions(path: '/x');
-  return DioException(
-    requestOptions: req,
-    type: DioExceptionType.badResponse,
-    response: Response(requestOptions: req, statusCode: status, data: body),
-  );
 }

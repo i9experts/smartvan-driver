@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
+import '../../../core/providers/core_providers.dart';
 import '../../../core/sync/sync_queue.dart';
 import '../../trip/services/trip_tracking_service.dart';
 import '../kid_status.dart';
@@ -43,7 +44,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
     super.initState();
     _loadPassengers();
     // When queued picks/drops reach the server, reload real statuses.
-    _syncedSub = SyncQueue.instance.onSynced.listen((_) => _loadPassengers());
+    _syncedSub = ref.read(syncQueueProvider).onSynced.listen((_) => _loadPassengers());
     // A parent marked a child absent (or cancelled it) during the trip.
     _absenceSub = ref.read(tripTrackingProvider.notifier).absenceEvents.listen((e) {
       _loadPassengers();
@@ -68,7 +69,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   }
 
   void _recount() {
-    _pendingSync = SyncQueue.instance.pendingKidStatuses(_tripId);
+    _pendingSync = ref.read(syncQueueProvider).pendingKidStatuses(_tripId);
     _pickedCount = _passengers
         .where((p) => KidStatus.isPickedOrDropped(
             KidStatus.of(p as Map, pendingSync: _pendingSync)))
@@ -256,7 +257,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
     if (kidId == null || tripId == null || _busyKidIds.contains(kidId)) return;
     setState(() => _busyKidIds.add(kidId));
     try {
-      final outcome = await SyncQueue.instance.submit(
+      final outcome = await ref.read(syncQueueProvider).submit(
         kind: SyncKind.pick,
         path: '/trips/pickStudent',
         body: {'tripId': tripId, 'kidId': kidId},
@@ -295,7 +296,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
             const Color(0xFFFF4B4B));
         return;
       }
-      final outcome = await SyncQueue.instance.submit(
+      final outcome = await ref.read(syncQueueProvider).submit(
         kind: SyncKind.drop,
         path: '/trips/dropStudentForHome',
         body: {

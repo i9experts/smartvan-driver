@@ -45,13 +45,13 @@ class PassengersRepository {
   /// [SubmitOutcome.queued] means saved offline. Throws an [AppException]
   /// only when the server rejects the request.
   Future<SubmitOutcome> pick({required String tripId, required String kidId}) =>
-      guardAppException(() => _queue.submit(
-            kind: SyncKind.pick,
-            path: '/trips/pickStudent',
-            body: {'tripId': tripId, 'kidId': kidId},
-            tripId: tripId,
-            kidId: kidId,
-          ));
+      _queue.submit(
+        kind: SyncKind.pick,
+        path: '/trips/pickStudent',
+        body: {'tripId': tripId, 'kidId': kidId},
+        tripId: tripId,
+        kidId: kidId,
+      );
 
   /// `POST /trips/dropStudentForHome` through the queue. The backend wants
   /// the longitude as `long` here.
@@ -60,18 +60,18 @@ class PassengersRepository {
     required String kidId,
     required GeoPoint position,
   }) =>
-      guardAppException(() => _queue.submit(
-            kind: SyncKind.drop,
-            path: '/trips/dropStudentForHome',
-            body: {
-              'tripId': tripId,
-              'kidId': kidId,
-              'lat': position.lat,
-              'long': position.lng,
-            },
-            tripId: tripId,
-            kidId: kidId,
-          ));
+      _queue.submit(
+        kind: SyncKind.drop,
+        path: '/trips/dropStudentForHome',
+        body: {
+          'tripId': tripId,
+          'kidId': kidId,
+          'lat': position.lat,
+          'long': position.lng,
+        },
+        tripId: tripId,
+        kidId: kidId,
+      );
 
   /// Kid states saved on the phone but not on the server yet, for [tripId],
   /// to overlay on [activePassengers].

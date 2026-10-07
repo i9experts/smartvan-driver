@@ -145,18 +145,3 @@ class UnknownException extends AppException {
   @override
   String toString() => 'UnknownException($cause)';
 }
-
-/// Runs [body] and rethrows anything it throws as an [AppException]. For
-/// code that still reaches Dio through `ApiService` (the offline queue), so
-/// repositories keep their "models or AppException" contract.
-Future<T> guardAppException<T>(Future<T> Function() body) async {
-  try {
-    return await body();
-  } on AppException {
-    rethrow;
-  } on DioException catch (e) {
-    throw AppException.from(e);
-  } on SocketException catch (e) {
-    throw AppException.from(e);
-  }
-}

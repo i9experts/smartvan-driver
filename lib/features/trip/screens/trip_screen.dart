@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
-import '../../../core/sync/sync_queue.dart';
+import '../../../core/providers/core_providers.dart';
 import '../../passengers/kid_status.dart';
 import '../../safety/widgets/sos_button.dart';
 import '../services/trip_tracking_service.dart';
@@ -44,7 +44,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     super.initState();
     _loadProfile();
     _loadPassengers();
-    _syncedSub = SyncQueue.instance.onSynced.listen((_) => _loadPassengers());
+    _syncedSub = ref.read(syncQueueProvider).onSynced.listen((_) => _loadPassengers());
     WidgetsBinding.instance.addPostFrameCallback((_) => _startTracking());
   }
 
@@ -98,7 +98,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
         final raw = response.data;
         final data = raw['data'] ?? raw ?? [];
         final list = data is List ? data : [];
-        final pending = SyncQueue.instance
+        final pending = ref.read(syncQueueProvider)
             .pendingKidStatuses(TripTrackingState.tripIdOf(_trip));
         setState(() {
           _passengers = list;
@@ -230,7 +230,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
 
   Widget _buildSyncBanner(TripTrackingState tracking) {
     return ValueListenableBuilder<int>(
-      valueListenable: SyncQueue.instance.pending,
+      valueListenable: ref.read(syncQueueProvider).pending,
       builder: (context, pending, _) {
         final warnings = <Widget>[];
         if (!tracking.isTracking) {

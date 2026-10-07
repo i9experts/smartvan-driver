@@ -105,37 +105,4 @@ void main() {
     expect(AppException.from(dioError(status: 400, error: original)),
         same(original));
   });
-
-  group('guardAppException', () {
-    test('passes the value through', () async {
-      expect(await guardAppException(() async => 42), 42);
-    });
-
-    test('DioException becomes an AppException', () async {
-      await expectLater(
-          guardAppException<void>(
-              () async => throw dioError(status: 409, body: {'code': 'X'})),
-          throwsA(isA<ApiError>().having((e) => e.code, 'code', 'X')));
-    });
-
-    test('an AppException inside a DioException is kept', () async {
-      const original = ServerException('s', 500);
-      await expectLater(
-          guardAppException<void>(
-              () async => throw dioError(status: 500, error: original)),
-          throwsA(same(original)));
-    });
-
-    test('SocketException becomes NetworkException', () async {
-      await expectLater(
-          guardAppException<void>(() async => throw const SocketException('x')),
-          throwsA(isA<NetworkException>()));
-    });
-
-    test('other errors are not swallowed', () async {
-      await expectLater(
-          guardAppException<void>(() async => throw StateError('bug')),
-          throwsA(isA<StateError>()));
-    });
-  });
 }

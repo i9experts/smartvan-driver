@@ -9,6 +9,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/storage/token_storage.dart';
+import '../../../core/providers/core_providers.dart';
 import '../../../core/sync/sync_queue.dart';
 import 'active_trip_store.dart';
 
@@ -174,8 +175,8 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
       await stop();
       return;
     }
-    final synced = await SyncQueue.instance.flush();
-    if (!synced) throw PendingSyncException(SyncQueue.instance.pending.value);
+    final synced = await ref.read(syncQueueProvider).flush();
+    if (!synced) throw PendingSyncException(ref.read(syncQueueProvider).pending.value);
 
     final position = state.lastPosition;
     try {
@@ -236,7 +237,8 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
     final now = DateTime.now();
     if (_lastHttpUpdate == null || now.difference(_lastHttpUpdate!) >= _httpInterval) {
       _lastHttpUpdate = now;
-      SyncQueue.instance
+      ref
+          .read(syncQueueProvider)
           .submit(
             kind: SyncKind.location,
             path: '/trips/updateLocation/$id',
@@ -323,7 +325,7 @@ class TripTrackingNotifier extends Notifier<TripTrackingState> {
       state = state.copyWith(socketConnected: true);
       // Re-join the trip room on every (re)connect.
       socket.emit('startTrip', {'tripId': tripId});
-      SyncQueue.instance.flush();
+      ref.read(syncQueueProvider).flush();
     });
     socket.onDisconnect((_) => state = state.copyWith(socketConnected: false));
     socket.on('kidAbsence', (data) {

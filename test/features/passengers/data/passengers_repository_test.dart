@@ -67,8 +67,8 @@ void main() {
 
     test('a server rejection comes back as ApiError (ALREADY_PICKED)',
         () async {
-      queue.error = dioStatus(
-          400, {'message': 'Already picked', 'code': 'ALREADY_PICKED'});
+      queue.error = const ApiError(
+          status: 400, message: 'Already picked', code: 'ALREADY_PICKED');
       await expectLater(
           repo.pick(tripId: 't', kidId: 'k'),
           throwsA(isA<ApiError>()
@@ -98,8 +98,10 @@ void main() {
 
     test('a 5xx or network failure is the queue\'s business, a 4xx is ours',
         () async {
-      queue.error = dioStatus(400,
-          {'message': 'Kid is not on this trip', 'code': 'KID_NOT_ON_TRIP'});
+      queue.error = const ApiError(
+          status: 400,
+          message: 'Kid is not on this trip',
+          code: 'KID_NOT_ON_TRIP');
       await expectLater(
           repo.drop(
               tripId: 't',

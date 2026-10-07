@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_client.dart';
-import '../../../core/network/app_exception.dart';
 import '../../../core/network/json_helpers.dart';
 import '../../../core/network/network_providers.dart';
 import '../../../core/providers/core_providers.dart';
@@ -82,16 +81,16 @@ class TripRepository {
     double? speedMetersPerSecond,
   }) {
     final speed = speedMetersPerSecond;
-    return guardAppException(() => _queue.submit(
-          kind: SyncKind.location,
-          path: '/trips/updateLocation/$tripId',
-          body: {
-            'lat': position.lat,
-            'lng': position.lng,
-            if (speed != null && speed >= 0) 'speed': speed,
-          },
-          tripId: tripId,
-        ));
+    return _queue.submit(
+      kind: SyncKind.location,
+      path: '/trips/updateLocation/$tripId',
+      body: {
+        'lat': position.lat,
+        'lng': position.lng,
+        if (speed != null && speed >= 0) 'speed': speed,
+      },
+      tripId: tripId,
+    );
   }
 
   /// Payload of the Socket.IO `updateLocation` event (the socket spells

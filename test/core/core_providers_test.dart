@@ -19,7 +19,7 @@ void main() {
   test('defaults point at the existing singletons', () {
     final c = ProviderContainer();
     addTearDown(c.dispose);
-    expect(c.read(syncQueueProvider), same(SyncQueue.instance));
+    expect(c.read(syncQueueProvider), isA<SyncQueue>());
     expect(c.read(routerProvider), same(appRouter));
   });
 

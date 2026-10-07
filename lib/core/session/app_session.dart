@@ -5,7 +5,7 @@ import '../../app/router.dart';
 import '../../features/profile/application/driver_profile_provider.dart';
 import '../router/app_routes.dart';
 import '../storage/token_storage.dart';
-import '../sync/sync_queue.dart';
+import '../providers/core_providers.dart';
 
 /// Single place for "the driver is no longer signed in" — used by the
 /// logout buttons and by the API layer when the server answers 401.
@@ -17,7 +17,7 @@ class AppSession {
   /// Text for the logout confirmation dialog — warns if pickups/drops are
   /// still waiting to sync, because a manual logout discards them.
   static String logoutConfirmText() {
-    final n = SyncQueue.instance.pending.value;
+    final n = appContainer.read(syncQueueProvider).pending.value;
     if (n == 0) return 'Are you sure you want to logout?';
     return '$n pickup/drop update${n == 1 ? '' : 's'} not synced yet. '
         'Logging out now will discard ${n == 1 ? 'it' : 'them'}. '
@@ -38,7 +38,7 @@ class AppSession {
       if (appContainer.exists(driverProfileProvider)) {
         appContainer.invalidate(driverProfileProvider);
       }
-      if (reason == 'logout') await SyncQueue.instance.clear();
+      if (reason == 'logout') await appContainer.read(syncQueueProvider).clear();
       appRouter.go(AppRoutes.login);
     } finally {
       _signingOut = false;

@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../network/api_errors.dart';
-import '../network/api_service.dart';
+import '../network/api_client.dart';
+import '../network/app_exception.dart';
 
 /// What kind of driver action a queued request represents.
 class SyncKind {
@@ -35,17 +34,36 @@ enum SubmitOutcome {
 ///   and points older than [_staleLocation] are dropped, because replaying
 ///   old GPS points would fire stale geofence alerts to parents.
 class SyncQueue {
-  SyncQueue._();
-  static final SyncQueue instance = SyncQueue._();
+  /// [onlineChanges] emits true when the phone gets a connection (defaults to
+  /// connectivity_plus); [clock] is "now" (tests); [boxName] is the Hive box.
+  SyncQueue(
+    this._api, {
+    Stream<bool> Function()? onlineChanges,
+    DateTime Function()? clock,
+    Duration retryEvery = const Duration(seconds: 30),
+    String boxName = 'sync_queue',
+  })  : _onlineChanges = onlineChanges ?? _connectivityStream,
+        _clock = clock ?? DateTime.now,
+        _retryEvery = retryEvery,
+        _boxName = boxName;
 
-  static const _boxName = 'sync_queue';
+  final ApiClient _api;
+  final Stream<bool> Function() _onlineChanges;
+  final DateTime Function() _clock;
+  final Duration _retryEvery;
+  final String _boxName;
+
+  static Stream<bool> _connectivityStream() => Connectivity()
+      .onConnectivityChanged
+      .map((results) => results.any((r) => r != ConnectivityResult.none));
+
   static const _staleLocation = Duration(minutes: 3);
 
   late Box _box;
   bool _ready = false;
   bool _flushing = false;
   Timer? _retryTimer;
-  StreamSubscription? _connectivitySub;
+  StreamSubscription<bool>? _connectivitySub;
 
   /// Number of items waiting to be sent. Listen to update badges in the UI.
   final ValueNotifier<int> pending = ValueNotifier<int>(0);
@@ -61,11 +79,10 @@ class SyncQueue {
     _ready = true;
     _refreshCount();
 
-    _connectivitySub = Connectivity().onConnectivityChanged.listen((results) {
-      final online = results.any((r) => r != ConnectivityResult.none);
+    _connectivitySub = _onlineChanges().listen((online) {
       if (online) flush();
     });
-    _retryTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+    _retryTimer = Timer.periodic(_retryEvery, (_) {
       if (pending.value > 0) flush();
     });
     if (pending.value > 0) unawaited(flush());
@@ -95,13 +112,13 @@ class SyncQueue {
     }
 
     try {
-      await ApiService.post(path, body);
+      await _post(path, body);
       // A fresher point just landed — an older queued one must never be
       // replayed after it.
       if (kind == SyncKind.location) await _dropQueuedLocations(tripId);
       return SubmitOutcome.sent;
-    } catch (e) {
-      if (ApiErrors.isNetworkError(e) || ApiErrors.isServerError(e)) {
+    } on AppException catch (e) {
+      if (_isRetryable(e)) {
         await _enqueue(kind, path, body, tripId, kidId);
         return SubmitOutcome.queued;
       }
@@ -116,7 +133,8 @@ class SyncQueue {
     _flushing = true;
     var sentAny = false;
     try {
-      final keys = _box.keys.toList()..sort((a, b) => (a as int).compareTo(b as int));
+      final keys = _box.keys.toList()
+        ..sort((a, b) => (a as int).compareTo(b as int));
       for (final key in keys) {
         final raw = _box.get(key);
         if (raw is! Map) {
@@ -124,30 +142,33 @@ class SyncQueue {
           continue;
         }
         final item = Map<String, dynamic>.from(raw);
-        final createdAt = DateTime.tryParse(item['createdAt']?.toString() ?? '');
+        final createdAt =
+            DateTime.tryParse(item['createdAt']?.toString() ?? '');
 
         if (item['kind'] == SyncKind.location &&
             createdAt != null &&
-            DateTime.now().difference(createdAt) > _staleLocation) {
+            _clock().difference(createdAt) > _staleLocation) {
           await _box.delete(key);
           continue;
         }
 
         try {
-          await ApiService.post(
+          await _post(
             item['path'] as String,
             Map<String, dynamic>.from(item['body'] as Map),
           );
           await _box.delete(key);
           sentAny = true;
-        } catch (e) {
-          if (ApiErrors.isNetworkError(e) || ApiErrors.isServerError(e)) {
+        } on AppException catch (e) {
+          if (_isRetryable(e)) {
             break; // still offline / server down — try again later
           }
-          final status = e is DioException ? e.response?.statusCode : null;
-          if (status == 401) break; // session expired; keep for after re-login
-          debugPrint('[SyncQueue] server rejected ${item['kind']} ${item['path']} '
-              '($status): ${ApiErrors.message(e)} — dropping it');
+          if (e is UnauthorizedException) {
+            break; // session expired; keep for after re-login
+          }
+          debugPrint(
+              '[SyncQueue] server rejected ${item['kind']} ${item['path']}'
+              ': ${e.userMessage} — dropping it');
           await _box.delete(key);
         }
       }
@@ -164,7 +185,8 @@ class SyncQueue {
   Map<String, String> pendingKidStatuses(String? tripId) {
     final result = <String, String>{};
     if (!_ready) return result;
-    final keys = _box.keys.toList()..sort((a, b) => (a as int).compareTo(b as int));
+    final keys = _box.keys.toList()
+      ..sort((a, b) => (a as int).compareTo(b as int));
     for (final key in keys) {
       final raw = _box.get(key);
       if (raw is! Map) continue;
@@ -193,7 +215,7 @@ class SyncQueue {
       'body': body,
       'tripId': tripId,
       'kidId': kidId,
-      'createdAt': DateTime.now().toIso8601String(),
+      'createdAt': _clock().toIso8601String(),
     });
     _refreshCount();
   }
@@ -201,7 +223,9 @@ class SyncQueue {
   Future<void> _dropQueuedLocations(String? tripId) async {
     final old = _box.keys.where((k) {
       final v = _box.get(k);
-      return v is Map && v['kind'] == SyncKind.location && v['tripId']?.toString() == tripId;
+      return v is Map &&
+          v['kind'] == SyncKind.location &&
+          v['tripId']?.toString() == tripId;
     }).toList();
     if (old.isNotEmpty) await _box.deleteAll(old);
   }
@@ -213,9 +237,15 @@ class SyncQueue {
         .length;
   }
 
-  @visibleForTesting
   Future<void> dispose() async {
     _retryTimer?.cancel();
     await _connectivitySub?.cancel();
   }
+
+  Future<void> _post(String path, Map<String, dynamic> body) =>
+      _api.post<void>(path, (_) {}, body: body);
+
+  /// Offline or the server is down: keep the item and try again later.
+  bool _isRetryable(AppException e) =>
+      e is NetworkException || e is ServerException;
 }

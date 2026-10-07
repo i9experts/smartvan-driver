@@ -7,7 +7,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../core/providers/app_container.dart';
-import '../core/sync/sync_queue.dart';
+import '../core/providers/core_providers.dart';
 import '../features/auth/data/fcm_service.dart';
 import '../features/trip/services/active_trip_store.dart';
 import 'app.dart';
@@ -23,7 +23,7 @@ Future<void> bootstrap() async {
   // Local storage (Hive): offline queue + active trip. Must be ready before
   // any screen can record a pickup/drop or resume a trip.
   await Hive.initFlutter();
-  await SyncQueue.instance.init();
+  await appContainer.read(syncQueueProvider).init();
   await ActiveTripStore.init();
   if (!kIsWeb) {
     try {

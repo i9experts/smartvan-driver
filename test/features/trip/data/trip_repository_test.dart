@@ -235,8 +235,10 @@ void main() {
     });
 
     test('TRIP_NOT_ONGOING from the server is an ApiError code', () async {
-      queue.error = dioStatus(
-          400, {'message': 'Trip is not ongoing', 'code': 'TRIP_NOT_ONGOING'});
+      queue.error = const ApiError(
+          status: 400,
+          message: 'Trip is not ongoing',
+          code: 'TRIP_NOT_ONGOING');
       await expectLater(
           repo.sendLocation(tripId: 't', position: here),
           throwsA(isA<ApiError>()
