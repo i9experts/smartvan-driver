@@ -9,7 +9,7 @@ import '../../checklist/checklist_api.dart';
 import '../../chat/chat_api.dart';
 import '../../../core/network/api_errors.dart';
 import '../../alerts/screens/alerts_screen.dart';
-import '../../profile/screens/profile_screen.dart';
+import '../../profile/presentation/screens/profile_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});

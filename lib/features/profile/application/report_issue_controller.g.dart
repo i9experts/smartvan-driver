@@ -1,29 +1,29 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'login_controller.dart';
+part of 'report_issue_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$loginControllerHash() => r'aaf131db8d5de932bf834445176ffdcb2ea7ec77';
+String _$reportIssueControllerHash() =>
+    r'b7dded760a6c8ccd753ec126b2557ffbe384c270';
 
-/// Sign-in. State is the status of the last attempt: loading while the
-/// request runs, an error to show, or data (null) on success.
+/// Sends an issue report. State is the status of the last submission.
 ///
-/// Copied from [LoginController].
-@ProviderFor(LoginController)
-final loginControllerProvider =
-    AutoDisposeAsyncNotifierProvider<LoginController, void>.internal(
-  LoginController.new,
-  name: r'loginControllerProvider',
+/// Copied from [ReportIssueController].
+@ProviderFor(ReportIssueController)
+final reportIssueControllerProvider =
+    AutoDisposeAsyncNotifierProvider<ReportIssueController, void>.internal(
+  ReportIssueController.new,
+  name: r'reportIssueControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$loginControllerHash,
+      : _$reportIssueControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$LoginController = AutoDisposeAsyncNotifier<void>;
+typedef _$ReportIssueController = AutoDisposeAsyncNotifier<void>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

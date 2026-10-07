@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/storage/token_store.dart';
+import '../../profile/application/driver_profile_provider.dart';
 import '../data/auth_repository.dart';
 import 'session_providers.dart';
 
@@ -28,6 +29,10 @@ class LoginController extends _$LoginController {
       await ref.read(tokenStorageProvider).save(token);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(AppConstants.userTypeKey, 'driver');
+      // Never show the previous driver's cached profile.
+      if (ref.exists(driverProfileProvider)) {
+        ref.invalidate(driverProfileProvider);
+      }
       // The push token may have been fetched before anyone was signed in;
       // attach it to this account now. Never blocks or fails the login.
       unawaited(ref.read(pushRegistrarProvider)().catchError((Object _) {}));

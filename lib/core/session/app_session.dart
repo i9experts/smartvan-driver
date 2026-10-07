@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../../features/trip/services/trip_tracking_service.dart';
 import '../providers/app_container.dart';
 import '../../app/router.dart';
+import '../../features/profile/application/driver_profile_provider.dart';
 import '../router/app_routes.dart';
 import '../storage/token_storage.dart';
 import '../sync/sync_queue.dart';
@@ -34,6 +35,9 @@ class AppSession {
       // Stop GPS/socket/foreground service — nobody is signed in to own it.
       await appContainer.read(tripTrackingProvider.notifier).stop();
       await TokenStorage.clear();
+      if (appContainer.exists(driverProfileProvider)) {
+        appContainer.invalidate(driverProfileProvider);
+      }
       if (reason == 'logout') await SyncQueue.instance.clear();
       appRouter.go(AppRoutes.login);
     } finally {
