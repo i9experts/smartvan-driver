@@ -45,27 +45,43 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     }
   }
 
-  Future<void> _uploadDocument(String type) async {
+  Future<String?> _chooseDocumentType() {
+    return showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.car_rental_outlined),
+              title: const Text('Vehicle Registration Certificate'),
+              onTap: () => Navigator.pop(ctx, 'vehicle_card'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.badge_outlined),
+              title: const Text('Driving License'),
+              onTap: () => Navigator.pop(ctx, 'driving_license'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _uploadDocument(String requestedType) async {
+    // The generic "Upload New Document" button doesn't know which document
+    // it is for, so ask first.
+    var type = requestedType;
+    if (type != 'vehicle_card' && type != 'driving_license') {
+      final chosen = await _chooseDocumentType();
+      if (chosen == null || !mounted) return;
+      type = chosen;
+    }
+
     final picker = ImagePicker();
     final picked = await picker.pickImage(
         source: ImageSource.gallery, imageQuality: 80);
     if (picked == null) return;
-
-    // Ambiguous generic button — no specific document field to target,
-    // so rather than silently discarding the image (as before), tell the
-    // driver to use one of the specific cards instead.
-    if (type != 'vehicle_card' && type != 'driving_license') {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Please tap directly on "Vehicle Registration" or "Driving License" above to upload that specific document.'),
-            backgroundColor: Color(0xFFFF4B4B),
-          ),
-        );
-      }
-      return;
-    }
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
