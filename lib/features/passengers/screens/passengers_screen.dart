@@ -8,7 +8,8 @@ import '../../../core/sync/sync_queue.dart';
 import '../../trip/services/trip_tracking_service.dart';
 import '../kid_status.dart';
 import '../stop_api.dart';
-import '../../chat/chat_api.dart';
+import '../../../core/router/app_routes.dart';
+import '../../chat/data/chat_repository.dart';
 
 class PassengersScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> trip;
@@ -327,8 +328,10 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
 
   Future<void> _messageParent(String kidId) async {
     try {
-      final conversation = await ChatApi.start(kidId);
-      if (mounted) await context.push('/chat', extra: conversation);
+      final conversation = await ref.read(chatRepositoryProvider).start(kidId);
+      if (mounted) {
+        await context.push(AppRoutes.chatOf(conversation.id), extra: conversation);
+      }
     } catch (e) {
       _showSnack(ApiErrors.message(e, fallback: 'Could not open chat.'),
           const Color(0xFFFF4B4B));

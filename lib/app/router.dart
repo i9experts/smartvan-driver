@@ -19,9 +19,9 @@ import '../features/fees/presentation/screens/fee_collection_screen.dart';
 import '../features/scan/screens/scan_screen.dart';
 import '../features/checklist/presentation/screens/checklist_screen.dart';
 import '../features/stats/presentation/screens/driver_stats_screen.dart';
-import '../features/chat/chat_api.dart';
-import '../features/chat/screens/chat_screen.dart';
-import '../features/chat/screens/conversations_screen.dart';
+import '../features/chat/data/models/conversation.dart';
+import '../features/chat/presentation/screens/chat_screen.dart';
+import '../features/chat/presentation/screens/conversations_screen.dart';
 
 /// The one GoRouter. Transitional global: sign-out still navigates through it
 /// until AppSession moves into the auth feature.
@@ -97,9 +97,11 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const ConversationsScreen(),
     ),
     GoRoute(
-      path: AppRoutes.legacyChat,
-      builder: (context, state) =>
-          ChatScreen(conversation: state.extra as Conversation),
+      path: AppRoutes.chat,
+      builder: (context, state) => ChatScreen(
+        conversationId: state.pathParameters['conversationId']!,
+        conversation: state.extra is Conversation ? state.extra as Conversation : null,
+      ),
     ),
     GoRoute(
       path: AppRoutes.stats,

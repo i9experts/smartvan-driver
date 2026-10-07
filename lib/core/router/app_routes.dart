@@ -49,5 +49,4 @@ class AppRoutes {
   static const legacyTrip = '/trip';
   static const legacyPassengers = '/passengers';
   static const legacyKid = '/kid-profile';
-  static const legacyChat = '/chat';
 }

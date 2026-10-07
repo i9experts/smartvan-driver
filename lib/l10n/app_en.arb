@@ -400,5 +400,16 @@
   },
   "checklistSubmitOk": "Submit — all OK",
   "checklistSavedIssues": "Checklist saved. The school has been told about the issues.",
-  "checklistSavedOk": "Checklist saved. Safe driving!"
+  "checklistSavedOk": "Checklist saved. Safe driving!",
+  "chatMessagesTitle": "Messages",
+  "chatEmpty": "No messages yet.\nOpen a student in Passengers to message their parent.",
+  "chatLoadFailed": "Could not load messages.",
+  "chatSendFailed": "Message not sent. Try again.",
+  "chatTypeMessage": "Type a message",
+  "chatQuickArriving5": "Arriving in 5 minutes.",
+  "chatQuickAtPickup": "I am at the pickup point.",
+  "chatQuickSendOut": "Please send your child out.",
+  "chatQuickRunningLate": "Running about 10 minutes late.",
+  "chatQuickTraffic": "Stuck in traffic, will be there soon.",
+  "chatQuickNotAtStop": "Your child is not at the pickup point. Please call me."
 }

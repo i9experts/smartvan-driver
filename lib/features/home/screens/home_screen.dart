@@ -7,7 +7,7 @@ import '../../../core/network/api_service.dart';
 import '../../trip/services/trip_tracking_service.dart';
 import '../../../core/router/app_routes.dart';
 import '../../checklist/application/checklist_providers.dart';
-import '../../chat/chat_api.dart';
+import '../../chat/data/chat_repository.dart';
 import '../../../core/network/api_errors.dart';
 import '../../alerts/presentation/screens/alerts_screen.dart';
 import '../../profile/presentation/screens/profile_screen.dart';
@@ -40,7 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _loadChatUnread() async {
     try {
-      final n = await ChatApi.unread();
+      final n = await ref.read(chatRepositoryProvider).unread();
       if (mounted) setState(() => _chatUnread = n);
     } catch (_) {
       // chat not available — keep the icon without a badge

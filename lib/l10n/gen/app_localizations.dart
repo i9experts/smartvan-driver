@@ -1293,6 +1293,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Checklist saved. Safe driving!'**
   String get checklistSavedOk;
+
+  /// No description provided for @chatMessagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get chatMessagesTitle;
+
+  /// No description provided for @chatEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet.\nOpen a student in Passengers to message their parent.'**
+  String get chatEmpty;
+
+  /// No description provided for @chatLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load messages.'**
+  String get chatLoadFailed;
+
+  /// No description provided for @chatSendFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Message not sent. Try again.'**
+  String get chatSendFailed;
+
+  /// No description provided for @chatTypeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message'**
+  String get chatTypeMessage;
+
+  /// No description provided for @chatQuickArriving5.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving in 5 minutes.'**
+  String get chatQuickArriving5;
+
+  /// No description provided for @chatQuickAtPickup.
+  ///
+  /// In en, this message translates to:
+  /// **'I am at the pickup point.'**
+  String get chatQuickAtPickup;
+
+  /// No description provided for @chatQuickSendOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Please send your child out.'**
+  String get chatQuickSendOut;
+
+  /// No description provided for @chatQuickRunningLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Running about 10 minutes late.'**
+  String get chatQuickRunningLate;
+
+  /// No description provided for @chatQuickTraffic.
+  ///
+  /// In en, this message translates to:
+  /// **'Stuck in traffic, will be there soon.'**
+  String get chatQuickTraffic;
+
+  /// No description provided for @chatQuickNotAtStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Your child is not at the pickup point. Please call me.'**
+  String get chatQuickNotAtStop;
 }
 
 class _AppLocalizationsDelegate

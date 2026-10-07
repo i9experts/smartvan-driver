@@ -1,12 +1,22 @@
+import '../../l10n/l10n.dart';
+
+/// A one-tap reply: [key] is what the backend records as `templateKey`.
+class QuickReply {
+  const QuickReply(this.key, this.text);
+
+  final String key;
+  final String text;
+}
+
 /// Quick replies for drivers (one tap while stopped).
-const driverQuickReplies = <(String, String)>[
-  ('arriving_5', 'Arriving in 5 minutes.'),
-  ('at_pickup', 'I am at the pickup point.'),
-  ('send_out', 'Please send your child out.'),
-  ('running_late', 'Running about 10 minutes late.'),
-  ('traffic', 'Stuck in traffic, will be there soon.'),
-  ('not_at_stop', 'Your child is not at the pickup point. Please call me.'),
-];
+List<QuickReply> driverQuickReplies(AppLocalizations l10n) => [
+      QuickReply('arriving_5', l10n.chatQuickArriving5),
+      QuickReply('at_pickup', l10n.chatQuickAtPickup),
+      QuickReply('send_out', l10n.chatQuickSendOut),
+      QuickReply('running_late', l10n.chatQuickRunningLate),
+      QuickReply('traffic', l10n.chatQuickTraffic),
+      QuickReply('not_at_stop', l10n.chatQuickNotAtStop),
+    ];
 
 /// The role this app sends as.
 const myChatRole = 'driver';

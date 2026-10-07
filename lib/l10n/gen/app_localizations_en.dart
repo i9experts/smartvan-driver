@@ -696,4 +696,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checklistSavedOk => 'Checklist saved. Safe driving!';
+
+  @override
+  String get chatMessagesTitle => 'Messages';
+
+  @override
+  String get chatEmpty =>
+      'No messages yet.\nOpen a student in Passengers to message their parent.';
+
+  @override
+  String get chatLoadFailed => 'Could not load messages.';
+
+  @override
+  String get chatSendFailed => 'Message not sent. Try again.';
+
+  @override
+  String get chatTypeMessage => 'Type a message';
+
+  @override
+  String get chatQuickArriving5 => 'Arriving in 5 minutes.';
+
+  @override
+  String get chatQuickAtPickup => 'I am at the pickup point.';
+
+  @override
+  String get chatQuickSendOut => 'Please send your child out.';
+
+  @override
+  String get chatQuickRunningLate => 'Running about 10 minutes late.';
+
+  @override
+  String get chatQuickTraffic => 'Stuck in traffic, will be there soon.';
+
+  @override
+  String get chatQuickNotAtStop =>
+      'Your child is not at the pickup point. Please call me.';
 }
