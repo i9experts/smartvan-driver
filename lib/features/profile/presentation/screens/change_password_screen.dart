@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/form_widgets.dart';
 import '../../../../core/widgets/screen_header.dart';
@@ -101,7 +101,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.pop(dialogContext);
-                  context.go(AppRoutes.profile);
+                  context.popOrGo(AppRoutes.profile);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFFB800),
@@ -139,7 +139,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         children: [
           ScreenHeader(
             title: l10n.changePasswordTitle,
-            onBack: () => context.go(AppRoutes.profile),
+            onBack: () => context.popOrGo(AppRoutes.profile),
           ),
           Expanded(
             child: SingleChildScrollView(

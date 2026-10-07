@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/network/app_exception.dart';
 import '../../../../core/providers/image_picker_provider.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/app_states.dart';
 import '../../../../core/widgets/form_widgets.dart';
@@ -85,7 +85,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         );
     if (ok && mounted) {
       AppSnack.success(context, context.l10n.editProfileUpdated);
-      context.go(AppRoutes.profile);
+      context.popOrGo(AppRoutes.profile);
     }
   }
 
@@ -168,7 +168,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         children: [
           ScreenHeader(
             title: l10n.editProfileTitle,
-            onBack: () => context.go(AppRoutes.profile),
+            onBack: () => context.popOrGo(AppRoutes.profile),
           ),
           Expanded(child: body),
         ],

@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/network/app_exception.dart';
 import '../../../../core/providers/image_picker_provider.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/form_widgets.dart';
 import '../../../../core/widgets/screen_header.dart';
@@ -95,7 +95,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
             children: [
               ScreenHeader(
                 title: l10n.reportTitle,
-                onBack: () => context.go(AppRoutes.profile),
+                onBack: () => context.popOrGo(AppRoutes.profile),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -167,7 +167,8 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
             ],
           ),
           if (_showSuccess)
-            ReportSuccessOverlay(onDone: () => context.go(AppRoutes.profile)),
+            ReportSuccessOverlay(
+                onDone: () => context.popOrGo(AppRoutes.profile)),
         ],
       ),
     );

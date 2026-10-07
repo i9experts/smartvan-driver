@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/providers/image_picker_provider.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/navigation.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/app_states.dart';
 import '../../../../core/widgets/screen_header.dart';
@@ -73,7 +73,7 @@ class DocumentsScreen extends ConsumerWidget {
         children: [
           ScreenHeader(
             title: l10n.documentsTitle,
-            onBack: () => context.go(AppRoutes.profile),
+            onBack: () => context.popOrGo(AppRoutes.profile),
           ),
           Expanded(
             child: profileAsync.isLoading && !profileAsync.hasValue

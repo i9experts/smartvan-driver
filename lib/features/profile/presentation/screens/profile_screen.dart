@@ -45,7 +45,7 @@ class ProfileScreen extends ConsumerWidget {
           ProfileSliverHeader(
             name: name,
             image: profile?.image,
-            onEdit: () => context.go(AppRoutes.editProfile),
+            onEdit: () => context.push(AppRoutes.editProfile),
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -114,25 +114,25 @@ class ProfileScreen extends ConsumerWidget {
                       icon: Icons.payments_outlined,
                       label: l10n.profileFeeCollection,
                       color: const Color(0xFF27AE60),
-                      onTap: () => context.go(AppRoutes.feeCollection),
+                      onTap: () => context.push(AppRoutes.feeCollection),
                     ),
                     ProfileActionItem(
                       icon: Icons.folder_outlined,
                       label: l10n.profileMyDocuments,
                       color: const Color(0xFF1B2B6B),
-                      onTap: () => context.go(AppRoutes.documents),
+                      onTap: () => context.push(AppRoutes.documents),
                     ),
                     ProfileActionItem(
                       icon: Icons.lock_outlined,
                       label: l10n.profileChangePassword,
                       color: const Color(0xFFFFB800),
-                      onTap: () => context.go(AppRoutes.changePassword),
+                      onTap: () => context.push(AppRoutes.changePassword),
                     ),
                     ProfileActionItem(
                       icon: Icons.report_outlined,
                       label: l10n.profileReportIssue,
                       color: const Color(0xFFFF4B4B),
-                      onTap: () => context.go(AppRoutes.reportIssue),
+                      onTap: () => context.push(AppRoutes.reportIssue),
                     ),
                   ]),
                   const SizedBox(height: 20),
