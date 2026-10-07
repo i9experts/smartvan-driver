@@ -12,7 +12,7 @@ _Trip _$TripFromJson(Map<String, dynamic> json) => _Trip(
               _$TripStatusEnumMap, readTripDocumentStatus(json, 'status'),
               unknownValue: TripStatus.unknown) ??
           TripStatus.unknown,
-      type: $enumDecodeNullable(_$TripTypeEnumMap, json['type'],
+      type: $enumDecodeNullable(_$TripTypeEnumMap, readTypeLower(json, 'type'),
               unknownValue: TripType.unknown) ??
           TripType.unknown,
       createdAt: looseDateTime(json['createdAt']),

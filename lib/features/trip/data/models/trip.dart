@@ -18,7 +18,7 @@ abstract class Trip with _$Trip {
         readValue: readTripDocumentStatus, unknownEnumValue: TripStatus.unknown)
     @Default(TripStatus.unknown)
     TripStatus status,
-    @JsonKey(unknownEnumValue: TripType.unknown)
+    @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
     @Default(TripType.unknown)
     TripType type,
     @JsonKey(fromJson: looseDateTime) DateTime? createdAt,

@@ -83,6 +83,9 @@ Object? readTripStarted(Map<dynamic, dynamic> m, String _) =>
 Object? readTripStatus(Map<dynamic, dynamic> m, String _) =>
     lowerCased(firstOf(m, ['tripStatus', 'status']));
 
+/// `type` lower-cased (trip documents; the app compared it case-insensitively).
+Object? readTypeLower(Map<dynamic, dynamic> m, String _) => lowerCased(m['type']);
+
 /// `status` lower-cased (trip documents).
 Object? readStatusLower(Map<dynamic, dynamic> m, String _) =>
     lowerCased(m['status']);

@@ -19,7 +19,7 @@ mixin _$Trip {
   @JsonKey(
       readValue: readTripDocumentStatus, unknownEnumValue: TripStatus.unknown)
   TripStatus get status;
-  @JsonKey(unknownEnumValue: TripType.unknown)
+  @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
   TripType get type;
   @JsonKey(fromJson: looseDateTime)
   DateTime? get createdAt;
@@ -78,7 +78,8 @@ abstract mixin class $TripCopyWith<$Res> {
           readValue: readTripDocumentStatus,
           unknownEnumValue: TripStatus.unknown)
       TripStatus status,
-      @JsonKey(unknownEnumValue: TripType.unknown) TripType type,
+      @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
+      TripType type,
       @JsonKey(fromJson: looseDateTime) DateTime? createdAt,
       @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
       DateTime? startTime,
@@ -238,7 +239,9 @@ extension TripPatterns on Trip {
                 readValue: readTripDocumentStatus,
                 unknownEnumValue: TripStatus.unknown)
             TripStatus status,
-            @JsonKey(unknownEnumValue: TripType.unknown) TripType type,
+            @JsonKey(
+                readValue: readTypeLower, unknownEnumValue: TripType.unknown)
+            TripType type,
             @JsonKey(fromJson: looseDateTime) DateTime? createdAt,
             @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
             DateTime? startTime,
@@ -279,7 +282,9 @@ extension TripPatterns on Trip {
                 readValue: readTripDocumentStatus,
                 unknownEnumValue: TripStatus.unknown)
             TripStatus status,
-            @JsonKey(unknownEnumValue: TripType.unknown) TripType type,
+            @JsonKey(
+                readValue: readTypeLower, unknownEnumValue: TripType.unknown)
+            TripType type,
             @JsonKey(fromJson: looseDateTime) DateTime? createdAt,
             @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
             DateTime? startTime,
@@ -318,7 +323,9 @@ extension TripPatterns on Trip {
                 readValue: readTripDocumentStatus,
                 unknownEnumValue: TripStatus.unknown)
             TripStatus status,
-            @JsonKey(unknownEnumValue: TripType.unknown) TripType type,
+            @JsonKey(
+                readValue: readTypeLower, unknownEnumValue: TripType.unknown)
+            TripType type,
             @JsonKey(fromJson: looseDateTime) DateTime? createdAt,
             @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
             DateTime? startTime,
@@ -347,7 +354,8 @@ class _Trip implements Trip {
           readValue: readTripDocumentStatus,
           unknownEnumValue: TripStatus.unknown)
       this.status = TripStatus.unknown,
-      @JsonKey(unknownEnumValue: TripType.unknown) this.type = TripType.unknown,
+      @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
+      this.type = TripType.unknown,
       @JsonKey(fromJson: looseDateTime) this.createdAt,
       @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
       this.startTime,
@@ -363,7 +371,7 @@ class _Trip implements Trip {
       readValue: readTripDocumentStatus, unknownEnumValue: TripStatus.unknown)
   final TripStatus status;
   @override
-  @JsonKey(unknownEnumValue: TripType.unknown)
+  @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
   final TripType type;
   @override
   @JsonKey(fromJson: looseDateTime)
@@ -432,7 +440,8 @@ abstract mixin class _$TripCopyWith<$Res> implements $TripCopyWith<$Res> {
           readValue: readTripDocumentStatus,
           unknownEnumValue: TripStatus.unknown)
       TripStatus status,
-      @JsonKey(unknownEnumValue: TripType.unknown) TripType type,
+      @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
+      TripType type,
       @JsonKey(fromJson: looseDateTime) DateTime? createdAt,
       @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
       DateTime? startTime,

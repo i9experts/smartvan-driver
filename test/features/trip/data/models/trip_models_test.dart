@@ -28,7 +28,7 @@ void main() {
           .toList();
       expect(list[0].id, 't-1'); // `id`
       expect(list[0].status, TripStatus.ongoing); // "Active"
-      expect(list[0].type, TripType.unknown); // "Drop" is case-sensitive
+      expect(list[0].type, TripType.drop); // "Drop" is case-insensitive
       expect(list[0].name, 'Sample School - Afternoon Drop');
       expect(list[0].startTime,
           DateTime.utc(2026, 10, 6, 12, 5)); // flat startTime

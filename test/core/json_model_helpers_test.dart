@@ -20,6 +20,11 @@ void main() {
       expect(readLng({'lng': 1.0, 'long': 3.0}, ''), 1.0);
     });
 
+    test('type is lower-cased', () {
+      expect(readTypeLower({'type': 'Drop'}, ''), 'drop');
+      expect(readTypeLower({}, ''), isNull);
+    });
+
     test('TripStarted and statuses', () {
       expect(readTripStarted({'TripStarted': true}, ''), true);
       expect(readTripStarted({'tripStarted': false}, ''), false);
