@@ -1,10 +1,10 @@
 # smartvan-driver — Architecture Audit
 
-Read-only audit; no source changed. Generated 2026-10-02.
+Read-only audit; no source changed. Generated 2026-10-02; counts refreshed 2026-10-07 on phase4.
 
-> **Baseline caveat:** audited on branch `phase3` (HEAD `03cc32c`), **not `main`**, with uncommitted edits in `ios/Podfile.lock`, `lib/features/home/screens/home_screen.dart`, `lib/features/scan/screens/scan_screen.dart`, `lib/main.dart`, `pubspec.lock`, `pubspec.yaml`. Re-run the line/setState counts after phase3 lands on main.
+> **Baseline:** counts re-run on branch `refactor/architecture`, cut from `phase4` (`225572e`) with a clean working tree. The findings in sections 2–5 were written against `phase3`; the line / `setState` counts, totals and the `.github` / `withOpacity` figures below are re-measured on phase4. Narrative items were not re-audited.
 
-Totals: 10,334 lines of Dart in `lib/` + `test/`; 102 `setState` calls across 19 files (plus 2 `setSheetState`); `flutter analyze`: **No issues found**; 1 test.
+Totals: 10,634 lines of Dart in `lib/` + `test/`; 109 `setState` calls across 19 files (plus 2 `setSheetState`); `flutter analyze`: **No issues found**; 1 test.
 
 ---
 
@@ -16,26 +16,26 @@ Totals: 10,334 lines of Dart in `lib/` + `test/`; 102 `setState` calls across 19
 
 | File | Lines | setState | Direct API | State held |
 |---|---:|---:|---|---|
-| home/screens/home_screen.dart | 1441 | 10 | GET `/route/getAssignedTripByDriver`, GET `/auth/getProfile`, GET `/trips/getDriverTrips`, POST `/trips/startTrip` (+`ChatApi.unread`) | `_currentIndex`, `_profile` (Map), `_trips`, `_myRoutes` (List<dynamic>), `_isLoading`, `_chatUnread`, `_startingRouteId` (bool, misnamed), `_startingRoute` |
-| trip/screens/trip_screen.dart | 692 | 6 | GET `/auth/getProfile`, GET `/Route/getMergedActivePassengers` | `_mapController`, `_isEndingTrip`, `_passengers`, `_pickedCount`, `_totalPassengers`, `_profile`, `_syncedSub`; dead `_isTripStarted`/`_isStartingTrip`; widget `trip` Map |
-| passengers/screens/passengers_screen.dart | 657 | 10 | GET `/Route/getMergedActivePassengers`; via Sync: POST `/trips/pickStudent`, `/trips/dropStudentForHome` (+`ChatApi.start`) | `_passengers`, `_isLoading`, `_hasError`, `_pickedCount`, `_pendingSync` (Map), `_busyKidIds`, `_syncedSub`; widget `trip` Map |
-| profile/screens/report_issue_screen.dart | 525 | 5 | `uploadImage`, POST `/report/addReportByDriver` | description ctrl, `_selectedIssueType`, `_selectedImage`, `_isSaving`, `_showSuccess` |
-| alerts/screens/alerts_screen.dart | 512 | 4 (+2 sheet) | GET `/alert/getNotificationForDriver`, POST `/alert/sendAlertByDriver` | `_alerts`, `_isLoading`, `_hasError`; sheet: message ctrl (never disposed), `isSending` |
-| profile/screens/profile_screen.dart | 472 | 2 | GET `/auth/getProfile` | `_profile`, `_isLoading` |
-| profile/screens/documents_screen.dart | 420 | 2 | GET `/auth/getProfile`, `uploadImage`, POST `/van/uploadDocuments` | `_documents` (= whole profile), `_isLoading` |
-| profile/screens/edit_profile_screen.dart | 412 | 8 | GET `/auth/getProfile`, `uploadImage`, POST `/van/update-profile` | 5 text ctrls, `_isLoading`, `_isSaving`, `_hasError`, `_selectedImage`, `_profile` |
-| passengers/screens/kid_profile_screen.dart | 404 | 0 | none (Stateless, kid Map via router extra) | — |
+| home/screens/home_screen.dart | 1508 | 10 | GET `/route/getAssignedTripByDriver`, GET `/auth/getProfile`, GET `/trips/getDriverTrips`, POST `/trips/startTrip` (+`ChatApi.unread`) | `_currentIndex`, `_profile` (Map), `_trips`, `_myRoutes` (List<dynamic>), `_isLoading`, `_chatUnread`, `_startingRouteId` (bool, misnamed), `_startingRoute` |
+| trip/screens/trip_screen.dart | 693 | 6 | GET `/auth/getProfile`, GET `/Route/getMergedActivePassengers` | `_mapController`, `_isEndingTrip`, `_passengers`, `_pickedCount`, `_totalPassengers`, `_profile`, `_syncedSub`; dead `_isTripStarted`/`_isStartingTrip`; widget `trip` Map |
+| passengers/screens/passengers_screen.dart | 841 | 17 | GET `/Route/getMergedActivePassengers`; via Sync: POST `/trips/pickStudent`, `/trips/dropStudentForHome` (+`ChatApi.start`) | `_passengers`, `_isLoading`, `_hasError`, `_pickedCount`, `_pendingSync` (Map), `_busyKidIds`, `_syncedSub`; widget `trip` Map |
+| profile/screens/report_issue_screen.dart | 526 | 5 | `uploadImage`, POST `/report/addReportByDriver` | description ctrl, `_selectedIssueType`, `_selectedImage`, `_isSaving`, `_showSuccess` |
+| alerts/screens/alerts_screen.dart | 513 | 4 (+2 sheet) | GET `/alert/getNotificationForDriver`, POST `/alert/sendAlertByDriver` | `_alerts`, `_isLoading`, `_hasError`; sheet: message ctrl (never disposed), `isSending` |
+| profile/screens/profile_screen.dart | 473 | 2 | GET `/auth/getProfile` | `_profile`, `_isLoading` |
+| profile/screens/documents_screen.dart | 421 | 2 | GET `/auth/getProfile`, `uploadImage`, POST `/van/uploadDocuments` | `_documents` (= whole profile), `_isLoading` |
+| profile/screens/edit_profile_screen.dart | 413 | 8 | GET `/auth/getProfile`, `uploadImage`, POST `/van/update-profile` | 5 text ctrls, `_isLoading`, `_isSaving`, `_hasError`, `_selectedImage`, `_profile` |
+| passengers/screens/kid_profile_screen.dart | 405 | 0 | none (Stateless, kid Map via router extra) | — |
 | fees/screens/fee_collection_screen.dart | 350 | 8 | GET `/fees/driver-students`, GET `/fees/driver-summary`, POST `/fees/record-payment` | `_students`, `_isLoading`, `_error`, `_payingKidId`, `_summary` |
-| trip/services/trip_tracking_service.dart | 339 | 0 | POST `/trips/endTrip`; via Sync POST `/trips/updateLocation/{id}`; socket.io | `TripTrackingState{trip, isTracking, socketConnected, lastPosition, lastSpeed}`; `_location`, `_socket`, `_positionSub`, `_lastHttpUpdate` |
-| profile/screens/change_password_screen.dart | 336 | 5 | POST `/auth/change-password` | 3 ctrls, 3 obscure flags, `_isSaving` |
-| auth/screens/login_screen.dart | 310 | 3 | POST `/auth/login` (+SharedPreferences, FCM register) | 2 ctrls, `_obscurePassword`, `_isLoading` |
-| alerts/screens/alert_detail_screen.dart | 308 | 0 | none (alert Map via extra) | — |
+| trip/services/trip_tracking_service.dart | 355 | 0 | POST `/trips/endTrip`; via Sync POST `/trips/updateLocation/{id}`; socket.io | `TripTrackingState{trip, isTracking, socketConnected, lastPosition, lastSpeed}`; `_location`, `_socket`, `_positionSub`, `_lastHttpUpdate` |
+| profile/screens/change_password_screen.dart | 337 | 5 | POST `/auth/change-password` | 3 ctrls, 3 obscure flags, `_isSaving` |
+| auth/screens/login_screen.dart | 312 | 3 | POST `/auth/login` (+SharedPreferences, FCM register) | 2 ctrls, `_obscurePassword`, `_isLoading` |
+| alerts/screens/alert_detail_screen.dart | 309 | 0 | none (alert Map via extra) | — |
 | chat/screens/chat_screen.dart | 280 | 10 | via `ChatApi`: messages/markRead/send | `_messages`, `_input`, `_socket`, `_subs`, `_loading`, `_loadingMore`, `_hasMore`, `_sending` |
 | checklist/screens/checklist_screen.dart | 274 | 9 | via `ChecklistApi`; `uploadImage` | `_items`, `_answers`, `_notes` ctrls, `_photo`, `_existingPhotoUrl`, `_loading`, `_saving`, `_error` |
 | scan/screens/scan_screen.dart | 269 | 4 | none direct (`ScanService`) | `_controller`, `_busy`, `_lastPayload`, `_lastAt`, `_result`, `_resultTimer`, `_session` |
 | safety/widgets/sos_button.dart | 210 | 2 | none direct (`SosService`) | `_hold` AnimationController, `_sending` |
 | stats/screens/driver_stats_screen.dart | 198 | 5 | GET `/trips/driver-stats?days=` | `_days`, `_data` (Map), `_error`, `_loading` |
-| auth/screens/splash_screen.dart | 172 | 0 | none | animation controller; routing decision (token + `ActiveTripStore`) |
+| auth/screens/splash_screen.dart | 173 | 0 | none | animation controller; routing decision (token + `ActiveTripStore`) |
 | trip/widgets/kids_not_dropped_sheet.dart | 150 | 3 | none | `_confirming`, `_checkedVan`, `_note` |
 | fees/widgets/receipt_sheet.dart | 150 | 2 | GET `/fees/receipt/{id}` | `_r` (Map), `_error` |
 | chat/screens/conversations_screen.dart | 144 | 4 | via `ChatApi.conversations` | `_items`, `_loading`, `_error`, `_socket`, `_sub` |
@@ -47,9 +47,9 @@ Totals: 10,334 lines of Dart in `lib/` + `test/`; 102 `setState` calls across 19
 | core/sync/sync_queue.dart | 221 | Hive singleton; submit/flush/pending/onSynced/pendingKidStatuses; retry timer + connectivity listener |
 | chat/chat_api.dart | 138 | static `ChatApi` + models `ChatUser`, `Conversation`, `ChatMessage` (the only typed models in the app) |
 | core/router/app_router.dart | 119 | global `appRouter`; passes `Map<String,dynamic>` / `Conversation` via `extra` |
-| core/network/api_service.dart | 114 | static Dio wrapper returning raw `Response`; `uploadImage` uses a separate un-intercepted `Dio()` |
-| core/services/fcm_service.dart | 99 | static; POST `/van/update-profile {fcmToken,userType}` |
-| main.dart | 69 | |
+| core/network/api_service.dart | 115 | static Dio wrapper returning raw `Response`; `uploadImage` uses a separate un-intercepted `Dio()` |
+| core/services/fcm_service.dart | 100 | static; POST `/van/update-profile {fcmToken,userType}` |
+| main.dart | 80 | |
 | core/storage/token_storage.dart | 67 | static, secure storage + in-memory cache + SharedPreferences migration |
 | core/network/api_errors.dart | 62 | `isNetworkError`, `isServerError`, `code`, `status`, `message` |
 | scan/scan_service.dart | 61 | static; POST `/trips/scanStudent`; typed `ScanResult`/`ScanException` (cleanest API wrapper) |
@@ -59,7 +59,7 @@ Totals: 10,334 lines of Dart in `lib/` + `test/`; 102 `setState` calls across 19
 | trip/services/active_trip_store.dart | 38 | static Hive box `session`, key `active_trip` |
 | safety/sos_service.dart | 38 | static; POST `/alert/sos`; hard-coded PK emergency numbers |
 | passengers/kid_status.dart | 27 | pure static mapper (good shape to copy) |
-| core/theme/app_theme.dart | 69 | |
+| core/theme/app_theme.dart | 70 | |
 | chat/chat_templates.dart | 12 | quick replies + `myChatRole` |
 | core/providers/app_container.dart, core/constants/app_constants.dart | 5 / 5 | global `ProviderContainer`; `baseUrl = https://api.smartvan.pk` |
 | test/widget_test.dart | 15 | |
@@ -171,7 +171,7 @@ Key variants must be normalised in `fromJson`. IDs: `_id|id|kidId` etc.
 9. Trip enrichment `{...trip, 'schoolRoute': ...}` ×3 in home, `{...trip,'passengers':...}` ×2 in trip_screen.
 10. Trip status string interpretation (home), kid status (`KidStatus`), scan `action`.
 11. Trip-id derivation (`tripIdOf`, `kid['tripId'] ?? _tripId`, `tracking.tripId`) in passengers, scan, sos, trip.
-12. Avatar-initial fallback ×5, gradient header ×8, `InputDecoration` copies, loading/error/empty UI, hard-coded colours (`0xFF1B2B6B`, `0xFF27AE60`, `0xFFFF4B4B`…, 'Poppins') with `_navy` redeclared per class; `withOpacity` 86 uses.
+12. Avatar-initial fallback ×5, gradient header ×8, `InputDecoration` copies, loading/error/empty UI, hard-coded colours (`0xFF1B2B6B`, `0xFF27AE60`, `0xFFFF4B4B`…, 'Poppins') with `_navy` redeclared per class; `withOpacity` 87 uses.
 13. Reload-after-pop (`await push(...); _load()`) ×6.
 14. `statusCode == 200` checks (dead; Dio throws on non-2xx).
 15. Phone launching (`EmergencyNumbers.call`, `_callPhone`).
@@ -181,7 +181,7 @@ Key variants must be normalised in `fromJson`. IDs: `_id|id|kidId` etc.
 
 ## 5. Lints, tests, blockers
 
-**Analysis:** `include: package:flutter_lints/flutter.yaml` (^4.0.0), no custom rules, `deprecated_member_use: ignore` (hides the 86 `withOpacity` uses). `flutter analyze`: clean. No `strict-casts/inference/raw-types`, no `prefer_final_*`, no `avoid_dynamic_calls`, no import-order rules — so the ~60 `Map<String,dynamic>` uses and implicit dynamic casts are invisible to the analyzer. `print` used in `uploadImage`.
+**Analysis:** `include: package:flutter_lints/flutter.yaml` (^4.0.0), no custom rules, `deprecated_member_use: ignore` (hides the 87 `withOpacity` uses). `flutter analyze`: clean. No `strict-casts/inference/raw-types`, no `prefer_final_*`, no `avoid_dynamic_calls`, no import-order rules — so the ~60 `Map<String,dynamic>` uses and implicit dynamic casts are invisible to the analyzer. `print` used in `uploadImage`.
 
 **Tests:** one smoke test (`test/widget_test.dart`) that renders a `Text` in a themed `MaterialApp`; effectively zero coverage. No CI config found (`.github` absent). Deps missing for tests: no `mocktail`/`mockito`, no `integration_test`.
 
