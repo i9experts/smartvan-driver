@@ -26,6 +26,27 @@ If something here doesn't fit the real code, stop and ask; don't improvise.
 - Pick the newest versions that resolve with the current Flutter SDK and
   record them in this file. If freezed 3.x: models are
   `@freezed abstract class X with _$X`.
+- Localization: `flutter_localizations` (SDK) and `intl` — see §12.
+
+**Resolved versions** (Flutter 3.35.6 / Dart 3.9.2, recorded 2026-10-07 at R.1;
+`pubspec.lock` is the source of truth):
+
+| Package | Version | Notes |
+|---|---|---|
+| flutter_riverpod / riverpod | 2.6.1 | |
+| riverpod_annotation | 2.6.1 | |
+| riverpod_generator (dev) | 2.6.5 | newest line that works with Riverpod 2.x |
+| custom_lint (dev) | 0.7.6 | |
+| riverpod_lint (dev) | 2.6.5 | |
+| freezed_annotation / freezed (dev) | 3.1.0 | freezed 3 → `@freezed abstract class X with _$X` |
+| json_annotation | 4.9.0 | |
+| json_serializable (dev) | 6.9.5 | |
+| build_runner (dev) | 2.5.4 | |
+| mocktail (dev) | 1.0.5 | |
+| http_mock_adapter (dev) | 0.6.1 | |
+| dio | 5.9.2 | already a dependency |
+| intl | 0.20.2 | bumped from 0.19.0, required by `flutter_localizations` |
+| flutter_lints (dev) | 4.0.0 | unchanged |
 
 ## 2. Folder structure
 
