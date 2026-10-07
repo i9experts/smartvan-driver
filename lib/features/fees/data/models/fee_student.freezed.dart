@@ -399,7 +399,7 @@ class _FeeStudent implements FeeStudent {
       @JsonKey(fromJson: looseString) this.grade,
       @JsonKey(
           readValue: readStatusLower, unknownEnumValue: PaymentStatus.unknown)
-      this.status = PaymentStatus.notGenerated,
+      this.status = PaymentStatus.unknown,
       @JsonKey(fromJson: looseDouble) this.amount,
       @JsonKey(fromJson: looseString) this.currency,
       @JsonKey(fromJson: looseString) this.paymentId});

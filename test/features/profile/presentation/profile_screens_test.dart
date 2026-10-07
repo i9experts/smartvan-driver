@@ -184,6 +184,8 @@ void main() {
           nic: '00000-0000000-0',
           image: null)).called(1);
       expect(find.text('profile-stub'), findsOneWidget);
+      // The shared profile was refreshed after the save.
+      verify(() => repo.getProfile()).called(2);
     });
 
     testWidgets('a failed save shows the message and stays', (tester) async {

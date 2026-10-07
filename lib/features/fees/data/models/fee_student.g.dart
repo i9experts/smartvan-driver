@@ -17,7 +17,7 @@ _FeeStudent _$FeeStudentFromJson(Map<String, dynamic> json) => _FeeStudent(
       status: $enumDecodeNullable(
               _$PaymentStatusEnumMap, readStatusLower(json, 'status'),
               unknownValue: PaymentStatus.unknown) ??
-          PaymentStatus.notGenerated,
+          PaymentStatus.unknown,
       amount: looseDouble(json['amount']),
       currency: looseString(json['currency']),
       paymentId: looseString(json['paymentId']),

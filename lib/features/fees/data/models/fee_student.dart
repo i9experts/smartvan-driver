@@ -22,7 +22,7 @@ abstract class FeeStudent with _$FeeStudent {
       readValue: readStatusLower,
       unknownEnumValue: PaymentStatus.unknown,
     )
-    @Default(PaymentStatus.notGenerated)
+    @Default(PaymentStatus.unknown)
     PaymentStatus status,
 
     /// Arrives as a number or a numeric string.

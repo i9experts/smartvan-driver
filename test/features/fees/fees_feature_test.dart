@@ -142,6 +142,39 @@ void main() {
       expect(find.text('Test Kid One'), findsOneWidget);
     });
 
+    testWidgets('a student with no status still gets Mark as Paid',
+        (tester) async {
+      useTallView(tester);
+      students = [
+        const FeeStudent(
+            kidId: 'k9', month: '2026-10', fullname: 'No Status Kid')
+      ];
+      await tester.pumpWidget(screen());
+      await tester.pumpAndSettle();
+      expect(find.text('Not Set Up'), findsOneWidget);
+      expect(find.text('Mark as Paid (Cash)'), findsOneWidget);
+    });
+
+    testWidgets('only not_generated and paid hide Mark as Paid',
+        (tester) async {
+      useTallView(tester);
+      students = [
+        const FeeStudent(
+            kidId: 'a',
+            month: '2026-10',
+            fullname: 'A',
+            status: PaymentStatus.notGenerated),
+        const FeeStudent(
+            kidId: 'b',
+            month: '2026-10',
+            fullname: 'B',
+            status: PaymentStatus.paid),
+      ];
+      await tester.pumpWidget(screen());
+      await tester.pumpAndSettle();
+      expect(find.text('Mark as Paid (Cash)'), findsNothing);
+    });
+
     testWidgets('empty list', (tester) async {
       students = [];
       await tester.pumpWidget(screen());

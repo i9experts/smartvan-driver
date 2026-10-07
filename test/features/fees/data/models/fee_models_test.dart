@@ -41,10 +41,10 @@ void main() {
       expect(list[3].amount, isNull);
     });
 
-    test('unknown status; missing status defaults to not generated', () {
+    test('unknown status; missing status is unknown too', () {
       expect(list[4].status, PaymentStatus.unknown); // "refunded"
       expect(list[4].fullname, 'Test Kid Five'); // `name`
-      expect(list[5].status, PaymentStatus.notGenerated);
+      expect(list[5].status, PaymentStatus.unknown);
     });
   });
 
