@@ -276,7 +276,8 @@ class AlertDetailScreen extends StatelessWidget {
   String _formatTime(String time) {
     try {
       final dt = DateTime.parse(time).toLocal();
-      return '${dt.day} ${_month(dt.month)} ${dt.year} — ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} ${dt.hour >= 12 ? 'PM' : 'AM'}';
+      final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+      return '${dt.day} ${_month(dt.month)} ${dt.year} — ${hour12.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')} ${dt.hour >= 12 ? 'PM' : 'AM'}';
     } catch (e) {
       return time;
     }
