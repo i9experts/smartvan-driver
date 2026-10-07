@@ -29,3 +29,9 @@ final socketFactoryProvider = Provider<SocketFactory>(
 
 /// "Now" — a provider so time-dependent logic can be tested.
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+
+/// Fires each time the offline queue delivered something to the server, so
+/// screens can reload what the server now says.
+final syncQueueSyncedProvider = StreamProvider.autoDispose<void>(
+  (ref) => ref.watch(syncQueueProvider).onSynced,
+);

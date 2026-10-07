@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartvan_driver/core/network/json_helpers.dart';
 import 'package:smartvan_driver/features/passengers/data/models/absence.dart';
+import 'package:smartvan_driver/features/trip/data/models/trip_type.dart';
 import 'package:smartvan_driver/features/passengers/data/models/arrived_at_stop.dart';
 import 'package:smartvan_driver/features/passengers/data/models/kid_absence_event.dart';
 import 'package:smartvan_driver/features/passengers/data/models/kid_trip_status.dart';
@@ -25,6 +26,7 @@ void main() {
       expect(p.isPicked, isTrue);
       expect(p.isDropped, isFalse);
       expect(p.tripId, 'trip-001');
+      expect(p.tripType, TripType.pick); // "Pick"
       expect(p.grade, '3');
       expect(p.schoolName, 'Sample School');
       expect(p.distance, '1.2 km');
@@ -44,6 +46,7 @@ void main() {
       expect(p.fullname, 'Test Kid Two');
       expect(p.image, 'https://example.test/img/2.png');
       expect(p.tripStatus, KidTripStatus.pending); // `status`
+      expect(p.tripType, TripType.drop);
       expect(p.schoolName, 'Sample School');
       expect(p.grade, '4'); // number
       expect(p.distance, '2.5'); // number
@@ -64,6 +67,7 @@ void main() {
       final p = list[2];
       expect(p.id, 'kid-003');
       expect(p.tripStatus, KidTripStatus.pending); // missing = pending
+      expect(p.tripType, TripType.unknown);
       expect(p.parent.phoneNo, '0300-0000005'); // bare phoneNo
       expect(p.parent.alternatePhoneNo, isNull);
       expect(p.absent, isFalse);

@@ -26,6 +26,10 @@ mixin _$Passenger {
   KidTripStatus get tripStatus;
   @JsonKey(fromJson: looseString)
   String? get tripId;
+
+  /// Direction of the trip this row belongs to (`pick` | `drop`).
+  @JsonKey(readValue: readTripTypeLower, unknownEnumValue: TripType.unknown)
+  TripType get tripType;
   @JsonKey(fromJson: looseString)
   String? get grade;
   @JsonKey(readValue: readSchoolName, fromJson: looseString)
@@ -73,6 +77,8 @@ mixin _$Passenger {
             (identical(other.tripStatus, tripStatus) ||
                 other.tripStatus == tripStatus) &&
             (identical(other.tripId, tripId) || other.tripId == tripId) &&
+            (identical(other.tripType, tripType) ||
+                other.tripType == tripType) &&
             (identical(other.grade, grade) || other.grade == grade) &&
             (identical(other.schoolName, schoolName) ||
                 other.schoolName == schoolName) &&
@@ -96,6 +102,7 @@ mixin _$Passenger {
       image,
       tripStatus,
       tripId,
+      tripType,
       grade,
       schoolName,
       distance,
@@ -107,7 +114,7 @@ mixin _$Passenger {
 
   @override
   String toString() {
-    return 'Passenger(id: $id, fullname: $fullname, image: $image, tripStatus: $tripStatus, tripId: $tripId, grade: $grade, schoolName: $schoolName, distance: $distance, parent: $parent, absent: $absent, absenceNote: $absenceNote, waitingSince: $waitingSince, noShow: $noShow)';
+    return 'Passenger(id: $id, fullname: $fullname, image: $image, tripStatus: $tripStatus, tripId: $tripId, tripType: $tripType, grade: $grade, schoolName: $schoolName, distance: $distance, parent: $parent, absent: $absent, absenceNote: $absenceNote, waitingSince: $waitingSince, noShow: $noShow)';
   }
 }
 
@@ -125,6 +132,8 @@ abstract mixin class $PassengerCopyWith<$Res> {
           readValue: readTripStatus, unknownEnumValue: KidTripStatus.unknown)
       KidTripStatus tripStatus,
       @JsonKey(fromJson: looseString) String? tripId,
+      @JsonKey(readValue: readTripTypeLower, unknownEnumValue: TripType.unknown)
+      TripType tripType,
       @JsonKey(fromJson: looseString) String? grade,
       @JsonKey(readValue: readSchoolName, fromJson: looseString)
       String? schoolName,
@@ -155,6 +164,7 @@ class _$PassengerCopyWithImpl<$Res> implements $PassengerCopyWith<$Res> {
     Object? image = freezed,
     Object? tripStatus = null,
     Object? tripId = freezed,
+    Object? tripType = null,
     Object? grade = freezed,
     Object? schoolName = freezed,
     Object? distance = freezed,
@@ -185,6 +195,10 @@ class _$PassengerCopyWithImpl<$Res> implements $PassengerCopyWith<$Res> {
           ? _self.tripId
           : tripId // ignore: cast_nullable_to_non_nullable
               as String?,
+      tripType: null == tripType
+          ? _self.tripType
+          : tripType // ignore: cast_nullable_to_non_nullable
+              as TripType,
       grade: freezed == grade
           ? _self.grade
           : grade // ignore: cast_nullable_to_non_nullable
@@ -335,6 +349,10 @@ extension PassengerPatterns on Passenger {
                 unknownEnumValue: KidTripStatus.unknown)
             KidTripStatus tripStatus,
             @JsonKey(fromJson: looseString) String? tripId,
+            @JsonKey(
+                readValue: readTripTypeLower,
+                unknownEnumValue: TripType.unknown)
+            TripType tripType,
             @JsonKey(fromJson: looseString) String? grade,
             @JsonKey(readValue: readSchoolName, fromJson: looseString)
             String? schoolName,
@@ -356,6 +374,7 @@ extension PassengerPatterns on Passenger {
             _that.image,
             _that.tripStatus,
             _that.tripId,
+            _that.tripType,
             _that.grade,
             _that.schoolName,
             _that.distance,
@@ -395,6 +414,10 @@ extension PassengerPatterns on Passenger {
                 unknownEnumValue: KidTripStatus.unknown)
             KidTripStatus tripStatus,
             @JsonKey(fromJson: looseString) String? tripId,
+            @JsonKey(
+                readValue: readTripTypeLower,
+                unknownEnumValue: TripType.unknown)
+            TripType tripType,
             @JsonKey(fromJson: looseString) String? grade,
             @JsonKey(readValue: readSchoolName, fromJson: looseString)
             String? schoolName,
@@ -415,6 +438,7 @@ extension PassengerPatterns on Passenger {
             _that.image,
             _that.tripStatus,
             _that.tripId,
+            _that.tripType,
             _that.grade,
             _that.schoolName,
             _that.distance,
@@ -453,6 +477,10 @@ extension PassengerPatterns on Passenger {
                 unknownEnumValue: KidTripStatus.unknown)
             KidTripStatus tripStatus,
             @JsonKey(fromJson: looseString) String? tripId,
+            @JsonKey(
+                readValue: readTripTypeLower,
+                unknownEnumValue: TripType.unknown)
+            TripType tripType,
             @JsonKey(fromJson: looseString) String? grade,
             @JsonKey(readValue: readSchoolName, fromJson: looseString)
             String? schoolName,
@@ -473,6 +501,7 @@ extension PassengerPatterns on Passenger {
             _that.image,
             _that.tripStatus,
             _that.tripId,
+            _that.tripType,
             _that.grade,
             _that.schoolName,
             _that.distance,
@@ -500,6 +529,8 @@ class _Passenger extends Passenger {
           readValue: readTripStatus, unknownEnumValue: KidTripStatus.unknown)
       this.tripStatus = KidTripStatus.pending,
       @JsonKey(fromJson: looseString) this.tripId,
+      @JsonKey(readValue: readTripTypeLower, unknownEnumValue: TripType.unknown)
+      this.tripType = TripType.unknown,
       @JsonKey(fromJson: looseString) this.grade,
       @JsonKey(readValue: readSchoolName, fromJson: looseString)
       this.schoolName,
@@ -531,6 +562,11 @@ class _Passenger extends Passenger {
   @override
   @JsonKey(fromJson: looseString)
   final String? tripId;
+
+  /// Direction of the trip this row belongs to (`pick` | `drop`).
+  @override
+  @JsonKey(readValue: readTripTypeLower, unknownEnumValue: TripType.unknown)
+  final TripType tripType;
   @override
   @JsonKey(fromJson: looseString)
   final String? grade;
@@ -591,6 +627,8 @@ class _Passenger extends Passenger {
             (identical(other.tripStatus, tripStatus) ||
                 other.tripStatus == tripStatus) &&
             (identical(other.tripId, tripId) || other.tripId == tripId) &&
+            (identical(other.tripType, tripType) ||
+                other.tripType == tripType) &&
             (identical(other.grade, grade) || other.grade == grade) &&
             (identical(other.schoolName, schoolName) ||
                 other.schoolName == schoolName) &&
@@ -614,6 +652,7 @@ class _Passenger extends Passenger {
       image,
       tripStatus,
       tripId,
+      tripType,
       grade,
       schoolName,
       distance,
@@ -625,7 +664,7 @@ class _Passenger extends Passenger {
 
   @override
   String toString() {
-    return 'Passenger(id: $id, fullname: $fullname, image: $image, tripStatus: $tripStatus, tripId: $tripId, grade: $grade, schoolName: $schoolName, distance: $distance, parent: $parent, absent: $absent, absenceNote: $absenceNote, waitingSince: $waitingSince, noShow: $noShow)';
+    return 'Passenger(id: $id, fullname: $fullname, image: $image, tripStatus: $tripStatus, tripId: $tripId, tripType: $tripType, grade: $grade, schoolName: $schoolName, distance: $distance, parent: $parent, absent: $absent, absenceNote: $absenceNote, waitingSince: $waitingSince, noShow: $noShow)';
   }
 }
 
@@ -646,6 +685,8 @@ abstract mixin class _$PassengerCopyWith<$Res>
           readValue: readTripStatus, unknownEnumValue: KidTripStatus.unknown)
       KidTripStatus tripStatus,
       @JsonKey(fromJson: looseString) String? tripId,
+      @JsonKey(readValue: readTripTypeLower, unknownEnumValue: TripType.unknown)
+      TripType tripType,
       @JsonKey(fromJson: looseString) String? grade,
       @JsonKey(readValue: readSchoolName, fromJson: looseString)
       String? schoolName,
@@ -677,6 +718,7 @@ class __$PassengerCopyWithImpl<$Res> implements _$PassengerCopyWith<$Res> {
     Object? image = freezed,
     Object? tripStatus = null,
     Object? tripId = freezed,
+    Object? tripType = null,
     Object? grade = freezed,
     Object? schoolName = freezed,
     Object? distance = freezed,
@@ -707,6 +749,10 @@ class __$PassengerCopyWithImpl<$Res> implements _$PassengerCopyWith<$Res> {
           ? _self.tripId
           : tripId // ignore: cast_nullable_to_non_nullable
               as String?,
+      tripType: null == tripType
+          ? _self.tripType
+          : tripType // ignore: cast_nullable_to_non_nullable
+              as TripType,
       grade: freezed == grade
           ? _self.grade
           : grade // ignore: cast_nullable_to_non_nullable

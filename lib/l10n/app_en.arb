@@ -448,5 +448,150 @@
       }
     }
   },
-  "scanStudentFallback": "Student"
+  "scanStudentFallback": "Student",
+  "passengersTitle": "Passengers",
+  "passengersTotal": "Total",
+  "passengersPickedLabel": "Picked",
+  "passengersRemaining": "Remaining",
+  "passengersErrorTitle": "Couldn't Load Passengers",
+  "passengersErrorBody": "Check your connection and try again",
+  "passengersEmptyTitle": "No Passengers",
+  "passengersEmptyBody": "No students assigned to this trip",
+  "passengersUnknownKid": "Unknown",
+  "passengersAway": "{distance} Away",
+  "@passengersAway": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersSavedOffline": "Saved offline — waiting to sync",
+  "passengersMessageParent": "Message parent",
+  "passengersStatusDropped": "Dropped",
+  "passengersStatusPicked": "Picked",
+  "passengersDropButton": "Drop",
+  "passengersPickUp": "Pick Up",
+  "passengersAbsentWithNote": "Absent today — {note}",
+  "@passengersAbsentWithNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersAbsentNoNote": "Absent today (parent informed)",
+  "passengersNotAtStop": "Not at stop — moved on",
+  "passengersAtHome": "At home — tell parent",
+  "passengersAtStop": "At stop — tell parent",
+  "passengersWaiting": "Waiting {minutes}:{seconds}",
+  "@passengersWaiting": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersNotHere": "Not here — move on",
+  "passengersNoShowTitle": "{name} not at stop?",
+  "@passengersNoShowTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersNoShowBody": "The parent will be told the van moved on.",
+  "passengersNoShowHint": "Note (optional)",
+  "passengersKeepWaiting": "Keep waiting",
+  "passengersMoveOn": "Move on",
+  "passengersStudentFallback": "Student",
+  "passengersAbsentDialogTitle": "Marked absent",
+  "passengersAbsentDialogBody": "{name}'s parent said they are absent today. Pick up anyway?",
+  "@passengersAbsentDialogBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersThisStudent": "This student",
+  "passengersPickUpConfirm": "Pick up",
+  "passengersParentTold": "Parent told the van is at the stop.",
+  "passengersTellFailed": "Could not notify the parent.",
+  "passengersNoShowFailed": "Could not mark as not at stop.",
+  "passengersPickedOk": "{name} picked up!",
+  "@passengersPickedOk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersPickedOffline": "{name} picked up — saved offline, will sync automatically.",
+  "@passengersPickedOffline": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersPickFailed": "Failed to pick student",
+  "passengersDroppedOk": "{name} dropped off!",
+  "@passengersDroppedOk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersDroppedOffline": "{name} dropped off — saved offline, will sync automatically.",
+  "@passengersDroppedOffline": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersDropFailed": "Failed to drop off {name}. Please try again.",
+  "@passengersDropFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersNoGps": "Could not get your GPS location. Turn on location and try again.",
+  "passengersChatFailed": "Could not open chat.",
+  "passengersAbsentEvent": "{name} is absent today (parent informed).",
+  "@passengersAbsentEvent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersRidesAfterAll": "{name} will ride today after all.",
+  "@passengersRidesAfterAll": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "passengersAStudent": "A student",
+  "kidProfileTitle": "Kid Profile",
+  "kidProfileStudentInfo": "Student Information",
+  "kidProfileSchool": "School",
+  "kidProfileGrade": "Grade",
+  "kidProfileParentContact": "Parent Contact",
+  "kidProfilePhone": "Phone Number",
+  "kidProfileAltPhone": "Alternate Phone",
+  "kidProfileHomeAddress": "Home Address",
+  "kidProfileCallParent": "Call Parent",
+  "kidProfileDefaultLocation": "Karachi, Pakistan",
+  "kidProfileNotFound": "Student not found"
 }

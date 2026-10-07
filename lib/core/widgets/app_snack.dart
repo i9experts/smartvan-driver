@@ -18,6 +18,10 @@ class AppSnack {
   static void info(BuildContext context, String message) =>
       _show(context, message, null);
 
+  /// A snackbar in any [color].
+  static void show(BuildContext context, String message, Color color) =>
+      _show(context, message, color);
+
   static void _show(BuildContext context, String message, Color? color) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()

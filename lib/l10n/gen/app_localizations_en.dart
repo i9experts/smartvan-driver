@@ -806,4 +806,204 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanStudentFallback => 'Student';
+
+  @override
+  String get passengersTitle => 'Passengers';
+
+  @override
+  String get passengersTotal => 'Total';
+
+  @override
+  String get passengersPickedLabel => 'Picked';
+
+  @override
+  String get passengersRemaining => 'Remaining';
+
+  @override
+  String get passengersErrorTitle => 'Couldn\'t Load Passengers';
+
+  @override
+  String get passengersErrorBody => 'Check your connection and try again';
+
+  @override
+  String get passengersEmptyTitle => 'No Passengers';
+
+  @override
+  String get passengersEmptyBody => 'No students assigned to this trip';
+
+  @override
+  String get passengersUnknownKid => 'Unknown';
+
+  @override
+  String passengersAway(String distance) {
+    return '$distance Away';
+  }
+
+  @override
+  String get passengersSavedOffline => 'Saved offline — waiting to sync';
+
+  @override
+  String get passengersMessageParent => 'Message parent';
+
+  @override
+  String get passengersStatusDropped => 'Dropped';
+
+  @override
+  String get passengersStatusPicked => 'Picked';
+
+  @override
+  String get passengersDropButton => 'Drop';
+
+  @override
+  String get passengersPickUp => 'Pick Up';
+
+  @override
+  String passengersAbsentWithNote(String note) {
+    return 'Absent today — $note';
+  }
+
+  @override
+  String get passengersAbsentNoNote => 'Absent today (parent informed)';
+
+  @override
+  String get passengersNotAtStop => 'Not at stop — moved on';
+
+  @override
+  String get passengersAtHome => 'At home — tell parent';
+
+  @override
+  String get passengersAtStop => 'At stop — tell parent';
+
+  @override
+  String passengersWaiting(int minutes, String seconds) {
+    return 'Waiting $minutes:$seconds';
+  }
+
+  @override
+  String get passengersNotHere => 'Not here — move on';
+
+  @override
+  String passengersNoShowTitle(String name) {
+    return '$name not at stop?';
+  }
+
+  @override
+  String get passengersNoShowBody =>
+      'The parent will be told the van moved on.';
+
+  @override
+  String get passengersNoShowHint => 'Note (optional)';
+
+  @override
+  String get passengersKeepWaiting => 'Keep waiting';
+
+  @override
+  String get passengersMoveOn => 'Move on';
+
+  @override
+  String get passengersStudentFallback => 'Student';
+
+  @override
+  String get passengersAbsentDialogTitle => 'Marked absent';
+
+  @override
+  String passengersAbsentDialogBody(String name) {
+    return '$name\'s parent said they are absent today. Pick up anyway?';
+  }
+
+  @override
+  String get passengersThisStudent => 'This student';
+
+  @override
+  String get passengersPickUpConfirm => 'Pick up';
+
+  @override
+  String get passengersParentTold => 'Parent told the van is at the stop.';
+
+  @override
+  String get passengersTellFailed => 'Could not notify the parent.';
+
+  @override
+  String get passengersNoShowFailed => 'Could not mark as not at stop.';
+
+  @override
+  String passengersPickedOk(String name) {
+    return '$name picked up!';
+  }
+
+  @override
+  String passengersPickedOffline(String name) {
+    return '$name picked up — saved offline, will sync automatically.';
+  }
+
+  @override
+  String get passengersPickFailed => 'Failed to pick student';
+
+  @override
+  String passengersDroppedOk(String name) {
+    return '$name dropped off!';
+  }
+
+  @override
+  String passengersDroppedOffline(String name) {
+    return '$name dropped off — saved offline, will sync automatically.';
+  }
+
+  @override
+  String passengersDropFailed(String name) {
+    return 'Failed to drop off $name. Please try again.';
+  }
+
+  @override
+  String get passengersNoGps =>
+      'Could not get your GPS location. Turn on location and try again.';
+
+  @override
+  String get passengersChatFailed => 'Could not open chat.';
+
+  @override
+  String passengersAbsentEvent(String name) {
+    return '$name is absent today (parent informed).';
+  }
+
+  @override
+  String passengersRidesAfterAll(String name) {
+    return '$name will ride today after all.';
+  }
+
+  @override
+  String get passengersAStudent => 'A student';
+
+  @override
+  String get kidProfileTitle => 'Kid Profile';
+
+  @override
+  String get kidProfileStudentInfo => 'Student Information';
+
+  @override
+  String get kidProfileSchool => 'School';
+
+  @override
+  String get kidProfileGrade => 'Grade';
+
+  @override
+  String get kidProfileParentContact => 'Parent Contact';
+
+  @override
+  String get kidProfilePhone => 'Phone Number';
+
+  @override
+  String get kidProfileAltPhone => 'Alternate Phone';
+
+  @override
+  String get kidProfileHomeAddress => 'Home Address';
+
+  @override
+  String get kidProfileCallParent => 'Call Parent';
+
+  @override
+  String get kidProfileDefaultLocation => 'Karachi, Pakistan';
+
+  @override
+  String get kidProfileNotFound => 'Student not found';
 }

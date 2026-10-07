@@ -1497,6 +1497,354 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Student'**
   String get scanStudentFallback;
+
+  /// No description provided for @passengersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Passengers'**
+  String get passengersTitle;
+
+  /// No description provided for @passengersTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get passengersTotal;
+
+  /// No description provided for @passengersPickedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked'**
+  String get passengersPickedLabel;
+
+  /// No description provided for @passengersRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get passengersRemaining;
+
+  /// No description provided for @passengersErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t Load Passengers'**
+  String get passengersErrorTitle;
+
+  /// No description provided for @passengersErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again'**
+  String get passengersErrorBody;
+
+  /// No description provided for @passengersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Passengers'**
+  String get passengersEmptyTitle;
+
+  /// No description provided for @passengersEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No students assigned to this trip'**
+  String get passengersEmptyBody;
+
+  /// No description provided for @passengersUnknownKid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get passengersUnknownKid;
+
+  /// No description provided for @passengersAway.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} Away'**
+  String passengersAway(String distance);
+
+  /// No description provided for @passengersSavedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved offline — waiting to sync'**
+  String get passengersSavedOffline;
+
+  /// No description provided for @passengersMessageParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Message parent'**
+  String get passengersMessageParent;
+
+  /// No description provided for @passengersStatusDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped'**
+  String get passengersStatusDropped;
+
+  /// No description provided for @passengersStatusPicked.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked'**
+  String get passengersStatusPicked;
+
+  /// No description provided for @passengersDropButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop'**
+  String get passengersDropButton;
+
+  /// No description provided for @passengersPickUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Up'**
+  String get passengersPickUp;
+
+  /// No description provided for @passengersAbsentWithNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent today — {note}'**
+  String passengersAbsentWithNote(String note);
+
+  /// No description provided for @passengersAbsentNoNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent today (parent informed)'**
+  String get passengersAbsentNoNote;
+
+  /// No description provided for @passengersNotAtStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Not at stop — moved on'**
+  String get passengersNotAtStop;
+
+  /// No description provided for @passengersAtHome.
+  ///
+  /// In en, this message translates to:
+  /// **'At home — tell parent'**
+  String get passengersAtHome;
+
+  /// No description provided for @passengersAtStop.
+  ///
+  /// In en, this message translates to:
+  /// **'At stop — tell parent'**
+  String get passengersAtStop;
+
+  /// No description provided for @passengersWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting {minutes}:{seconds}'**
+  String passengersWaiting(int minutes, String seconds);
+
+  /// No description provided for @passengersNotHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Not here — move on'**
+  String get passengersNotHere;
+
+  /// No description provided for @passengersNoShowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} not at stop?'**
+  String passengersNoShowTitle(String name);
+
+  /// No description provided for @passengersNoShowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The parent will be told the van moved on.'**
+  String get passengersNoShowBody;
+
+  /// No description provided for @passengersNoShowHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get passengersNoShowHint;
+
+  /// No description provided for @passengersKeepWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep waiting'**
+  String get passengersKeepWaiting;
+
+  /// No description provided for @passengersMoveOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Move on'**
+  String get passengersMoveOn;
+
+  /// No description provided for @passengersStudentFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get passengersStudentFallback;
+
+  /// No description provided for @passengersAbsentDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked absent'**
+  String get passengersAbsentDialogTitle;
+
+  /// No description provided for @passengersAbsentDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s parent said they are absent today. Pick up anyway?'**
+  String passengersAbsentDialogBody(String name);
+
+  /// No description provided for @passengersThisStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'This student'**
+  String get passengersThisStudent;
+
+  /// No description provided for @passengersPickUpConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up'**
+  String get passengersPickUpConfirm;
+
+  /// No description provided for @passengersParentTold.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent told the van is at the stop.'**
+  String get passengersParentTold;
+
+  /// No description provided for @passengersTellFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not notify the parent.'**
+  String get passengersTellFailed;
+
+  /// No description provided for @passengersNoShowFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not mark as not at stop.'**
+  String get passengersNoShowFailed;
+
+  /// No description provided for @passengersPickedOk.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} picked up!'**
+  String passengersPickedOk(String name);
+
+  /// No description provided for @passengersPickedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} picked up — saved offline, will sync automatically.'**
+  String passengersPickedOffline(String name);
+
+  /// No description provided for @passengersPickFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to pick student'**
+  String get passengersPickFailed;
+
+  /// No description provided for @passengersDroppedOk.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} dropped off!'**
+  String passengersDroppedOk(String name);
+
+  /// No description provided for @passengersDroppedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} dropped off — saved offline, will sync automatically.'**
+  String passengersDroppedOffline(String name);
+
+  /// No description provided for @passengersDropFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to drop off {name}. Please try again.'**
+  String passengersDropFailed(String name);
+
+  /// No description provided for @passengersNoGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get your GPS location. Turn on location and try again.'**
+  String get passengersNoGps;
+
+  /// No description provided for @passengersChatFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open chat.'**
+  String get passengersChatFailed;
+
+  /// No description provided for @passengersAbsentEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is absent today (parent informed).'**
+  String passengersAbsentEvent(String name);
+
+  /// No description provided for @passengersRidesAfterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will ride today after all.'**
+  String passengersRidesAfterAll(String name);
+
+  /// No description provided for @passengersAStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'A student'**
+  String get passengersAStudent;
+
+  /// No description provided for @kidProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Kid Profile'**
+  String get kidProfileTitle;
+
+  /// No description provided for @kidProfileStudentInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Student Information'**
+  String get kidProfileStudentInfo;
+
+  /// No description provided for @kidProfileSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get kidProfileSchool;
+
+  /// No description provided for @kidProfileGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade'**
+  String get kidProfileGrade;
+
+  /// No description provided for @kidProfileParentContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent Contact'**
+  String get kidProfileParentContact;
+
+  /// No description provided for @kidProfilePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get kidProfilePhone;
+
+  /// No description provided for @kidProfileAltPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Alternate Phone'**
+  String get kidProfileAltPhone;
+
+  /// No description provided for @kidProfileHomeAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Home Address'**
+  String get kidProfileHomeAddress;
+
+  /// No description provided for @kidProfileCallParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Parent'**
+  String get kidProfileCallParent;
+
+  /// No description provided for @kidProfileDefaultLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Karachi, Pakistan'**
+  String get kidProfileDefaultLocation;
+
+  /// No description provided for @kidProfileNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Student not found'**
+  String get kidProfileNotFound;
 }
 
 class _AppLocalizationsDelegate

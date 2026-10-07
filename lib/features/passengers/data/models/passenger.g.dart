@@ -19,6 +19,10 @@ _Passenger _$PassengerFromJson(Map<String, dynamic> json) => _Passenger(
               unknownValue: KidTripStatus.unknown) ??
           KidTripStatus.pending,
       tripId: looseString(json['tripId']),
+      tripType: $enumDecodeNullable(
+              _$TripTypeEnumMap, readTripTypeLower(json, 'tripType'),
+              unknownValue: TripType.unknown) ??
+          TripType.unknown,
       grade: looseString(json['grade']),
       schoolName: looseString(readSchoolName(json, 'schoolName')),
       distance: looseString(json['distance']),
@@ -39,6 +43,7 @@ Map<String, dynamic> _$PassengerToJson(_Passenger instance) =>
       'image': instance.image,
       'tripStatus': _$KidTripStatusEnumMap[instance.tripStatus]!,
       'tripId': instance.tripId,
+      'tripType': _$TripTypeEnumMap[instance.tripType]!,
       'grade': instance.grade,
       'schoolName': instance.schoolName,
       'distance': instance.distance,
@@ -54,4 +59,10 @@ const _$KidTripStatusEnumMap = {
   KidTripStatus.picked: 'picked',
   KidTripStatus.dropped: 'dropped',
   KidTripStatus.unknown: 'unknown',
+};
+
+const _$TripTypeEnumMap = {
+  TripType.pick: 'pick',
+  TripType.drop: 'drop',
+  TripType.unknown: 'unknown',
 };

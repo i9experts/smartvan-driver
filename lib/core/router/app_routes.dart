@@ -47,6 +47,4 @@ class AppRoutes {
   // TODO(R.4 group C): remove once trip / passengers / kid / chat take ids in
   // the path. These still receive their data through `extra`.
   static const legacyTrip = '/trip';
-  static const legacyPassengers = '/passengers';
-  static const legacyKid = '/kid-profile';
 }

@@ -6,7 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/network/api_errors.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/providers/core_providers.dart';
-import '../../passengers/kid_status.dart';
+import '../../../core/router/app_routes.dart';
 import '../../safety/widgets/sos_button.dart';
 import '../application/trip_tracking.dart';
 import '../application/tracking_state.dart';
@@ -112,10 +112,17 @@ class _TripScreenState extends ConsumerState<TripScreen> {
         setState(() {
           _passengers = list;
           _totalPassengers = list.length;
-          _pickedCount = list
-              .where((p) => KidStatus.isPickedOrDropped(
-                  KidStatus.of(p as Map, pendingSync: pending)))
-              .length;
+          _pickedCount = list.where((p) {
+            final map = p as Map;
+            final id = (map['kidId'] ?? map['_id'] ?? map['id'])?.toString();
+            final status = (pending[id] ??
+                    map['tripStatus'] ??
+                    map['status'] ??
+                    '')
+                .toString()
+                .toLowerCase();
+            return status == 'picked' || status == 'dropped';
+          }).length;
         });
       }
     } catch (e) {
@@ -204,10 +211,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       if (!mounted) return;
       switch (choice) {
         case OpenPassengersChoice():
-          await context.push('/passengers', extra: {
-            ..._trip,
-            'passengers': _passengers,
-          });
+          await context.push(AppRoutes.passengersOf(ActiveTrip.fromJson(_trip).id));
           if (mounted) _loadPassengers();
         case ForceEndChoice(:final note):
           await _submitEndTrip(forceEnd: true, note: note);

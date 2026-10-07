@@ -86,6 +86,10 @@ Object? readTripStatus(Map<dynamic, dynamic> m, String _) =>
 /// `type` lower-cased (trip documents; the app compared it case-insensitively).
 Object? readTypeLower(Map<dynamic, dynamic> m, String _) => lowerCased(m['type']);
 
+/// `tripType` lower-cased (passenger rows carry the trip's direction).
+Object? readTripTypeLower(Map<dynamic, dynamic> m, String _) =>
+    lowerCased(m['tripType']);
+
 /// `status` lower-cased (trip documents).
 Object? readStatusLower(Map<dynamic, dynamic> m, String _) =>
     lowerCased(m['status']);

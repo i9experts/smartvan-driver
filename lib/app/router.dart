@@ -5,9 +5,10 @@ import '../features/auth/presentation/screens/splash_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/trip/screens/trip_screen.dart';
-import '../features/passengers/screens/passengers_screen.dart';
-import '../features/passengers/screens/kid_profile_screen.dart';
+import '../features/passengers/presentation/screens/passengers_screen.dart';
+import '../features/passengers/presentation/screens/kid_profile_screen.dart';
 import '../features/alerts/data/models/alert.dart';
+import '../features/passengers/data/models/passenger.dart';
 import '../features/alerts/presentation/screens/alerts_screen.dart';
 import '../features/alerts/presentation/screens/alert_detail_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
@@ -48,18 +49,16 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: AppRoutes.legacyPassengers,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        return PassengersScreen(trip: extra ?? {});
-      },
+      path: AppRoutes.passengers,
+      builder: (context, state) =>
+          PassengersScreen(tripId: state.pathParameters['tripId']!),
     ),
     GoRoute(
-      path: AppRoutes.legacyKid,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        return KidProfileScreen(kid: extra ?? {});
-      },
+      path: AppRoutes.kid,
+      builder: (context, state) => KidProfileScreen(
+        kidId: state.pathParameters['kidId']!,
+        kid: state.extra is Passenger ? state.extra as Passenger : null,
+      ),
     ),
     GoRoute(
       path: AppRoutes.alerts,

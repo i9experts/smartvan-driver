@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/network/json_helpers.dart';
+import '../../../trip/data/models/trip_type.dart';
 import 'kid_trip_status.dart';
 import 'parent_contact.dart';
 
@@ -28,6 +29,11 @@ abstract class Passenger with _$Passenger {
     @Default(KidTripStatus.pending)
     KidTripStatus tripStatus,
     @JsonKey(fromJson: looseString) String? tripId,
+
+    /// Direction of the trip this row belongs to (`pick` | `drop`).
+    @JsonKey(readValue: readTripTypeLower, unknownEnumValue: TripType.unknown)
+    @Default(TripType.unknown)
+    TripType tripType,
     @JsonKey(fromJson: looseString) String? grade,
     @JsonKey(readValue: readSchoolName, fromJson: looseString)
     String? schoolName,
