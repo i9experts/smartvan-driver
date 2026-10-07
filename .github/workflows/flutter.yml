@@ -1,0 +1,35 @@
+name: Flutter CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.35.6
+          channel: stable
+          cache: true
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build -d
+
+      - name: Generated code is committed
+        run: git diff --exit-code
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Riverpod lints
+        run: dart run custom_lint
+
+      - name: Test
+        run: flutter test
