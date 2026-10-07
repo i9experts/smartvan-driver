@@ -36,9 +36,10 @@ class _ReceiptSheetState extends State<ReceiptSheet> {
     try {
       final res = await ApiService.get('/fees/receipt/${widget.paymentId}');
       final d = res.data is Map ? res.data['data'] : null;
+      if (!mounted) return;
       setState(() => _r = d is Map ? Map<String, dynamic>.from(d) : null);
     } catch (e) {
-      setState(() => _error = ApiErrors.message(e, fallback: 'Could not load the receipt.'));
+      if (mounted) setState(() => _error = ApiErrors.message(e, fallback: 'Could not load the receipt.'));
     }
   }
 

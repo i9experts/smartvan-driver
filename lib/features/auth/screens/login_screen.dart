@@ -66,6 +66,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _showError(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),

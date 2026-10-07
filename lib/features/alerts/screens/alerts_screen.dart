@@ -29,6 +29,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
       if (response.statusCode == 200) {
         final raw = response.data;
         final data = raw is Map ? raw['data'] : null;
+        if (!mounted) return;
         setState(() => _alerts = raw is List
             ? raw
             : (data is List
@@ -469,7 +470,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                                 );
                               }
                             } catch (e) {
-                              setSheetState(() => isSending = false);
+                              if (context.mounted) setSheetState(() => isSending = false);
                               messenger.showSnackBar(
                                 SnackBar(
                                   content: Text(ApiErrors.message(e, fallback: 'Failed to send alert.')),

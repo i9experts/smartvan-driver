@@ -28,6 +28,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
       final response = await ApiService.get('/auth/getProfile');
       if (response.statusCode == 200) {
         final raw = response.data;
+        if (!mounted) return;
         setState(() => _documents = raw['data'] ?? raw);
       }
     } catch (e) {

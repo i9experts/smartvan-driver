@@ -32,9 +32,10 @@ class _DriverStatsScreenState extends State<DriverStatsScreen> {
     try {
       final res = await ApiService.get('/trips/driver-stats?days=$_days');
       final d = res.data is Map ? res.data['data'] : null;
+      if (!mounted) return;
       setState(() => _data = d is Map ? Map<String, dynamic>.from(d) : null);
     } catch (e) {
-      setState(() => _error = ApiErrors.message(e, fallback: 'Could not load your stats.'));
+      if (mounted) setState(() => _error = ApiErrors.message(e, fallback: 'Could not load your stats.'));
     } finally {
       if (mounted) setState(() => _loading = false);
     }

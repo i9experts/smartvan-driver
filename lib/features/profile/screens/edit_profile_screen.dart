@@ -48,6 +48,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (response.statusCode == 200) {
         final raw = response.data;
         final data = raw['data'] ?? raw;
+        if (!mounted) return;
         setState(() {
           _profile = data;
           _nameController.text = data['fullname'] ?? data['name'] ?? '';
@@ -71,7 +72,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(
         source: ImageSource.gallery, imageQuality: 70);
-    if (picked != null) {
+    if (picked != null && mounted) {
       setState(() => _selectedImage = File(picked.path));
     }
   }

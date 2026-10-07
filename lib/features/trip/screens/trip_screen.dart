@@ -163,7 +163,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
         ],
       ),
     );
-    if (confirmed != true) return;
+    if (confirmed != true || !mounted) return;
     await _submitEndTrip();
   }
 

@@ -26,6 +26,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       final response = await ApiService.get('/auth/getProfile');
       if (response.statusCode == 200) {
         final raw = response.data;
+        if (!mounted) return;
         setState(() => _profile = raw['data'] ?? raw);
       }
     } catch (e) {

@@ -66,9 +66,10 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         }
       }
       _existingPhotoUrl = today.checklist?['photoUrl']?.toString();
+      if (!mounted) return;
       setState(() => _items = items);
     } catch (e) {
-      setState(() => _error = ApiErrors.message(e, fallback: 'Could not load the checklist.'));
+      if (mounted) setState(() => _error = ApiErrors.message(e, fallback: 'Could not load the checklist.'));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -80,7 +81,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   Future<void> _takePhoto() async {
     final picked = await ImagePicker()
         .pickImage(source: ImageSource.camera, imageQuality: 70, maxWidth: 1600);
-    if (picked != null) setState(() => _photo = File(picked.path));
+    if (picked != null && mounted) setState(() => _photo = File(picked.path));
   }
 
   Future<void> _submit() async {

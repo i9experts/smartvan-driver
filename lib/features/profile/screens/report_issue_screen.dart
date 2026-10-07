@@ -41,7 +41,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
       final picker = ImagePicker();
       final picked = await picker.pickImage(
           source: ImageSource.gallery, imageQuality: 70);
-      if (picked != null) {
+      if (picked != null && mounted) {
         setState(() => _selectedImage = File(picked.path));
       }
     } catch (e) {

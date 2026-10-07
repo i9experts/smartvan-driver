@@ -140,6 +140,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   }
 
   void _show(_ResultView view) {
+    if (!mounted) return;
     _resultTimer?.cancel();
     setState(() => _result = view);
     _resultTimer = Timer(const Duration(seconds: 3), () {

@@ -34,11 +34,12 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
       final response = await ApiService.get('/fees/driver-students');
       final raw = response.data;
       final data = raw is Map ? raw['data'] : null;
+      if (!mounted) return;
       setState(() {
         _students = data is List ? data : [];
       });
     } catch (e) {
-      setState(() => _error = 'Could not load students. Pull down to try again.');
+      if (mounted) setState(() => _error = 'Could not load students. Pull down to try again.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -116,7 +117,7 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
         ],
       ),
     );
-    if (confirmed != true) return;
+    if (confirmed != true || !mounted) return;
 
     setState(() => _payingKidId = student['kidId']);
     try {

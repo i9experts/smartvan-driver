@@ -67,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // No van assigned / no routes today / driver inactive — all handled
       // as "nothing to show" rather than a crash. The empty state below
       // covers this gracefully.
-      setState(() => _myRoutes = []);
+      if (mounted) setState(() => _myRoutes = []);
     }
   }
 
@@ -165,6 +165,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final response = await ApiService.get('/auth/getProfile');
       if (response.statusCode == 200) {
         final raw = response.data;
+        if (!mounted) return;
         setState(() => _profile = raw['data'] ?? raw);
       }
     } catch (e) {
@@ -180,6 +181,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (response.statusCode == 200) {
         final raw = response.data;
         final data = raw['data'] ?? raw ?? [];
+        if (!mounted) return;
         setState(() => _trips = data is List ? data : []);
       }
     } catch (e) {
@@ -651,8 +653,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ));
     final done = await context.push<bool>('/checklist',
         extra: {'routeId': route['routeId']?.toString()});
+    if (!mounted) return;
     ref.invalidate(todayChecklistProvider);
-    if (done == true && mounted) await _startTripFromRoute(route);
+    if (done == true) await _startTripFromRoute(route);
   }
 
   /// Days until a profile date (ISO, YYYY-MM-DD or DD/MM/YYYY); null if unknown.
@@ -743,6 +746,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               borderRadius: BorderRadius.circular(14),
               onTap: () async {
                 await context.push<bool>('/checklist');
+                if (!mounted) return;
                 ref.invalidate(todayChecklistProvider);
               },
               child: Container(
