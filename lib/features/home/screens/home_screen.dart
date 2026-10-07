@@ -471,6 +471,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             _buildChecklistCard(),
 
+            _buildDocExpiryBanner(),
+
             // My Route Today — schedule + passengers, independent of
             // whether a trip has actually been started yet.
             if (_myRoutes.isNotEmpty)
@@ -651,6 +653,70 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         extra: {'routeId': route['routeId']?.toString()});
     ref.invalidate(todayChecklistProvider);
     if (done == true && mounted) await _startTripFromRoute(route);
+  }
+
+  /// Days until a profile date (ISO, YYYY-MM-DD or DD/MM/YYYY); null if unknown.
+  int? _daysUntil(dynamic value) {
+    final v = value?.toString().trim() ?? '';
+    if (v.isEmpty) return null;
+    DateTime? d;
+    final dmy = RegExp(r'^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$').firstMatch(v);
+    if (dmy != null) {
+      d = DateTime(int.parse(dmy.group(3)!), int.parse(dmy.group(2)!), int.parse(dmy.group(1)!));
+    } else {
+      d = DateTime.tryParse(v)?.toLocal();
+    }
+    if (d == null) return null;
+    final today = DateTime.now();
+    return DateTime(d.year, d.month, d.day)
+        .difference(DateTime(today.year, today.month, today.day))
+        .inDays;
+  }
+
+  /// Warns when the driving licence or vehicle card expires within 30 days.
+  Widget _buildDocExpiryBanner() {
+    final docs = <(String, int)>[];
+    for (final (field, label) in const [
+      ('expiryDateLicense', 'Driving licence'),
+      ('expiryDateVehicleCard', 'Vehicle card'),
+    ]) {
+      final days = _daysUntil(_profile?[field]);
+      if (days != null && days <= 30) docs.add((label, days));
+    }
+    if (docs.isEmpty) return const SizedBox.shrink();
+    final expired = docs.any((d) => d.$2 < 0);
+    final color = expired ? const Color(0xFFE53935) : const Color(0xFFFFB800);
+    final text = docs
+        .map((d) => d.$2 < 0
+            ? '${d.$1} expired'
+            : d.$2 == 0
+                ? '${d.$1} expires today'
+                : '${d.$1} expires in ${d.$2} day${d.$2 == 1 ? '' : 's'}')
+        .join(' · ');
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Material(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => context.push('/documents'),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Icon(Icons.badge_outlined, color: color),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('$text. Tap to upload the renewed copy.',
+                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 13)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildChecklistCard() {
