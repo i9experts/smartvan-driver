@@ -66,3 +66,13 @@ Backend contract: `docs/PHASE3_API.md` in the `smartvan` repo.
   (`lib/features/fees/widgets/receipt_sheet.dart`).
 - **Chat** (`lib/features/chat/`): parent ↔ driver messages with quick
   replies; entry from the home header and each passenger card.
+
+## Phase 4
+
+Backend contract: `docs/PHASE4_API.md` in the `smartvan` repo.
+
+- Passengers: parent-marked absences (dimmed, moved down, confirm before
+  pick), "At stop / At home — tell parent" with a waiting timer, and
+  "Not here — move on" (no-show) after 2 minutes on pick trips.
+- Home: licence / vehicle card expiry banner.
+- Firebase Crashlytics (release builds).
