@@ -30,11 +30,11 @@ void main() {
     ]) {
       expect(AppException.from(dioError(type: t)), isA<NetworkException>());
     }
-    expect(AppException.from(const SocketException('x')),
-        isA<NetworkException>());
     expect(
-        AppException.from(
-            dioError(type: DioExceptionType.unknown, error: const SocketException('x'))),
+        AppException.from(const SocketException('x')), isA<NetworkException>());
+    expect(
+        AppException.from(dioError(
+            type: DioExceptionType.unknown, error: const SocketException('x'))),
         isA<NetworkException>());
   });
 
@@ -44,7 +44,8 @@ void main() {
   });
 
   test('401 is UnauthorizedException and keeps the server message', () {
-    final e = AppException.from(dioError(status: 401, body: {'message': 'Token expired'}));
+    final e = AppException.from(
+        dioError(status: 401, body: {'message': 'Token expired'}));
     expect(e, isA<UnauthorizedException>());
     expect(e.userMessage, 'Token expired');
     expect(AppException.from(dioError(status: 401)).userMessage,
@@ -56,7 +57,9 @@ void main() {
     expect(plain, isA<ServerException>());
     expect(plain.userMessage,
         'Server is having trouble right now. Please try again shortly.');
-    expect(AppException.from(dioError(status: 500, body: {'message': 'Boom'})).userMessage,
+    expect(
+        AppException.from(dioError(status: 500, body: {'message': 'Boom'}))
+            .userMessage,
         'Boom');
   });
 
@@ -79,10 +82,13 @@ void main() {
 
   test('message can be a list, or sit under "error"', () {
     expect(
-        AppException.from(dioError(status: 400, body: {'message': ['first', 'second']}))
-            .userMessage,
+        AppException.from(dioError(status: 400, body: {
+          'message': ['first', 'second']
+        })).userMessage,
         'first');
-    expect(AppException.from(dioError(status: 400, body: {'error': 'Bad Request'})).userMessage,
+    expect(
+        AppException.from(dioError(status: 400, body: {'error': 'Bad Request'}))
+            .userMessage,
         'Bad Request');
   });
 
@@ -96,6 +102,7 @@ void main() {
     expect(AppException.from(StateError('x')), isA<UnknownException>());
     const original = ServerException('s', 500);
     expect(AppException.from(original), same(original));
-    expect(AppException.from(dioError(status: 400, error: original)), same(original));
+    expect(AppException.from(dioError(status: 400, error: original)),
+        same(original));
   });
 }
