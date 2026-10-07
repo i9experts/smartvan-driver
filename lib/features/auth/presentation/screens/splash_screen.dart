@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/storage/token_storage.dart';
-import '../../trip/services/active_trip_store.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../l10n/l10n.dart';
+import '../../application/splash_controller.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -47,18 +49,18 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _navigate() async {
     await Future.delayed(const Duration(seconds: 4));
-    final loggedIn = await TokenStorage.hasToken();
-    if (mounted) {
-      final activeTrip = loggedIn ? ActiveTripStore.read() : null;
-      if (activeTrip != null) {
+    final destination =
+        await ref.read(splashControllerProvider.notifier).decide();
+    if (!mounted) return;
+    switch (destination) {
+      case ResumeTrip(:final trip):
         // App was killed mid-trip — go straight back to it. TripScreen
         // restarts tracking; Home will reconcile with the server later.
-        context.go('/trip', extra: activeTrip);
-      } else if (loggedIn) {
-        context.go('/home');
-      } else {
-        context.go('/login');
-      }
+        context.go(AppRoutes.legacyTrip, extra: trip);
+      case GoToHome():
+        context.go(AppRoutes.home);
+      case GoToLogin():
+        context.go(AppRoutes.login);
     }
   }
 
@@ -114,21 +116,21 @@ class _SplashScreenState extends State<SplashScreen>
                       const SizedBox(height: 24),
                       Opacity(
                         opacity: _fadeAnimation.value,
-                        child: const Column(
+                        child: Column(
                           children: [
                             Text(
-                              'SmartVan Driver',
-                              style: TextStyle(
+                              context.l10n.appTitle,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Poppins',
                               ),
                             ),
-                            SizedBox(height: 6),
+                            const SizedBox(height: 6),
                             Text(
-                              'Safe Ride, Every Side',
-                              style: TextStyle(
+                              context.l10n.splashTagline,
+                              style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
                                 fontFamily: 'Poppins',

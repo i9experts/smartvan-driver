@@ -141,6 +141,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Login failed. Please try again.'**
   String get commonLoginFailed;
+
+  /// No description provided for @splashTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe Ride, Every Side'**
+  String get splashTagline;
+
+  /// No description provided for @loginPortal.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver Portal'**
+  String get loginPortal;
+
+  /// No description provided for @loginWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome Back!'**
+  String get loginWelcome;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to manage your trips'**
+  String get loginSubtitle;
+
+  /// No description provided for @loginIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number or CNIC'**
+  String get loginIdLabel;
+
+  /// No description provided for @loginIdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 03211181555 or your CNIC'**
+  String get loginIdHint;
+
+  /// No description provided for @loginPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get loginPasswordLabel;
+
+  /// No description provided for @loginPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get loginPasswordHint;
+
+  /// No description provided for @loginSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get loginSignIn;
+
+  /// No description provided for @loginFillAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all fields'**
+  String get loginFillAll;
 }
 
 class _AppLocalizationsDelegate

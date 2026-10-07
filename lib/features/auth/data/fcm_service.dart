@@ -2,8 +2,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../network/api_service.dart';
-import '../storage/token_storage.dart';
+import '../../../core/providers/app_container.dart';
+import '../../../core/storage/token_store.dart';
+import 'auth_repository.dart';
 
 class FCMService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
@@ -71,11 +72,8 @@ class FCMService {
   static Future<void> _saveFCMToken(String token) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      if (await TokenStorage.hasToken()) {
-        await ApiService.post('/van/update-profile', {
-          'fcmToken': token,
-          'userType': 'driver',
-        });
+      if (await appContainer.read(tokenStorageProvider).hasToken()) {
+        await appContainer.read(authRepositoryProvider).registerFcmToken(token);
       }
       await prefs.setString('fcm_token', token);
     } catch (e) {

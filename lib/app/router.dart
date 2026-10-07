@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/router/app_routes.dart';
-import '../features/auth/screens/splash_screen.dart';
-import '../features/auth/screens/login_screen.dart';
+import '../features/auth/presentation/screens/splash_screen.dart';
+import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/trip/screens/trip_screen.dart';
 import '../features/passengers/screens/passengers_screen.dart';
@@ -40,21 +40,21 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
-      path: '/trip',
+      path: AppRoutes.legacyTrip,
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
         return TripScreen(trip: extra ?? {});
       },
     ),
     GoRoute(
-      path: '/passengers',
+      path: AppRoutes.legacyPassengers,
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
         return PassengersScreen(trip: extra ?? {});
       },
     ),
     GoRoute(
-      path: '/kid-profile',
+      path: AppRoutes.legacyKid,
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
         return KidProfileScreen(kid: extra ?? {});
@@ -96,7 +96,7 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const ConversationsScreen(),
     ),
     GoRoute(
-      path: '/chat',
+      path: AppRoutes.legacyChat,
       builder: (context, state) =>
           ChatScreen(conversation: state.extra as Conversation),
     ),

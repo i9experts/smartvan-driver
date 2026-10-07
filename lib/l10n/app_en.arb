@@ -13,5 +13,15 @@
   "commonSomethingWrong": "Something went wrong. Please try again.",
   "commonSessionExpired": "Your session has expired. Please log in again.",
   "commonUploadFailed": "Image upload failed. Please try again.",
-  "commonLoginFailed": "Login failed. Please try again."
+  "commonLoginFailed": "Login failed. Please try again.",
+  "splashTagline": "Safe Ride, Every Side",
+  "loginPortal": "Driver Portal",
+  "loginWelcome": "Welcome Back!",
+  "loginSubtitle": "Sign in to manage your trips",
+  "loginIdLabel": "Phone Number or CNIC",
+  "loginIdHint": "e.g. 03211181555 or your CNIC",
+  "loginPasswordLabel": "Password",
+  "loginPasswordHint": "Enter your password",
+  "loginSignIn": "Sign In",
+  "loginFillAll": "Please fill in all fields"
 }

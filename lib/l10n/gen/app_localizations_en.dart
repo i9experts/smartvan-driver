@@ -34,4 +34,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonLoginFailed => 'Login failed. Please try again.';
+
+  @override
+  String get splashTagline => 'Safe Ride, Every Side';
+
+  @override
+  String get loginPortal => 'Driver Portal';
+
+  @override
+  String get loginWelcome => 'Welcome Back!';
+
+  @override
+  String get loginSubtitle => 'Sign in to manage your trips';
+
+  @override
+  String get loginIdLabel => 'Phone Number or CNIC';
+
+  @override
+  String get loginIdHint => 'e.g. 03211181555 or your CNIC';
+
+  @override
+  String get loginPasswordLabel => 'Password';
+
+  @override
+  String get loginPasswordHint => 'Enter your password';
+
+  @override
+  String get loginSignIn => 'Sign In';
+
+  @override
+  String get loginFillAll => 'Please fill in all fields';
 }

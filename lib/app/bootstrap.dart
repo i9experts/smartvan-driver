@@ -7,8 +7,8 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../core/providers/app_container.dart';
-import '../core/services/fcm_service.dart';
 import '../core/sync/sync_queue.dart';
+import '../features/auth/data/fcm_service.dart';
 import '../features/trip/services/active_trip_store.dart';
 import 'app.dart';
 
