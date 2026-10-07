@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'core/providers/app_container.dart';
@@ -27,6 +29,7 @@ void main() async {
   if (!kIsWeb) {
     try {
       await Firebase.initializeApp();
+      _setUpCrashReporting();
       FirebaseMessaging.onBackgroundMessage(
           _firebaseMessagingBackgroundHandler);
       // Push setup (permission prompt, APNs/FCM token) can stall for a long
@@ -46,6 +49,21 @@ void main() async {
     container: appContainer,
     child: const SmartVanDriverApp(),
   ));
+}
+
+/// Sends crashes (Flutter framework + uncaught async errors) to Firebase
+/// Crashlytics in release builds. Debug builds keep the normal red screen.
+void _setUpCrashReporting() {
+  final crashlytics = FirebaseCrashlytics.instance;
+  crashlytics.setCrashlyticsCollectionEnabled(!kDebugMode);
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    crashlytics.recordFlutterFatalError(details);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    crashlytics.recordError(error, stack, fatal: true);
+    return true;
+  };
 }
 
 class SmartVanDriverApp extends StatelessWidget {
