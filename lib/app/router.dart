@@ -17,7 +17,7 @@ import '../features/profile/presentation/screens/change_password_screen.dart';
 import '../features/profile/presentation/screens/report_issue_screen.dart';
 import '../features/fees/presentation/screens/fee_collection_screen.dart';
 import '../features/scan/screens/scan_screen.dart';
-import '../features/checklist/screens/checklist_screen.dart';
+import '../features/checklist/presentation/screens/checklist_screen.dart';
 import '../features/stats/presentation/screens/driver_stats_screen.dart';
 import '../features/chat/chat_api.dart';
 import '../features/chat/screens/chat_screen.dart';
@@ -107,10 +107,8 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.checklist,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        return ChecklistScreen(routeId: extra?['routeId']?.toString());
-      },
+      builder: (context, state) =>
+          ChecklistScreen(routeId: state.uri.queryParameters['routeId']),
     ),
     GoRoute(
       path: AppRoutes.scan,

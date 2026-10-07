@@ -365,5 +365,40 @@
         "type": "int"
       }
     }
-  }
+  },
+  "checklistTitle": "Daily van check",
+  "checklistIntro": "Check each item before your first trip today.",
+  "checklistOk": "OK",
+  "checklistIssue": "Issue",
+  "checklistNoteHint": "What is the problem? (optional)",
+  "checklistPhotoAdded": "Photo added",
+  "checklistAddPhoto": "Add a photo (optional)",
+  "checklistPhotoHelp": "Helpful when reporting an issue",
+  "checklistRetake": "Retake",
+  "checklistTake": "Take",
+  "checklistTryAgain": "Try again",
+  "checklistLoadFailed": "Could not load the checklist.",
+  "checklistSaveFailed": "Could not save the checklist.",
+  "checklistAnswerAll": "Answer all items ({answered}/{total})",
+  "@checklistAnswerAll": {
+    "placeholders": {
+      "answered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "checklistSubmitIssues": "{count, plural, =1{Submit and report 1 issue} other{Submit and report {count} issues}}",
+  "@checklistSubmitIssues": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "checklistSubmitOk": "Submit — all OK",
+  "checklistSavedIssues": "Checklist saved. The school has been told about the issues.",
+  "checklistSavedOk": "Checklist saved. Safe driving!"
 }

@@ -5,7 +5,8 @@ import 'package:dio/dio.dart';
 import '../../../core/session/app_session.dart';
 import '../../../core/network/api_service.dart';
 import '../../trip/services/trip_tracking_service.dart';
-import '../../checklist/checklist_api.dart';
+import '../../../core/router/app_routes.dart';
+import '../../checklist/application/checklist_providers.dart';
 import '../../chat/chat_api.dart';
 import '../../../core/network/api_errors.dart';
 import '../../alerts/presentation/screens/alerts_screen.dart';
@@ -651,8 +652,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       content: Text('Please complete today\'s van check first.'),
       behavior: SnackBarBehavior.floating,
     ));
-    final done = await context.push<bool>('/checklist',
-        extra: {'routeId': route['routeId']?.toString()});
+    final done = await context.push<bool>(
+        AppRoutes.checklistOf(routeId: route['routeId']?.toString()));
     if (!mounted) return;
     ref.invalidate(todayChecklistProvider);
     if (done == true) await _startTripFromRoute(route);
@@ -745,7 +746,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: InkWell(
               borderRadius: BorderRadius.circular(14),
               onTap: () async {
-                await context.push<bool>('/checklist');
+                await context.push<bool>(AppRoutes.checklist);
                 if (!mounted) return;
                 ref.invalidate(todayChecklistProvider);
               },

@@ -631,4 +631,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String statsDurationM(int minutes) {
     return '${minutes}m';
   }
+
+  @override
+  String get checklistTitle => 'Daily van check';
+
+  @override
+  String get checklistIntro => 'Check each item before your first trip today.';
+
+  @override
+  String get checklistOk => 'OK';
+
+  @override
+  String get checklistIssue => 'Issue';
+
+  @override
+  String get checklistNoteHint => 'What is the problem? (optional)';
+
+  @override
+  String get checklistPhotoAdded => 'Photo added';
+
+  @override
+  String get checklistAddPhoto => 'Add a photo (optional)';
+
+  @override
+  String get checklistPhotoHelp => 'Helpful when reporting an issue';
+
+  @override
+  String get checklistRetake => 'Retake';
+
+  @override
+  String get checklistTake => 'Take';
+
+  @override
+  String get checklistTryAgain => 'Try again';
+
+  @override
+  String get checklistLoadFailed => 'Could not load the checklist.';
+
+  @override
+  String get checklistSaveFailed => 'Could not save the checklist.';
+
+  @override
+  String checklistAnswerAll(int answered, int total) {
+    return 'Answer all items ($answered/$total)';
+  }
+
+  @override
+  String checklistSubmitIssues(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Submit and report $count issues',
+      one: 'Submit and report 1 issue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get checklistSubmitOk => 'Submit — all OK';
+
+  @override
+  String get checklistSavedIssues =>
+      'Checklist saved. The school has been told about the issues.';
+
+  @override
+  String get checklistSavedOk => 'Checklist saved. Safe driving!';
 }

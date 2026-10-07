@@ -1185,6 +1185,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{minutes}m'**
   String statsDurationM(int minutes);
+
+  /// No description provided for @checklistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily van check'**
+  String get checklistTitle;
+
+  /// No description provided for @checklistIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Check each item before your first trip today.'**
+  String get checklistIntro;
+
+  /// No description provided for @checklistOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get checklistOk;
+
+  /// No description provided for @checklistIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue'**
+  String get checklistIssue;
+
+  /// No description provided for @checklistNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What is the problem? (optional)'**
+  String get checklistNoteHint;
+
+  /// No description provided for @checklistPhotoAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo added'**
+  String get checklistPhotoAdded;
+
+  /// No description provided for @checklistAddPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo (optional)'**
+  String get checklistAddPhoto;
+
+  /// No description provided for @checklistPhotoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Helpful when reporting an issue'**
+  String get checklistPhotoHelp;
+
+  /// No description provided for @checklistRetake.
+  ///
+  /// In en, this message translates to:
+  /// **'Retake'**
+  String get checklistRetake;
+
+  /// No description provided for @checklistTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take'**
+  String get checklistTake;
+
+  /// No description provided for @checklistTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get checklistTryAgain;
+
+  /// No description provided for @checklistLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the checklist.'**
+  String get checklistLoadFailed;
+
+  /// No description provided for @checklistSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the checklist.'**
+  String get checklistSaveFailed;
+
+  /// No description provided for @checklistAnswerAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer all items ({answered}/{total})'**
+  String checklistAnswerAll(int answered, int total);
+
+  /// No description provided for @checklistSubmitIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Submit and report 1 issue} other{Submit and report {count} issues}}'**
+  String checklistSubmitIssues(int count);
+
+  /// No description provided for @checklistSubmitOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit — all OK'**
+  String get checklistSubmitOk;
+
+  /// No description provided for @checklistSavedIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Checklist saved. The school has been told about the issues.'**
+  String get checklistSavedIssues;
+
+  /// No description provided for @checklistSavedOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Checklist saved. Safe driving!'**
+  String get checklistSavedOk;
 }
 
 class _AppLocalizationsDelegate
