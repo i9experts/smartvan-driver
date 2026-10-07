@@ -4,11 +4,12 @@ import '../core/router/app_routes.dart';
 import '../features/auth/presentation/screens/splash_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/home/screens/home_screen.dart';
-import '../features/trip/screens/trip_screen.dart';
+import '../features/trip/presentation/screens/trip_screen.dart';
 import '../features/passengers/presentation/screens/passengers_screen.dart';
 import '../features/passengers/presentation/screens/kid_profile_screen.dart';
 import '../features/alerts/data/models/alert.dart';
 import '../features/passengers/data/models/passenger.dart';
+import '../features/trip/data/models/active_trip.dart';
 import '../features/alerts/presentation/screens/alerts_screen.dart';
 import '../features/alerts/presentation/screens/alert_detail_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
@@ -42,11 +43,11 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
-      path: AppRoutes.legacyTrip,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        return TripScreen(trip: extra ?? {});
-      },
+      path: AppRoutes.trip,
+      builder: (context, state) => TripScreen(
+        tripId: state.pathParameters['tripId']!,
+        trip: state.extra is ActiveTrip ? state.extra as ActiveTrip : null,
+      ),
     ),
     GoRoute(
       path: AppRoutes.passengers,

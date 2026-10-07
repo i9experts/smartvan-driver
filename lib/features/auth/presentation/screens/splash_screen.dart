@@ -56,7 +56,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       case ResumeTrip(:final trip):
         // App was killed mid-trip — go straight back to it. TripScreen
         // restarts tracking; Home will reconcile with the server later.
-        context.go(AppRoutes.legacyTrip, extra: trip.toJson());
+        context.go(AppRoutes.tripOf(trip.id), extra: trip);
       case GoToHome():
         context.go(AppRoutes.home);
       case GoToLogin():

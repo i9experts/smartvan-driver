@@ -127,7 +127,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: () => context.go('/trip', extra: tracking.trip!.toJson()),
+          onTap: () => context.go(AppRoutes.tripOf(tracking.trip!.id), extra: tracking.trip),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
@@ -599,7 +599,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ...Map<String, dynamic>.from(data),
           'schoolRoute': route['routeTitle'],
         };
-        context.go('/trip', extra: enriched);
+        final started = ActiveTrip.fromJson(enriched);
+        context.go(AppRoutes.tripOf(started.id), extra: started);
       }
     } on DioException catch (e) {
       // School requires today's van check first — open it, then retry.
@@ -1054,7 +1055,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ...Map<String, dynamic>.from(tripDetails),
                     'schoolRoute': route['routeTitle'],
                   };
-                  context.go('/trip', extra: enriched);
+                  final started = ActiveTrip.fromJson(enriched);
+        context.go(AppRoutes.tripOf(started.id), extra: started);
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF1B2B6B),
@@ -1375,7 +1377,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: ElevatedButton(
                     onPressed: isCompleted
                         ? null
-                        : () => context.go('/trip', extra: trip),
+                        : () {
+                            final active = ActiveTrip.fromJson(trip);
+                            context.go(AppRoutes.tripOf(active.id), extra: active);
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFFB800),
                       foregroundColor: const Color(0xFF1B2B6B),

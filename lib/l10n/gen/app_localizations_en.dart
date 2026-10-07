@@ -1006,4 +1006,206 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kidProfileNotFound => 'Student not found';
+
+  @override
+  String get tripDefaultName => 'Morning Trip';
+
+  @override
+  String get tripDefaultShift => 'Morning';
+
+  @override
+  String get tripDriverFallback => 'Driver';
+
+  @override
+  String tripSchoolRoute(String route) {
+    return 'School Route: $route';
+  }
+
+  @override
+  String get tripLive => 'Live';
+
+  @override
+  String get tripOffline => 'Offline';
+
+  @override
+  String tripPassengersCount(int count) {
+    return '$count Passengers';
+  }
+
+  @override
+  String tripPassCount(int count) {
+    return '$count Pass.';
+  }
+
+  @override
+  String get tripStatDate => 'Date';
+
+  @override
+  String get tripStatShift => 'Shift';
+
+  @override
+  String get tripStatPicked => 'Picked';
+
+  @override
+  String get tripMapYourLocation => 'Your Location';
+
+  @override
+  String get tripEndTrip => 'End Trip';
+
+  @override
+  String get tripEndConfirm => 'Are you sure you want to end this trip?';
+
+  @override
+  String get tripEndedForced => 'Trip ended. The school has been alerted.';
+
+  @override
+  String get tripEndedOk => 'Trip ended successfully!';
+
+  @override
+  String get tripEndFailed => 'Failed to end trip.';
+
+  @override
+  String tripPendingSync(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count pickup/drop updates not synced yet. Connect to the internet, wait for sync, then end the trip.',
+      one:
+          '1 pickup/drop update not synced yet. Connect to the internet, wait for sync, then end the trip.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripLocationOff =>
+      'Location sharing is off — parents can\'t see the van.';
+
+  @override
+  String get tripTurnOn => 'Turn on';
+
+  @override
+  String tripSavedOffline(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count updates saved offline — will sync automatically.',
+      one: '1 update saved offline — will sync automatically.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tripLocationServicesOff =>
+      'Please enable location services to share your trip.';
+
+  @override
+  String get tripPermissionDenied =>
+      'Location permission is needed to share your trip with parents.';
+
+  @override
+  String get tripPermissionForever =>
+      'Location permission permanently denied. Enable it in app settings.';
+
+  @override
+  String get tripPassengersLoadFailed => 'Failed to load passengers';
+
+  @override
+  String get tripNotFound => 'Trip not found';
+
+  @override
+  String get tripBackHome => 'Back to home';
+
+  @override
+  String kidsNotDroppedTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students are still marked in the van',
+      one: '1 student is still marked in the van',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get kidsNotDroppedCheckSeats =>
+      'Please check every seat before ending the trip.';
+
+  @override
+  String get kidsNotDroppedStudent => 'Student';
+
+  @override
+  String get kidsNotDroppedGoToPassengers => 'Go to passengers and drop them';
+
+  @override
+  String get kidsNotDroppedNotInVan =>
+      'They are not in the van — end trip anyway';
+
+  @override
+  String get kidsNotDroppedChecked =>
+      'I have checked the whole van and no child is inside.';
+
+  @override
+  String get kidsNotDroppedWhatHappened => 'What happened? (required)';
+
+  @override
+  String get kidsNotDroppedExample => 'e.g. Parent picked him up from school';
+
+  @override
+  String get kidsNotDroppedAlertInfo =>
+      'The school will be alerted, and these parents will be told the drop was not confirmed.';
+
+  @override
+  String get kidsNotDroppedEndAlert => 'End trip and alert school';
+
+  @override
+  String get sosButtonLabel => 'SOS';
+
+  @override
+  String get sosSemantics => 'SOS. Press and hold to send an emergency alert';
+
+  @override
+  String get sosHoldHint => 'Press and hold SOS to send an emergency alert.';
+
+  @override
+  String get sosNoLocationTitle => 'Could not get your location';
+
+  @override
+  String get sosNoLocationBody =>
+      'Turn on GPS and try again, or call for help directly.';
+
+  @override
+  String get sosSentTitle => 'SOS sent';
+
+  @override
+  String sosSentBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The school has your location. $count parents notified.',
+      one: 'The school has your location. 1 parent notified.',
+      zero: 'The school has your location.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get sosAlreadyTitle => 'SOS already sent';
+
+  @override
+  String get sosFailedTitle => 'SOS could not be sent';
+
+  @override
+  String sosFailedBody(String message) {
+    return '$message\nCall for help directly:';
+  }
+
+  @override
+  String get sosPolice => 'Police';
+
+  @override
+  String get sosRescue => 'Rescue';
+
+  @override
+  String get sosEdhi => 'Edhi';
 }

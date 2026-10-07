@@ -1845,6 +1845,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Student not found'**
   String get kidProfileNotFound;
+
+  /// No description provided for @tripDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning Trip'**
+  String get tripDefaultName;
+
+  /// No description provided for @tripDefaultShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get tripDefaultShift;
+
+  /// No description provided for @tripDriverFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get tripDriverFallback;
+
+  /// No description provided for @tripSchoolRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'School Route: {route}'**
+  String tripSchoolRoute(String route);
+
+  /// No description provided for @tripLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get tripLive;
+
+  /// No description provided for @tripOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get tripOffline;
+
+  /// No description provided for @tripPassengersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Passengers'**
+  String tripPassengersCount(int count);
+
+  /// No description provided for @tripPassCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Pass.'**
+  String tripPassCount(int count);
+
+  /// No description provided for @tripStatDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get tripStatDate;
+
+  /// No description provided for @tripStatShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift'**
+  String get tripStatShift;
+
+  /// No description provided for @tripStatPicked.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked'**
+  String get tripStatPicked;
+
+  /// No description provided for @tripMapYourLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Location'**
+  String get tripMapYourLocation;
+
+  /// No description provided for @tripEndTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'End Trip'**
+  String get tripEndTrip;
+
+  /// No description provided for @tripEndConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to end this trip?'**
+  String get tripEndConfirm;
+
+  /// No description provided for @tripEndedForced.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip ended. The school has been alerted.'**
+  String get tripEndedForced;
+
+  /// No description provided for @tripEndedOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip ended successfully!'**
+  String get tripEndedOk;
+
+  /// No description provided for @tripEndFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to end trip.'**
+  String get tripEndFailed;
+
+  /// No description provided for @tripPendingSync.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 pickup/drop update not synced yet. Connect to the internet, wait for sync, then end the trip.} other{{count} pickup/drop updates not synced yet. Connect to the internet, wait for sync, then end the trip.}}'**
+  String tripPendingSync(int count);
+
+  /// No description provided for @tripLocationOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location sharing is off — parents can\'t see the van.'**
+  String get tripLocationOff;
+
+  /// No description provided for @tripTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get tripTurnOn;
+
+  /// No description provided for @tripSavedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 update saved offline — will sync automatically.} other{{count} updates saved offline — will sync automatically.}}'**
+  String tripSavedOffline(int count);
+
+  /// No description provided for @tripLocationServicesOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enable location services to share your trip.'**
+  String get tripLocationServicesOff;
+
+  /// No description provided for @tripPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is needed to share your trip with parents.'**
+  String get tripPermissionDenied;
+
+  /// No description provided for @tripPermissionForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission permanently denied. Enable it in app settings.'**
+  String get tripPermissionForever;
+
+  /// No description provided for @tripPassengersLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load passengers'**
+  String get tripPassengersLoadFailed;
+
+  /// No description provided for @tripNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip not found'**
+  String get tripNotFound;
+
+  /// No description provided for @tripBackHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to home'**
+  String get tripBackHome;
+
+  /// No description provided for @kidsNotDroppedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student is still marked in the van} other{{count} students are still marked in the van}}'**
+  String kidsNotDroppedTitle(int count);
+
+  /// No description provided for @kidsNotDroppedCheckSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check every seat before ending the trip.'**
+  String get kidsNotDroppedCheckSeats;
+
+  /// No description provided for @kidsNotDroppedStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get kidsNotDroppedStudent;
+
+  /// No description provided for @kidsNotDroppedGoToPassengers.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to passengers and drop them'**
+  String get kidsNotDroppedGoToPassengers;
+
+  /// No description provided for @kidsNotDroppedNotInVan.
+  ///
+  /// In en, this message translates to:
+  /// **'They are not in the van — end trip anyway'**
+  String get kidsNotDroppedNotInVan;
+
+  /// No description provided for @kidsNotDroppedChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'I have checked the whole van and no child is inside.'**
+  String get kidsNotDroppedChecked;
+
+  /// No description provided for @kidsNotDroppedWhatHappened.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened? (required)'**
+  String get kidsNotDroppedWhatHappened;
+
+  /// No description provided for @kidsNotDroppedExample.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Parent picked him up from school'**
+  String get kidsNotDroppedExample;
+
+  /// No description provided for @kidsNotDroppedAlertInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'The school will be alerted, and these parents will be told the drop was not confirmed.'**
+  String get kidsNotDroppedAlertInfo;
+
+  /// No description provided for @kidsNotDroppedEndAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'End trip and alert school'**
+  String get kidsNotDroppedEndAlert;
+
+  /// No description provided for @sosButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS'**
+  String get sosButtonLabel;
+
+  /// No description provided for @sosSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS. Press and hold to send an emergency alert'**
+  String get sosSemantics;
+
+  /// No description provided for @sosHoldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Press and hold SOS to send an emergency alert.'**
+  String get sosHoldHint;
+
+  /// No description provided for @sosNoLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get your location'**
+  String get sosNoLocationTitle;
+
+  /// No description provided for @sosNoLocationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on GPS and try again, or call for help directly.'**
+  String get sosNoLocationBody;
+
+  /// No description provided for @sosSentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS sent'**
+  String get sosSentTitle;
+
+  /// No description provided for @sosSentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{The school has your location.} =1{The school has your location. 1 parent notified.} other{The school has your location. {count} parents notified.}}'**
+  String sosSentBody(int count);
+
+  /// No description provided for @sosAlreadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS already sent'**
+  String get sosAlreadyTitle;
+
+  /// No description provided for @sosFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS could not be sent'**
+  String get sosFailedTitle;
+
+  /// No description provided for @sosFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{message}\nCall for help directly:'**
+  String sosFailedBody(String message);
+
+  /// No description provided for @sosPolice.
+  ///
+  /// In en, this message translates to:
+  /// **'Police'**
+  String get sosPolice;
+
+  /// No description provided for @sosRescue.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescue'**
+  String get sosRescue;
+
+  /// No description provided for @sosEdhi.
+  ///
+  /// In en, this message translates to:
+  /// **'Edhi'**
+  String get sosEdhi;
 }
 
 class _AppLocalizationsDelegate

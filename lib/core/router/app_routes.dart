@@ -43,8 +43,4 @@ class AppRoutes {
       : Uri(path: checklist, queryParameters: {'routeId': routeId}).toString();
 
   static const scan = '/scan';
-
-  // TODO(R.4 group C): remove once trip / passengers / kid / chat take ids in
-  // the path. These still receive their data through `extra`.
-  static const legacyTrip = '/trip';
 }

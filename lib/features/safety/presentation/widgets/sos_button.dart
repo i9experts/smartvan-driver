@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/api_errors.dart';
-import '../../trip/application/trip_tracking.dart';
-import '../sos_service.dart';
+import '../../../../l10n/error_text.dart';
+import '../../../../l10n/l10n.dart';
+import '../../application/sos_controller.dart';
+import '../../data/emergency_numbers.dart';
 
-/// Red SOS button. Must be held for [_holdDuration] to fire, so it can't be
+/// Red SOS button. Must be held for [holdDuration] to fire, so it can't be
 /// triggered by an accidental tap while driving.
 class SosButton extends ConsumerStatefulWidget {
   const SosButton({super.key});
+
+  static const holdDuration = Duration(milliseconds: 1500);
 
   @override
   ConsumerState<SosButton> createState() => _SosButtonState();
@@ -16,15 +19,13 @@ class SosButton extends ConsumerStatefulWidget {
 
 class _SosButtonState extends ConsumerState<SosButton>
     with SingleTickerProviderStateMixin {
-  static const _holdDuration = Duration(milliseconds: 1500);
   static const _red = Color(0xFFE53935);
 
   late final AnimationController _hold =
-      AnimationController(vsync: this, duration: _holdDuration)
+      AnimationController(vsync: this, duration: SosButton.holdDuration)
         ..addStatusListener((status) {
           if (status == AnimationStatus.completed) _send();
         });
-  bool _sending = false;
 
   @override
   void dispose() {
@@ -33,7 +34,7 @@ class _SosButtonState extends ConsumerState<SosButton>
   }
 
   void _startHold() {
-    if (_sending) return;
+    if (ref.read(sosControllerProvider)) return;
     HapticFeedback.mediumImpact();
     _hold.forward(from: 0);
   }
@@ -43,52 +44,26 @@ class _SosButtonState extends ConsumerState<SosButton>
   }
 
   Future<void> _send() async {
-    if (_sending) return;
-    setState(() => _sending = true);
     HapticFeedback.heavyImpact();
-    try {
-      final tracking = ref.read(tripTrackingProvider);
-      final position =
-          await ref.read(tripTrackingProvider.notifier).currentPosition();
-      if (position == null) {
-        _showResult(
-          ok: false,
-          title: 'Could not get your location',
-          body: 'Turn on GPS and try again, or call for help directly.',
-        );
-        return;
-      }
-      final parents = await SosService.send(
-        tripId: tracking.tripId,
-        lat: position.lat,
-        lng: position.lng,
-      );
-      _showResult(
-        ok: true,
-        title: 'SOS sent',
-        body: 'The school has your location.'
-            '${parents > 0 ? ' $parents parent${parents == 1 ? '' : 's'} notified.' : ''}',
-      );
-    } catch (e) {
-      final rateLimited = ApiErrors.code(e) == 'SOS_RATE_LIMITED';
-      _showResult(
-        ok: rateLimited,
-        title: rateLimited ? 'SOS already sent' : 'SOS could not be sent',
-        body: rateLimited
-            ? ApiErrors.message(e)
-            : '${ApiErrors.message(e)}\nCall for help directly:',
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _sending = false);
-        _hold.reset();
-      }
+    final l10n = context.l10n;
+    final outcome = await ref.read(sosControllerProvider.notifier).send();
+    if (!mounted) return;
+    _hold.reset();
+    switch (outcome) {
+      case SosNoLocation():
+        _showResult(false, l10n.sosNoLocationTitle, l10n.sosNoLocationBody);
+      case SosSent(:final parentsNotified):
+        _showResult(true, l10n.sosSentTitle, l10n.sosSentBody(parentsNotified));
+      case SosRateLimited(:final error):
+        _showResult(true, l10n.sosAlreadyTitle, errorText(l10n, error));
+      case SosFailed(:final error):
+        _showResult(false, l10n.sosFailedTitle,
+            l10n.sosFailedBody(errorText(l10n, error)));
     }
   }
 
-  void _showResult(
-      {required bool ok, required String title, required String body}) {
-    if (!mounted) return;
+  void _showResult(bool ok, String title, String body) {
+    final l10n = context.l10n;
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -116,11 +91,11 @@ class _SosButtonState extends ConsumerState<SosButton>
               const SizedBox(height: 16),
               Row(
                 children: [
-                  _callButton('Police', EmergencyNumbers.police),
+                  _callButton(l10n.sosPolice, EmergencyNumbers.police),
                   const SizedBox(width: 8),
-                  _callButton('Rescue', EmergencyNumbers.rescue),
+                  _callButton(l10n.sosRescue, EmergencyNumbers.rescue),
                   const SizedBox(width: 8),
-                  _callButton('Edhi', EmergencyNumbers.edhi),
+                  _callButton(l10n.sosEdhi, EmergencyNumbers.edhi),
                 ],
               ),
             ],
@@ -154,19 +129,21 @@ class _SosButtonState extends ConsumerState<SosButton>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final sending = ref.watch(sosControllerProvider);
     return Semantics(
       button: true,
-      label: 'SOS. Press and hold to send an emergency alert',
+      label: l10n.sosSemantics,
       child: GestureDetector(
         onLongPressStart: (_) => _startHold(),
         onLongPressEnd: (_) => _cancelHold(),
         onLongPressCancel: _cancelHold,
         onTap: () {
-          if (_sending) return;
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Press and hold SOS to send an emergency alert.'),
+          if (sending) return;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(l10n.sosHoldHint),
             behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ));
         },
         child: SizedBox(
@@ -181,7 +158,7 @@ class _SosButtonState extends ConsumerState<SosButton>
                   width: 64,
                   height: 64,
                   child: CircularProgressIndicator(
-                    value: _sending ? null : _hold.value,
+                    value: sending ? null : _hold.value,
                     strokeWidth: 4,
                     color: Colors.white,
                     backgroundColor: Colors.transparent,
@@ -195,12 +172,12 @@ class _SosButtonState extends ConsumerState<SosButton>
                   color: _red,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: _red.withOpacity(0.4), blurRadius: 12),
+                    BoxShadow(color: _red.withValues(alpha: 0.4), blurRadius: 12),
                   ],
                 ),
                 alignment: Alignment.center,
-                child: const Text('SOS',
-                    style: TextStyle(
+                child: Text(l10n.sosButtonLabel,
+                    style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Poppins',
