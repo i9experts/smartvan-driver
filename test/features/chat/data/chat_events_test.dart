@@ -17,6 +17,7 @@ void main() {
   setUpAll(() => registerFallbackValue((dynamic _) {}));
 
   late _FakeSocket socket;
+  late _FakeTokens tokens;
   late Map<String, dynamic Function(dynamic)> handlers;
   late List<(String, Map<String, dynamic>)> created;
   late ProviderContainer container;
@@ -34,7 +35,7 @@ void main() {
     when(() => socket.connect()).thenReturn(socket);
     when(() => socket.dispose()).thenReturn(null);
 
-    final tokens = _FakeTokens();
+    tokens = _FakeTokens();
     when(() => tokens.read()).thenAnswer((_) async => 'fake-jwt');
 
     container = ProviderContainer(overrides: [
@@ -62,11 +63,32 @@ void main() {
     expect(created, hasLength(1));
     expect(created.single.$1, 'http://socket.test');
     final opts = created.single.$2;
-    expect(opts['auth'], {'token': 'fake-jwt'});
+    // The token comes from an auth function, asked for on every (re)connect.
+    expect(opts['auth'], isA<Function>());
+    final sent = <Map>[];
+    (opts['auth'] as void Function(void Function(Map)))(sent.add);
+    await pumpEventQueue();
+    expect(sent, [
+      {'token': 'fake-jwt'}
+    ]);
     expect(opts['transports'], ['websocket', 'polling']);
     expect(opts['autoConnect'], isFalse);
     verify(() => socket.connect()).called(1);
     expect(handlers.keys, containsAll(['chatMessage', 'chatRead']));
+  });
+
+  test('a reconnect after the token changed sends the new token', () async {
+    var token = 'first-jwt';
+    when(() => tokens.read()).thenAnswer((_) async => token);
+    await start();
+    final auth = created.single.$2['auth'] as void Function(void Function(Map));
+    final sent = <Map>[];
+    auth(sent.add);
+    await pumpEventQueue();
+    token = 'second-jwt';
+    auth(sent.add); // what the socket does on reconnect
+    await pumpEventQueue();
+    expect(sent.map((m) => m['token']), ['first-jwt', 'second-jwt']);
   });
 
   test('chatMessage becomes ChatMessageReceived', () async {
@@ -98,13 +120,5 @@ void main() {
     await start();
     container.dispose();
     verify(() => socket.dispose()).called(1);
-  });
-
-  test('disposed before the token arrives: no socket is created', () async {
-    final sub = container.listen(chatEventsProvider, (_, __) {});
-    sub.close();
-    container.dispose();
-    await pumpEventQueue();
-    expect(created, isEmpty);
   });
 }

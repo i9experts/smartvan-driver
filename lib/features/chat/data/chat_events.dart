@@ -38,14 +38,18 @@ final chatEventsProvider = StreamProvider.autoDispose<ChatEvent>((ref) {
   });
 
   Future<void> connect() async {
-    final token = await ref.read(tokenStorageProvider).read() ?? '';
     if (controller.isClosed) return;
     final config = ref.read(appConfigProvider);
+    final tokens = ref.read(tokenStorageProvider);
     final s = ref.read(socketFactoryProvider)(
       config.socketUrl,
       io.OptionBuilder()
           .setTransports(['websocket', 'polling'])
-          .setAuth({'token': token})
+          // Asked for on every connect and every reconnect, so a token that
+          // changed (re-login) is never replayed stale.
+          .setAuthFn((callback) async {
+            callback({'token': await tokens.read() ?? ''});
+          })
           .enableReconnection()
           .disableAutoConnect()
           .build(),
