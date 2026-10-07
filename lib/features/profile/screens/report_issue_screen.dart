@@ -78,6 +78,20 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
       String? imageUrl;
       if (_selectedImage != null) {
         imageUrl = await ApiService.uploadImage(_selectedImage!);
+        if (imageUrl == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Image upload failed. Please try again.'),
+                backgroundColor: const Color(0xFFFF4B4B),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+            );
+          }
+          return;
+        }
       }
 
       await ApiService.post('/report/addReportByDriver', {
