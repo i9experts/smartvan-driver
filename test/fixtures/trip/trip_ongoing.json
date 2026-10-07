@@ -1,0 +1,9 @@
+{
+  "_id": "65f000000000000000000a01",
+  "status": "ongoing",
+  "type": "pick",
+  "createdAt": "2026-10-06T07:55:00.000Z",
+  "tripStart": { "startTime": "2026-10-06T08:00:00.000Z" },
+  "tripName": "Sample School - Morning Pick",
+  "routeId": "65f000000000000000000b01"
+}

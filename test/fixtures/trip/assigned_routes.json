@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "data": [
+    {
+      "routeId": "65f000000000000000000b01",
+      "routeTitle": "Sample School - Morning Pick",
+      "vehicleNumber": "TST-1234",
+      "startTime": "2026-10-06T08:00:00.000Z",
+      "tripType": "pick",
+      "TripStarted": true,
+      "tripDetails": {
+        "_id": "65f000000000000000000a01",
+        "status": "ongoing",
+        "type": "pick",
+        "tripStart": { "startTime": "2026-10-06T08:00:00.000Z" }
+      },
+      "passengers": [
+        { "kidId": "kid-001", "fullname": "Test Kid One", "image": "https://example.test/img/1.png", "grade": "3" },
+        { "kidId": "kid-002", "fullname": "Test Kid Two", "image": null, "grade": 4 }
+      ]
+    },
+    {
+      "routeId": "65f000000000000000000b02",
+      "routeTitle": "Sample School - Afternoon Drop",
+      "vehicleNumber": "TST-1234",
+      "startTime": "2026-10-06T12:00:00.000Z",
+      "tripType": "drop",
+      "TripStarted": false,
+      "passengers": []
+    },
+    {
+      "routeId": "65f000000000000000000b03",
+      "tripType": "excursion",
+      "tripStarted": "true"
+    }
+  ]
+}

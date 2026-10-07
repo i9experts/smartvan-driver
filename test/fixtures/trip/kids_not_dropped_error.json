@@ -1,0 +1,9 @@
+{
+  "statusCode": 409,
+  "message": "2 kids have not been dropped yet",
+  "code": "KIDS_NOT_DROPPED",
+  "kids": [
+    { "kidId": "kid-001", "fullname": "Test Kid One" },
+    { "_id": "kid-002", "name": "Test Kid Two" }
+  ]
+}

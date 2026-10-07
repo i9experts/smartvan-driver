@@ -9,6 +9,9 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   errors:
     deprecated_member_use: ignore
+    # freezed puts @JsonKey on factory parameters; the analyzer flags that
+    # although json_serializable reads it correctly.
+    invalid_annotation_target: ignore
   plugins:
     - custom_lint
 

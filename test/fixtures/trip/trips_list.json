@@ -1,0 +1,10 @@
+{
+  "data": [
+    { "id": "t-1", "status": "Active", "type": "Drop", "name": "Sample School - Afternoon Drop", "createdAt": "2026-10-06T12:00:00.000Z", "startTime": "2026-10-06T12:05:00.000Z" },
+    { "_id": "t-2", "status": "end", "type": "pick", "schoolRoute": "Sample School - Morning Pick" },
+    { "_id": "t-3", "status": "start", "type": "pick" },
+    { "_id": "t-4", "status": "completed", "type": "pick" },
+    { "_id": "t-5", "status": "scheduled", "type": "shuttle" },
+    { "_id": "t-6" }
+  ]
+}
