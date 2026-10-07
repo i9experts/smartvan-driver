@@ -1,0 +1,14 @@
+{
+  "items": { "success": true, "data": [ { "key": "tyres", "label": "Tyres look fine" }, { "key": "brakes", "label": "Brakes work" } ] },
+  "todayDone": {
+    "success": true,
+    "required": true,
+    "data": {
+      "allOk": false,
+      "items": [ { "key": "tyres", "ok": true }, { "key": "brakes", "ok": false, "note": "Pedal feels soft" } ],
+      "photoUrl": "https://example.test/img/van-check.png"
+    }
+  },
+  "todayNotDone": { "success": true, "required": false, "data": null },
+  "todayNoAllOk": { "required": "true", "data": { "items": [ { "key": "tyres", "ok": "true" } ] } }
+}
