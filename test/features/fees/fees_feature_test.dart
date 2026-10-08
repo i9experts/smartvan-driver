@@ -175,6 +175,58 @@ void main() {
       expect(find.text('Mark as Paid (Cash)'), findsNothing);
     });
 
+    testWidgets('an inactive student gets a grey Inactive chip and "no fee"',
+        (tester) async {
+      useTallView(tester);
+      students = [
+        const FeeStudent(
+            kidId: 'a',
+            month: '2026-10',
+            fullname: 'Gone Kid',
+            status: PaymentStatus.notGenerated,
+            active: false),
+        const FeeStudent(
+            kidId: 'b',
+            month: '2026-10',
+            fullname: 'Here Kid',
+            status: PaymentStatus.notGenerated),
+      ];
+      await tester.pumpWidget(screen());
+      await tester.pumpAndSettle();
+      expect(find.text('Inactive'), findsOneWidget);
+      expect(find.text('Inactive — no fee'), findsOneWidget);
+      expect(find.text('Not Set Up'), findsOneWidget); // the active one
+      expect(find.text('Mark as Paid (Cash)'), findsNothing);
+    });
+
+    testWidgets('active students never show the Inactive chip',
+        (tester) async {
+      useTallView(tester);
+      await tester.pumpWidget(screen());
+      await tester.pumpAndSettle();
+      expect(find.text('Inactive'), findsNothing);
+      expect(find.text('Inactive — no fee'), findsNothing);
+    });
+
+    testWidgets('an inactive student with a real status keeps it',
+        (tester) async {
+      useTallView(tester);
+      students = [
+        const FeeStudent(
+            kidId: 'a',
+            month: '2026-10',
+            fullname: 'Left Kid',
+            status: PaymentStatus.overdue,
+            amount: 100,
+            active: false),
+      ];
+      await tester.pumpWidget(screen());
+      await tester.pumpAndSettle();
+      expect(find.text('Inactive'), findsOneWidget);
+      expect(find.text('Overdue'), findsOneWidget);
+      expect(find.text('Inactive — no fee'), findsNothing);
+    });
+
     testWidgets('empty list', (tester) async {
       students = [];
       await tester.pumpWidget(screen());

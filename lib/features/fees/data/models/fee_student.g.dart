@@ -21,6 +21,7 @@ _FeeStudent _$FeeStudentFromJson(Map<String, dynamic> json) => _FeeStudent(
       amount: looseDouble(json['amount']),
       currency: looseString(json['currency']),
       paymentId: looseString(json['paymentId']),
+      active: json['active'] == null ? true : _activeFrom(json['active']),
     );
 
 Map<String, dynamic> _$FeeStudentToJson(_FeeStudent instance) =>
@@ -34,6 +35,7 @@ Map<String, dynamic> _$FeeStudentToJson(_FeeStudent instance) =>
       'amount': instance.amount,
       'currency': instance.currency,
       'paymentId': instance.paymentId,
+      'active': instance.active,
     };
 
 const _$PaymentStatusEnumMap = {

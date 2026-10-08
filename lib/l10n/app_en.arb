@@ -242,6 +242,8 @@
   "feesStatusOverdue": "Overdue",
   "feesStatusPending": "Pending",
   "feesStatusNotSetUp": "Not Set Up",
+  "feesInactive": "Inactive",
+  "feesInactiveNoFee": "Inactive — no fee",
   "feesGrade": "Grade {grade}",
   "@feesGrade": {
     "placeholders": {

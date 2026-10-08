@@ -496,6 +496,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feesStatusNotSetUp => 'Not Set Up';
 
   @override
+  String get feesInactive => 'Inactive';
+
+  @override
+  String get feesInactiveNoFee => 'Inactive — no fee';
+
+  @override
   String feesGrade(String grade) {
     return 'Grade $grade';
   }

@@ -37,6 +37,11 @@ mixin _$FeeStudent {
   @JsonKey(fromJson: looseString)
   String? get paymentId;
 
+  /// False for a student who is no longer on the van (no fee is made for
+  /// them). Older answers have no such key: those students are active.
+  @JsonKey(fromJson: _activeFrom)
+  bool get active;
+
   /// Create a copy of FeeStudent
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -63,17 +68,18 @@ mixin _$FeeStudent {
             (identical(other.currency, currency) ||
                 other.currency == currency) &&
             (identical(other.paymentId, paymentId) ||
-                other.paymentId == paymentId));
+                other.paymentId == paymentId) &&
+            (identical(other.active, active) || other.active == active));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, kidId, month, fullname, image,
-      grade, status, amount, currency, paymentId);
+      grade, status, amount, currency, paymentId, active);
 
   @override
   String toString() {
-    return 'FeeStudent(kidId: $kidId, month: $month, fullname: $fullname, image: $image, grade: $grade, status: $status, amount: $amount, currency: $currency, paymentId: $paymentId)';
+    return 'FeeStudent(kidId: $kidId, month: $month, fullname: $fullname, image: $image, grade: $grade, status: $status, amount: $amount, currency: $currency, paymentId: $paymentId, active: $active)';
   }
 }
 
@@ -95,7 +101,8 @@ abstract mixin class $FeeStudentCopyWith<$Res> {
       PaymentStatus status,
       @JsonKey(fromJson: looseDouble) double? amount,
       @JsonKey(fromJson: looseString) String? currency,
-      @JsonKey(fromJson: looseString) String? paymentId});
+      @JsonKey(fromJson: looseString) String? paymentId,
+      @JsonKey(fromJson: _activeFrom) bool active});
 }
 
 /// @nodoc
@@ -119,6 +126,7 @@ class _$FeeStudentCopyWithImpl<$Res> implements $FeeStudentCopyWith<$Res> {
     Object? amount = freezed,
     Object? currency = freezed,
     Object? paymentId = freezed,
+    Object? active = null,
   }) {
     return _then(_self.copyWith(
       kidId: null == kidId
@@ -157,6 +165,10 @@ class _$FeeStudentCopyWithImpl<$Res> implements $FeeStudentCopyWith<$Res> {
           ? _self.paymentId
           : paymentId // ignore: cast_nullable_to_non_nullable
               as String?,
+      active: null == active
+          ? _self.active
+          : active // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -267,7 +279,8 @@ extension FeeStudentPatterns on FeeStudent {
             PaymentStatus status,
             @JsonKey(fromJson: looseDouble) double? amount,
             @JsonKey(fromJson: looseString) String? currency,
-            @JsonKey(fromJson: looseString) String? paymentId)?
+            @JsonKey(fromJson: looseString) String? paymentId,
+            @JsonKey(fromJson: _activeFrom) bool active)?
         $default, {
     required TResult orElse(),
   }) {
@@ -283,7 +296,8 @@ extension FeeStudentPatterns on FeeStudent {
             _that.status,
             _that.amount,
             _that.currency,
-            _that.paymentId);
+            _that.paymentId,
+            _that.active);
       case _:
         return orElse();
     }
@@ -317,7 +331,8 @@ extension FeeStudentPatterns on FeeStudent {
             PaymentStatus status,
             @JsonKey(fromJson: looseDouble) double? amount,
             @JsonKey(fromJson: looseString) String? currency,
-            @JsonKey(fromJson: looseString) String? paymentId)
+            @JsonKey(fromJson: looseString) String? paymentId,
+            @JsonKey(fromJson: _activeFrom) bool active)
         $default,
   ) {
     final _that = this;
@@ -332,7 +347,8 @@ extension FeeStudentPatterns on FeeStudent {
             _that.status,
             _that.amount,
             _that.currency,
-            _that.paymentId);
+            _that.paymentId,
+            _that.active);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -365,7 +381,8 @@ extension FeeStudentPatterns on FeeStudent {
             PaymentStatus status,
             @JsonKey(fromJson: looseDouble) double? amount,
             @JsonKey(fromJson: looseString) String? currency,
-            @JsonKey(fromJson: looseString) String? paymentId)?
+            @JsonKey(fromJson: looseString) String? paymentId,
+            @JsonKey(fromJson: _activeFrom) bool active)?
         $default,
   ) {
     final _that = this;
@@ -380,7 +397,8 @@ extension FeeStudentPatterns on FeeStudent {
             _that.status,
             _that.amount,
             _that.currency,
-            _that.paymentId);
+            _that.paymentId,
+            _that.active);
       case _:
         return null;
     }
@@ -402,7 +420,8 @@ class _FeeStudent implements FeeStudent {
       this.status = PaymentStatus.unknown,
       @JsonKey(fromJson: looseDouble) this.amount,
       @JsonKey(fromJson: looseString) this.currency,
-      @JsonKey(fromJson: looseString) this.paymentId});
+      @JsonKey(fromJson: looseString) this.paymentId,
+      @JsonKey(fromJson: _activeFrom) this.active = true});
   factory _FeeStudent.fromJson(Map<String, dynamic> json) =>
       _$FeeStudentFromJson(json);
 
@@ -438,6 +457,12 @@ class _FeeStudent implements FeeStudent {
   @JsonKey(fromJson: looseString)
   final String? paymentId;
 
+  /// False for a student who is no longer on the van (no fee is made for
+  /// them). Older answers have no such key: those students are active.
+  @override
+  @JsonKey(fromJson: _activeFrom)
+  final bool active;
+
   /// Create a copy of FeeStudent
   /// with the given fields replaced by the non-null parameter values.
   @override
@@ -469,17 +494,18 @@ class _FeeStudent implements FeeStudent {
             (identical(other.currency, currency) ||
                 other.currency == currency) &&
             (identical(other.paymentId, paymentId) ||
-                other.paymentId == paymentId));
+                other.paymentId == paymentId) &&
+            (identical(other.active, active) || other.active == active));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, kidId, month, fullname, image,
-      grade, status, amount, currency, paymentId);
+      grade, status, amount, currency, paymentId, active);
 
   @override
   String toString() {
-    return 'FeeStudent(kidId: $kidId, month: $month, fullname: $fullname, image: $image, grade: $grade, status: $status, amount: $amount, currency: $currency, paymentId: $paymentId)';
+    return 'FeeStudent(kidId: $kidId, month: $month, fullname: $fullname, image: $image, grade: $grade, status: $status, amount: $amount, currency: $currency, paymentId: $paymentId, active: $active)';
   }
 }
 
@@ -503,7 +529,8 @@ abstract mixin class _$FeeStudentCopyWith<$Res>
       PaymentStatus status,
       @JsonKey(fromJson: looseDouble) double? amount,
       @JsonKey(fromJson: looseString) String? currency,
-      @JsonKey(fromJson: looseString) String? paymentId});
+      @JsonKey(fromJson: looseString) String? paymentId,
+      @JsonKey(fromJson: _activeFrom) bool active});
 }
 
 /// @nodoc
@@ -527,6 +554,7 @@ class __$FeeStudentCopyWithImpl<$Res> implements _$FeeStudentCopyWith<$Res> {
     Object? amount = freezed,
     Object? currency = freezed,
     Object? paymentId = freezed,
+    Object? active = null,
   }) {
     return _then(_FeeStudent(
       kidId: null == kidId
@@ -565,6 +593,10 @@ class __$FeeStudentCopyWithImpl<$Res> implements _$FeeStudentCopyWith<$Res> {
           ? _self.paymentId
           : paymentId // ignore: cast_nullable_to_non_nullable
               as String?,
+      active: null == active
+          ? _self.active
+          : active // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }

@@ -29,8 +29,14 @@ abstract class FeeStudent with _$FeeStudent {
     @JsonKey(fromJson: looseDouble) double? amount,
     @JsonKey(fromJson: looseString) String? currency,
     @JsonKey(fromJson: looseString) String? paymentId,
+
+    /// False for a student who is no longer on the van (no fee is made for
+    /// them). Older answers have no such key: those students are active.
+    @JsonKey(fromJson: _activeFrom) @Default(true) bool active,
   }) = _FeeStudent;
 
   factory FeeStudent.fromJson(Map<String, dynamic> json) =>
       _$FeeStudentFromJson(json);
 }
+
+bool _activeFrom(Object? value) => value == null ? true : looseBool(value);

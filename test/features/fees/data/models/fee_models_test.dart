@@ -41,6 +41,23 @@ void main() {
       expect(list[3].amount, isNull);
     });
 
+    test('active: explicit true/false; a missing key means active', () {
+      expect(list[0].active, isTrue);
+      expect(list[4].active, isFalse);
+      expect(list[1].active, isTrue); // no key
+      expect(list[5].active, isTrue);
+    });
+
+    test('active reads strings and numbers like the other flags', () {
+      FeeStudent from(Object? v) =>
+          FeeStudent.fromJson({'kidId': 'k', 'active': v});
+      expect(from('false').active, isFalse);
+      expect(from(0).active, isFalse);
+      expect(from('true').active, isTrue);
+      expect(from(1).active, isTrue);
+      expect(from(null).active, isTrue);
+    });
+
     test('unknown status; missing status is unknown too', () {
       expect(list[4].status, PaymentStatus.unknown); // "refunded"
       expect(list[4].fullname, 'Test Kid Five'); // `name`

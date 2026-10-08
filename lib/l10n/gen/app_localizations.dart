@@ -982,6 +982,18 @@ abstract class AppLocalizations {
   /// **'Not Set Up'**
   String get feesStatusNotSetUp;
 
+  /// No description provided for @feesInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get feesInactive;
+
+  /// No description provided for @feesInactiveNoFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive — no fee'**
+  String get feesInactiveNoFee;
+
   /// No description provided for @feesGrade.
   ///
   /// In en, this message translates to:

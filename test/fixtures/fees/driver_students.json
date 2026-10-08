@@ -1,10 +1,10 @@
 {
   "data": [
-    { "kidId": "kid-001", "month": "2026-10", "fullname": "Test Kid One", "image": "https://example.test/img/1.png", "grade": "3", "status": "paid", "amount": 4500, "currency": "PKR", "paymentId": "pay-001" },
+    { "kidId": "kid-001", "month": "2026-10", "fullname": "Test Kid One", "image": "https://example.test/img/1.png", "grade": "3", "status": "paid", "amount": 4500, "currency": "PKR", "paymentId": "pay-001", "active": true },
     { "kidId": "kid-002", "month": "2026-10", "fullname": "Test Kid Two", "grade": 4, "status": "overdue", "amount": "4500.50", "currency": "PKR" },
     { "kidId": "kid-003", "month": "2026-10", "fullname": "Test Kid Three", "status": "pending", "amount": 4500 },
     { "kidId": "kid-004", "month": "2026-10", "fullname": "Test Kid Four", "status": "not_generated" },
-    { "kidId": "kid-005", "month": "2026-10", "name": "Test Kid Five", "status": "refunded" },
+    { "kidId": "kid-005", "month": "2026-10", "name": "Test Kid Five", "status": "refunded", "active": false },
     { "kidId": "kid-006", "month": "2026-10", "fullname": "Test Kid Six" }
   ]
 }

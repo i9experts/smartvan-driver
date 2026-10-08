@@ -5,9 +5,13 @@ import '../../data/models/fee_student.dart';
 import '../../data/models/payment_status.dart';
 
 class FeeStatusBadge extends StatelessWidget {
-  const FeeStatusBadge({super.key, required this.status});
+  const FeeStatusBadge({super.key, required this.status, this.active = true});
 
   final PaymentStatus status;
+
+  /// An inactive student with no fee reads "Inactive — no fee" instead of
+  /// the generic "Not Set Up".
+  final bool active;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +35,7 @@ class FeeStatusBadge extends StatelessWidget {
       _ => (
           const Color(0xFFF0F0F0),
           const Color(0xFF8A94A6),
-          l10n.feesStatusNotSetUp
+          active ? l10n.feesStatusNotSetUp : l10n.feesInactiveNoFee
         ),
     };
     return Container(
@@ -122,7 +126,16 @@ class FeeStudentCard extends StatelessWidget {
                   ],
                 ),
               ),
-              FeeStatusBadge(status: s.status),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  FeeStatusBadge(status: s.status, active: s.active),
+                  if (!s.active) ...[
+                    const SizedBox(height: 4),
+                    const _InactiveChip(),
+                  ],
+                ],
+              ),
             ],
           ),
           if (s.amount != null) ...[
@@ -176,4 +189,23 @@ class FeeStudentCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _InactiveChip extends StatelessWidget {
+  const _InactiveChip();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEDEEF0),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(context.l10n.feesInactive,
+            style: const TextStyle(
+                color: Color(0xFF6B7280),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Poppins')),
+      );
 }
