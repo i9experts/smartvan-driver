@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:smartvan_driver/core/providers/image_picker_provider.dart';
 import 'package:smartvan_driver/core/network/app_exception.dart';
 import 'package:smartvan_driver/features/checklist/application/checklist_providers.dart';
 import 'package:smartvan_driver/features/checklist/application/submit_checklist_controller.dart';
@@ -23,9 +25,12 @@ class _FakeChecklistRepo extends Mock implements ChecklistRepository {}
 
 class _FakeProfileRepo extends Mock implements ProfileRepository {}
 
+class _FakePicker extends Mock implements ImagePicker {}
+
 void main() {
   late _FakeChecklistRepo repo;
   late _FakeProfileRepo profileRepo;
+  late _FakePicker picker;
   final f = fixtureMap('checklist/checklist.json');
   late TodayChecklist today;
   late List<ChecklistItemDef> items;
@@ -33,11 +38,13 @@ void main() {
   setUpAll(() {
     registerFallbackValue(File('x'));
     registerFallbackValue(<ChecklistAnswer>[]);
+    registerFallbackValue(ImageSource.camera);
   });
 
   setUp(() {
     repo = _FakeChecklistRepo();
     profileRepo = _FakeProfileRepo();
+    picker = _FakePicker();
     today = TodayChecklist.fromJson(
         Map<String, dynamic>.from(f['todayNotDone'] as Map));
     items = asJsonList(unwrapData(f['items']))
@@ -55,6 +62,7 @@ void main() {
   List<Override> overrides() => [
         checklistRepositoryProvider.overrideWithValue(repo),
         profileRepositoryProvider.overrideWithValue(profileRepo),
+        imagePickerProvider.overrideWithValue(picker),
       ];
 
   group('providers and controller', () {
@@ -82,7 +90,7 @@ void main() {
               routeId: 'route-001',
               answers: const [ChecklistAnswer(key: 'tyres', ok: true)],
               existingPhotoUrl: 'https://example.test/old.png');
-      expect(ok, isTrue);
+      expect(ok, ChecklistSubmitResult.saved);
       verify(() => repo.submit(
           routeId: 'route-001',
           answers: const [ChecklistAnswer(key: 'tyres', ok: true)],
@@ -109,45 +117,75 @@ void main() {
           photoUrl: 'https://example.test/new.png')).called(1);
     });
 
-    test(
-        'a photo that cannot be uploaded is skipped; the check still goes through',
-        () async {
+    test('a photo that cannot be uploaded saves nothing and says so', () async {
       final photo = tempImage('smartvan_check_test2.png');
       addTearDown(photo.deleteSync);
       when(() => profileRepo.uploadImage(any()))
           .thenThrow(const ApiError(code: 'UPLOAD_FAILED', status: 200));
       final c = ProviderContainer(overrides: overrides());
       addTearDown(c.dispose);
-      final ok = await c
+      final result = await c
           .read(submitChecklistControllerProvider.notifier)
           .submit(
               answers: const [ChecklistAnswer(key: 'tyres', ok: true)],
               photo: photo,
               existingPhotoUrl: 'https://example.test/old.png');
-      expect(ok, isTrue);
-      verify(() => repo.submit(
-          routeId: null,
+      expect(result, ChecklistSubmitResult.photoUploadFailed);
+      expect(c.read(submitChecklistControllerProvider).hasError, isFalse);
+      verifyNever(() => repo.submit(
+          routeId: any(named: 'routeId'),
           answers: any(named: 'answers'),
-          photoUrl: 'https://example.test/old.png')).called(1);
+          photoUrl: any(named: 'photoUrl')));
     });
 
-    test('a network failure while uploading fails the submit', () async {
+    test('a network failure while uploading is also a photo failure',
+        () async {
       final photo = tempImage('smartvan_check_test3.png');
       addTearDown(photo.deleteSync);
       when(() => profileRepo.uploadImage(any()))
           .thenThrow(const NetworkException());
       final c = ProviderContainer(overrides: overrides());
       addTearDown(c.dispose);
-      final ok = await c
+      final result = await c
           .read(submitChecklistControllerProvider.notifier)
           .submit(
               answers: const [ChecklistAnswer(key: 'tyres', ok: true)],
               photo: photo);
-      expect(ok, isFalse);
-      verifyNever(() => repo.submit(
-          routeId: any(named: 'routeId'),
+      expect(result, ChecklistSubmitResult.photoUploadFailed);
+    });
+
+    test('withoutPhoto skips the upload and keeps the saved photo', () async {
+      final photo = tempImage('smartvan_check_test4.png');
+      addTearDown(photo.deleteSync);
+      final c = ProviderContainer(overrides: overrides());
+      addTearDown(c.dispose);
+      final result = await c
+          .read(submitChecklistControllerProvider.notifier)
+          .submit(
+              answers: const [ChecklistAnswer(key: 'tyres', ok: true)],
+              photo: photo,
+              existingPhotoUrl: 'https://example.test/old.png',
+              withoutPhoto: true);
+      expect(result, ChecklistSubmitResult.saved);
+      verifyNever(() => profileRepo.uploadImage(any()));
+      verify(() => repo.submit(
+          routeId: null,
           answers: any(named: 'answers'),
-          photoUrl: any(named: 'photoUrl')));
+          photoUrl: 'https://example.test/old.png')).called(1);
+    });
+
+    test('a failing save is reported as failed', () async {
+      when(() => repo.submit(
+              routeId: any(named: 'routeId'),
+              answers: any(named: 'answers'),
+              photoUrl: any(named: 'photoUrl')))
+          .thenThrow(const NetworkException());
+      final c = ProviderContainer(overrides: overrides());
+      addTearDown(c.dispose);
+      final result = await c
+          .read(submitChecklistControllerProvider.notifier)
+          .submit(answers: const [ChecklistAnswer(key: 'tyres', ok: true)]);
+      expect(result, ChecklistSubmitResult.failed);
     });
   });
 
@@ -276,6 +314,59 @@ void main() {
               'No internet connection. Please check your network and try again.'),
           findsOneWidget);
       expect(find.text('Daily van check'), findsOneWidget);
+    });
+
+    group('when the photo cannot be uploaded', () {
+      late File photo;
+
+      Future<void> fillAndSubmit(WidgetTester tester) async {
+        photo = tempImage('smartvan_check_widget.png');
+        addTearDown(photo.deleteSync);
+        when(() => picker.pickImage(
+              source: any(named: 'source'),
+              imageQuality: any(named: 'imageQuality'),
+              maxWidth: any(named: 'maxWidth'),
+            )).thenAnswer((_) async => XFile(photo.path));
+        when(() => profileRepo.uploadImage(any()))
+            .thenThrow(const NetworkException());
+        await tester.pumpWidget(screen());
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Take'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('OK').at(0));
+        await tester.tap(find.text('OK').at(1));
+        await tester.pump();
+        await tester.tap(find.text('Submit — all OK'));
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('asks, and cancel keeps the form without saving',
+          (tester) async {
+        await fillAndSubmit(tester);
+        expect(find.text('Photo could not be uploaded'), findsOneWidget);
+        expect(find.text('Submit the van check without the photo?'),
+            findsOneWidget);
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
+        expect(find.text('Daily van check'), findsOneWidget);
+        verifyNever(() => repo.submit(
+            routeId: any(named: 'routeId'),
+            answers: any(named: 'answers'),
+            photoUrl: any(named: 'photoUrl')));
+      });
+
+      testWidgets('"Submit without photo" saves without it', (tester) async {
+        await fillAndSubmit(tester);
+        await tester.tap(find.text('Submit without photo'));
+        await tester.pumpAndSettle();
+        verify(() => repo.submit(
+            routeId: null,
+            answers: any(named: 'answers'),
+            photoUrl: null)).called(1);
+        expect(find.text('Daily van check'), findsNothing);
+      });
     });
 
     testWidgets('load failure shows Try again', (tester) async {

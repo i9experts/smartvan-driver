@@ -379,6 +379,9 @@
   "checklistTryAgain": "Try again",
   "checklistLoadFailed": "Could not load the checklist.",
   "checklistSaveFailed": "Could not save the checklist.",
+  "checklistPhotoFailedTitle": "Photo could not be uploaded",
+  "checklistPhotoFailedBody": "Submit the van check without the photo?",
+  "checklistSubmitWithoutPhoto": "Submit without photo",
   "checklistAnswerAll": "Answer all items ({answered}/{total})",
   "@checklistAnswerAll": {
     "placeholders": {

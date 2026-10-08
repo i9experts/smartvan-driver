@@ -7,7 +7,7 @@ part of 'submit_checklist_controller.dart';
 // **************************************************************************
 
 String _$submitChecklistControllerHash() =>
-    r'7d828ccc1741b64610e23415093875a4980f7e8e';
+    r'25d575ab9123102eb0b8d41cacdc4e2096282906';
 
 /// Submits the van check. State is the status of the last submit.
 ///

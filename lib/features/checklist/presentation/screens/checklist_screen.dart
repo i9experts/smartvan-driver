@@ -76,6 +76,28 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
     if (picked != null && mounted) setState(() => _photo = File(picked.path));
   }
 
+  Future<bool> _askSubmitWithoutPhoto() async {
+    final l10n = context.l10n;
+    final go = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.checklistPhotoFailedTitle),
+        content: Text(l10n.checklistPhotoFailedBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.commonCancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l10n.checklistSubmitWithoutPhoto),
+          ),
+        ],
+      ),
+    );
+    return go == true;
+  }
+
   Future<void> _submit(ChecklistFormData data) async {
     final l10n = context.l10n;
     final answers = [
@@ -90,13 +112,25 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
         ),
     ];
     final issues = answers.where((a) => !a.ok).length;
-    final ok =
-        await ref.read(submitChecklistControllerProvider.notifier).submit(
-              routeId: widget.routeId,
-              answers: answers,
-              photo: _photo,
-              existingPhotoUrl: _existingPhotoUrl,
-            );
+    final controller = ref.read(submitChecklistControllerProvider.notifier);
+    var result = await controller.submit(
+      routeId: widget.routeId,
+      answers: answers,
+      photo: _photo,
+      existingPhotoUrl: _existingPhotoUrl,
+    );
+    if (!mounted) return;
+    if (result == ChecklistSubmitResult.photoUploadFailed) {
+      if (!await _askSubmitWithoutPhoto() || !mounted) return;
+      result = await controller.submit(
+        routeId: widget.routeId,
+        answers: answers,
+        photo: _photo,
+        existingPhotoUrl: _existingPhotoUrl,
+        withoutPhoto: true,
+      );
+    }
+    final ok = result == ChecklistSubmitResult.saved;
     if (!mounted) return;
     if (ok) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();

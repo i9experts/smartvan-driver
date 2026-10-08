@@ -1264,6 +1264,24 @@ abstract class AppLocalizations {
   /// **'Could not save the checklist.'**
   String get checklistSaveFailed;
 
+  /// No description provided for @checklistPhotoFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo could not be uploaded'**
+  String get checklistPhotoFailedTitle;
+
+  /// No description provided for @checklistPhotoFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit the van check without the photo?'**
+  String get checklistPhotoFailedBody;
+
+  /// No description provided for @checklistSubmitWithoutPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit without photo'**
+  String get checklistSubmitWithoutPhoto;
+
   /// No description provided for @checklistAnswerAll.
   ///
   /// In en, this message translates to:

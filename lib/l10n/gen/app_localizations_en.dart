@@ -672,6 +672,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checklistSaveFailed => 'Could not save the checklist.';
 
   @override
+  String get checklistPhotoFailedTitle => 'Photo could not be uploaded';
+
+  @override
+  String get checklistPhotoFailedBody =>
+      'Submit the van check without the photo?';
+
+  @override
+  String get checklistSubmitWithoutPhoto => 'Submit without photo';
+
+  @override
   String checklistAnswerAll(int answered, int total) {
     return 'Answer all items ($answered/$total)';
   }

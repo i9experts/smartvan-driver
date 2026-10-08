@@ -8,6 +8,8 @@ import 'checklist_providers.dart';
 
 part 'submit_checklist_controller.g.dart';
 
+enum ChecklistSubmitResult { saved, failed, photoUploadFailed }
+
 /// Submits the van check. State is the status of the last submit.
 @riverpod
 class SubmitChecklistController extends _$SubmitChecklistController {
@@ -15,24 +17,28 @@ class SubmitChecklistController extends _$SubmitChecklistController {
   FutureOr<void> build() {}
 
   /// [photo] is a new picture; [existingPhotoUrl] is the one already saved
-  /// today (kept when no new one is taken). A photo that cannot be uploaded
-  /// is skipped — the check itself still goes through, as it always has.
-  /// Returns true when the checklist was saved.
-  Future<bool> submit({
+  /// today (kept when no new one is taken). When the photo cannot be uploaded
+  /// nothing is saved and [ChecklistSubmitResult.photoUploadFailed] comes back,
+  /// so the screen can ask the driver; call again with [withoutPhoto] to
+  /// submit anyway (the new photo is then left out).
+  Future<ChecklistSubmitResult> submit({
     String? routeId,
     required List<ChecklistAnswer> answers,
     File? photo,
     String? existingPhotoUrl,
+    bool withoutPhoto = false,
   }) async {
     state = const AsyncLoading();
+    var photoFailed = false;
     state = await AsyncValue.guard(() async {
       var photoUrl = existingPhotoUrl;
-      if (photo != null) {
+      if (photo != null && !withoutPhoto) {
         try {
           photoUrl =
               await ref.read(profileRepositoryProvider).uploadImage(photo);
-        } on ApiError catch (e) {
-          if (e.code != 'UPLOAD_FAILED') rethrow;
+        } on AppException {
+          photoFailed = true;
+          return;
         }
       }
       await ref.read(checklistRepositoryProvider).submit(
@@ -42,6 +48,9 @@ class SubmitChecklistController extends _$SubmitChecklistController {
           );
       ref.invalidate(todayChecklistProvider);
     });
-    return !state.hasError;
+    if (state.hasError) return ChecklistSubmitResult.failed;
+    return photoFailed
+        ? ChecklistSubmitResult.photoUploadFailed
+        : ChecklistSubmitResult.saved;
   }
 }
