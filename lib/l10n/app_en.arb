@@ -631,6 +631,7 @@
   "tripStatShift": "Shift",
   "tripStatPicked": "Picked",
   "tripMapYourLocation": "Your Location",
+  "tripRecenter": "Re-center",
   "tripEndTrip": "End Trip",
   "tripEndConfirm": "Are you sure you want to end this trip?",
   "tripEndedForced": "Trip ended. The school has been alerted.",

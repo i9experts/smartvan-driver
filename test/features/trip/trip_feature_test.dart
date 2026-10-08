@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:smartvan_driver/core/network/app_exception.dart';
 import 'package:smartvan_driver/core/providers/core_providers.dart';
@@ -30,6 +31,7 @@ class _FakeProfileRepo extends Mock implements ProfileRepository {}
 
 void main() {
   late TrackingProbe probe;
+  Set<Marker> mapMarkers = {};
   late _FakePassengersRepo passengersRepo;
   late _FakeProfileRepo profileRepo;
   late FakeSyncQueue queue;
@@ -80,8 +82,10 @@ void main() {
             isTracking: tracking,
             probe: probe)),
         tripMapBuilderProvider.overrideWithValue((context,
-                {required target, required markers, required onCreated}) =>
-            Container(key: const Key('fake-map'), color: Colors.black12)),
+            {required target, required markers, required onCreated}) {
+          mapMarkers = markers;
+          return Container(key: const Key('fake-map'), color: Colors.black12);
+        }),
       ];
 
   group('activeTripFor', () {
@@ -199,6 +203,38 @@ void main() {
       await tester.pumpWidget(app(extra: bare));
       await tester.pumpAndSettle();
       expect(find.text('—'), findsNWidgets(2)); // shift and date
+    });
+
+    testWidgets('the van is a flat marker at the GPS position', (tester) async {
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      final van = mapMarkers.single;
+      expect(van.position, const LatLng(24.8607, 67.0011));
+      expect(van.flat, isTrue);
+      expect(van.anchor, const Offset(0.5, 0.5));
+      expect(van.infoWindow.title, 'Your Location');
+    });
+
+    testWidgets('no marker until there is a GPS fix', (tester) async {
+      await tester.pumpWidget(app(o: overrides(position: null)));
+      await tester.pumpAndSettle();
+      expect(mapMarkers, isEmpty);
+    });
+
+    testWidgets('touching the map stops following; Re-center resumes',
+        (tester) async {
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      expect(find.text('Re-center'), findsNothing);
+      // A bare spot of map: top middle, clear of the SOS button and the pill.
+      await tester.tapAt(
+          tester.getTopLeft(find.byKey(const Key('fake-map'))) +
+              const Offset(400, 20));
+      await tester.pump();
+      expect(find.text('Re-center'), findsOneWidget);
+      await tester.tap(find.text('Re-center'));
+      await tester.pump();
+      expect(find.text('Re-center'), findsNothing);
     });
 
     testWidgets('offline pill, and defaults when nothing else is known',

@@ -1063,6 +1063,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripMapYourLocation => 'Your Location';
 
   @override
+  String get tripRecenter => 'Re-center';
+
+  @override
   String get tripEndTrip => 'End Trip';
 
   @override

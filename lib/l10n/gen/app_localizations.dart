@@ -1942,6 +1942,12 @@ abstract class AppLocalizations {
   /// **'Your Location'**
   String get tripMapYourLocation;
 
+  /// No description provided for @tripRecenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-center'**
+  String get tripRecenter;
+
   /// No description provided for @tripEndTrip.
   ///
   /// In en, this message translates to:

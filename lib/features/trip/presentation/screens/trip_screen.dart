@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/formatting/date_formats.dart';
+import '../../../../core/map/animated_van_marker.dart';
+import '../../../../core/map/follow_camera.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/app_snack.dart';
@@ -16,9 +18,9 @@ import '../../application/active_trip_provider.dart';
 import '../../application/end_trip_controller.dart';
 import '../../application/trip_tracking.dart';
 import '../../data/models/active_trip.dart';
-import '../../data/models/geo_point.dart';
 import '../../data/models/trip_type.dart';
 import '../widgets/kids_not_dropped_sheet.dart';
+import '../widgets/recenter_button.dart';
 import '../widgets/trip_banners.dart';
 import '../widgets/trip_bottom_card.dart';
 import '../widgets/trip_header.dart';
@@ -44,6 +46,9 @@ class _TripScreenState extends ConsumerState<TripScreen> {
 
   GoogleMapController? _mapController;
 
+  /// Keeps the camera on the van until the driver moves the map.
+  final FollowCameraController _follow = FollowCameraController();
+
   @override
   void initState() {
     super.initState();
@@ -54,6 +59,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   void dispose() {
     // Tracking intentionally keeps running — it belongs to the trip, not to
     // this screen. It stops only when the trip is ended.
+    _follow.dispose();
     _mapController?.dispose();
     super.dispose();
   }
@@ -155,15 +161,6 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     }
   }
 
-  Set<Marker> _markersFor(LatLng position) => {
-        Marker(
-          markerId: const MarkerId('driver'),
-          position: position,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          infoWindow: InfoWindow(title: context.l10n.tripMapYourLocation),
-        ),
-      };
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -174,15 +171,6 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     final ending = ref.watch(endTripControllerProvider);
     final pending = ref.watch(syncQueueProvider).pending;
 
-    ref.listen<GeoPoint?>(
-      tripTrackingProvider.select((s) => s.lastPosition),
-      (_, next) {
-        if (next != null) {
-          _mapController?.animateCamera(
-              CameraUpdate.newLatLng(LatLng(next.lat, next.lng)));
-        }
-      },
-    );
     ref.listen(passengersControllerProvider(widget.tripId), (_, next) {
       if (next.hasError && !next.hasValue) {
         AppSnack.error(
@@ -245,11 +233,25 @@ class _TripScreenState extends ConsumerState<TripScreen> {
           Expanded(
             child: Stack(
               children: [
-                ref.watch(tripMapBuilderProvider)(
-                  context,
-                  target: driverPosition,
-                  markers: _markersFor(driverPosition),
-                  onCreated: (c) => _mapController = c,
+                AnimatedVanMarker(
+                  position: last == null ? null : LatLng(last.lat, last.lng),
+                  speedMetersPerSecond: tracking.lastSpeed,
+                  title: l10n.tripMapYourLocation,
+                  onPose: _follow.onPose,
+                  builder: (context, markers) => Listener(
+                    // Touching the map means the driver is looking around.
+                    behavior: HitTestBehavior.translucent,
+                    onPointerDown: (_) => _follow.userMoved(),
+                    child: ref.watch(tripMapBuilderProvider)(
+                      context,
+                      target: driverPosition,
+                      markers: markers,
+                      onCreated: (c) {
+                        _mapController = c;
+                        _follow.attachMap(c);
+                      },
+                    ),
+                  ),
                 ),
                 Positioned(
                   top: 16,
@@ -315,22 +317,42 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  child: TripBottomCard(
-                    driverName: driverName,
-                    routeTitle: trip.routeTitle ?? '—',
-                    shift: switch (trip.type) {
-                      TripType.pick => l10n.tripShiftMorning,
-                      TripType.drop => l10n.tripShiftAfternoon,
-                      TripType.unknown => '—',
-                    },
-                    date: trip.startTime == null
-                        ? '—'
-                        : formatDayMonthYear(trip.startTime!),
-                    total: total,
-                    picked: picked,
-                    ending: ending,
-                    onScan: _openScanner,
-                    onEndTrip: _endTrip,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ListenableBuilder(
+                        listenable: _follow,
+                        builder: (context, _) => _follow.following
+                            ? const SizedBox.shrink()
+                            : Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: Padding(
+                                  padding: const EdgeInsetsDirectional.only(
+                                      end: 16, bottom: 12),
+                                  child: RecenterButton(
+                                      onPressed: _follow.recenter),
+                                ),
+                              ),
+                      ),
+                      TripBottomCard(
+                        driverName: driverName,
+                        routeTitle: trip.routeTitle ?? '—',
+                        shift: switch (trip.type) {
+                          TripType.pick => l10n.tripShiftMorning,
+                          TripType.drop => l10n.tripShiftAfternoon,
+                          TripType.unknown => '—',
+                        },
+                        date: trip.startTime == null
+                            ? '—'
+                            : formatDayMonthYear(trip.startTime!),
+                        total: total,
+                        picked: picked,
+                        ending: ending,
+                        onScan: _openScanner,
+                        onEndTrip: _endTrip,
+                      ),
+                    ],
                   ),
                 ),
               ],

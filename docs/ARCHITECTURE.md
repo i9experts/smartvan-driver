@@ -160,6 +160,11 @@ the `*Raw` methods of `ApiClient` are gone.
 - The start-trip flow from `home_screen.dart` (start-window rule, checklist
   retry, tracking reconciliation) moves into a `StartTripController`; the
   screen only reacts to its state.
+- The van on a map is reusable code in `lib/core/map/` (no feature imports, so
+  the parent app can take it as is): `AnimatedVanMarker` (van icon, smooth
+  position/rotation between GPS fixes), `FollowCameraController` (camera
+  follows until the user touches the map; Re-center resumes) and the pure
+  `geo_math` helpers. Screens only feed it positions.
 - Large screens are split: no file over ~300 lines, no build method over
   ~80 lines.
 
