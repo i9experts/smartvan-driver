@@ -69,11 +69,50 @@
   "documentsTitle": "Documents",
   "documentsVehicleRegistration": "Vehicle Registration Certificate",
   "documentsDrivingLicense": "Driving License",
-  "documentsUploadNew": "Upload New Document",
   "documentsUpload": "Upload",
   "documentsUploaded": "Uploaded",
   "documentsLoadFailed": "Failed to load documents",
-  "documentsUploading": "Uploading...",
+  "documentsTapToChange": "Tap to change",
+  "documentsView": "View",
+  "documentsChange": "Change",
+  "documentsRemove": "Remove",
+  "documentsTakePhoto": "Take photo",
+  "documentsChooseGallery": "Choose from gallery",
+  "documentsRemoveTitle": "Remove {name}?",
+  "@documentsRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsRemoveBody": "This document will be taken off your profile.",
+  "documentsRemovedOk": "{name} removed.",
+  "@documentsRemovedOk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsRemoveFailed": "Failed to remove document.",
+  "documentsExpires": "Expires {date}",
+  "@documentsExpires": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsExpired": "Expired {date}",
+  "@documentsExpired": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "documentsExpiryHelp": "Expiry date (optional)",
   "documentsUploadedOk": "{name} uploaded successfully!",
   "@documentsUploadedOk": {
     "placeholders": {

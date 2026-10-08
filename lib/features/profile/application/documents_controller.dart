@@ -6,22 +6,48 @@ import 'driver_profile_provider.dart';
 
 part 'documents_controller.g.dart';
 
-/// Uploads a driver document. State is the status of the last upload.
+/// Uploads and removes driver documents. State is the document being worked
+/// on (null when idle), so its card can show a spinner.
+///
+/// Both methods return the error, or null on success. A failed upload leaves
+/// the saved document exactly as it was: the new image is attached only
+/// after it has been uploaded.
 @riverpod
 class DocumentsController extends _$DocumentsController {
   @override
-  FutureOr<void> build() {}
+  DriverDocumentType? build() => null;
 
-  /// Uploads [image], attaches it to [type] and refreshes the profile (which
-  /// holds the document URLs). Returns true on success.
-  Future<bool> upload(DriverDocumentType type, File image) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      final repo = ref.read(profileRepositoryProvider);
-      final url = await repo.uploadImage(image);
-      await repo.uploadDocument(type, url);
+  /// Uploads [image], attaches it to [type] (with [expiry] when given) and
+  /// refreshes the profile, which holds the document URLs and dates.
+  Future<Object?> upload(
+    DriverDocumentType type,
+    File image, {
+    DateTime? expiry,
+  }) =>
+      _run(type, () async {
+        final repo = ref.read(profileRepositoryProvider);
+        final url = await repo.uploadImage(image);
+        await repo.uploadDocument(type, url, expiry: expiry);
+      });
+
+  /// Takes [type] off the profile.
+  Future<Object?> remove(DriverDocumentType type) => _run(
+        type,
+        () => ref.read(profileRepositoryProvider).removeDocument(type),
+      );
+
+  Future<Object?> _run(
+      DriverDocumentType type, Future<void> Function() action) async {
+    if (state != null) return null;
+    state = type;
+    try {
+      await action();
       ref.invalidate(driverProfileProvider);
-    });
-    return !state.hasError;
+      return null;
+    } catch (e) {
+      return e;
+    } finally {
+      state = null;
+    }
   }
 }

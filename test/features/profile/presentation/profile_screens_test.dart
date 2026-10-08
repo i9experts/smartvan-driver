@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:smartvan_driver/core/network/app_exception.dart';
+import 'package:smartvan_driver/core/providers/core_providers.dart';
 import 'package:smartvan_driver/core/providers/image_picker_provider.dart';
 import 'package:smartvan_driver/features/auth/data/auth_repository.dart';
 import 'package:smartvan_driver/features/profile/data/models/driver_document_type.dart';
@@ -14,6 +16,7 @@ import 'package:smartvan_driver/features/profile/data/models/issue_report.dart';
 import 'package:smartvan_driver/features/profile/data/models/issue_type.dart';
 import 'package:smartvan_driver/features/profile/data/profile_repository.dart';
 import 'package:smartvan_driver/features/profile/presentation/screens/change_password_screen.dart';
+import 'package:smartvan_driver/features/profile/presentation/screens/document_viewer_screen.dart';
 import 'package:smartvan_driver/features/profile/presentation/screens/documents_screen.dart';
 import 'package:smartvan_driver/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:smartvan_driver/features/profile/presentation/screens/profile_screen.dart';
@@ -65,6 +68,7 @@ void main() {
         profileRepositoryProvider.overrideWithValue(repo),
         authRepositoryProvider.overrideWithValue(authRepo),
         imagePickerProvider.overrideWithValue(picker),
+        clockProvider.overrideWithValue(() => DateTime(2026, 10, 8)),
       ];
 
   Widget screen(Widget child, {String path = '/x'}) => routerHost(
@@ -227,65 +231,274 @@ void main() {
   });
 
   group('DocumentsScreen', () {
-    testWidgets('shows both cards, the uploaded badge and the generic button',
-        (tester) async {
-      profile = const DriverProfile();
-      await pumpScreen(tester, screen(const DocumentsScreen()));
-      await tester.pumpAndSettle();
-      expect(find.text('No Documents'), findsOneWidget);
-      expect(find.text('Vehicle Registration Certificate'), findsOneWidget);
-      expect(find.text('Driving License'), findsOneWidget);
-      expect(find.text('Upload New Document'), findsOneWidget);
-      expect(find.text('Upload'), findsNWidgets(2));
-    });
-
-    testWidgets('a driver with a licence sees the Uploaded badge',
-        (tester) async {
-      await pumpScreen(tester, screen(const DocumentsScreen()));
-      await tester.pumpAndSettle();
-      expect(find.text('Uploaded'), findsWidgets);
-      expect(find.text('No Documents'), findsNothing);
-    });
-
-    testWidgets('generic upload: asks which document, uploads it, confirms',
-        (tester) async {
-      profile = const DriverProfile();
+    void stubPick() {
       final file = tempImage('smartvan_doc_test.png');
-      addTearDown(file.deleteSync);
+      addTearDown(() => file.existsSync() ? file.deleteSync() : null);
       when(() => picker.pickImage(
               source: any(named: 'source'),
               imageQuality: any(named: 'imageQuality')))
           .thenAnswer((_) async => XFile(file.path));
+    }
+
+    Future<void> open(WidgetTester tester) async {
+      await pumpScreen(tester, screen(const DocumentsScreen()));
+      await tester.pumpAndSettle();
+    }
+
+    setUp(() {
       when(() => repo.uploadImage(any()))
           .thenAnswer((_) async => 'https://example.test/d.png');
       when(() =>
               repo.uploadDocument(any(), any(), expiry: any(named: 'expiry')))
           .thenAnswer((_) async {});
+      when(() => repo.removeDocument(any())).thenAnswer((_) async {});
+    });
 
-      await pumpScreen(tester, screen(const DocumentsScreen()));
+    testWidgets('no generic upload button; empty cards say Upload',
+        (tester) async {
+      profile = const DriverProfile();
+      await open(tester);
+      expect(find.text('No Documents'), findsOneWidget);
+      expect(find.text('Vehicle Registration Certificate'), findsOneWidget);
+      expect(find.text('Driving License'), findsOneWidget);
+      expect(find.text('Upload New Document'), findsNothing);
+      expect(find.text('Upload'), findsNWidgets(2));
+      expect(find.text('Tap to change'), findsNothing);
+    });
+
+    testWidgets('an uploaded document has the badge, expiry and the hint',
+        (tester) async {
+      await open(tester);
+      expect(find.text('Uploaded'), findsWidgets);
+      expect(find.text('Tap to change'), findsWidgets);
+      expect(find.text('No Documents'), findsNothing);
+      expect(find.text('Expires 15/03/2027'), findsOneWidget); // licence
+      expect(find.text('Expires 30/11/2026'), findsOneWidget); // vehicle card
+    });
+
+    testWidgets('only the uploaded card has the hint', (tester) async {
+      profile = profile.copyWith(vehicleCardImageFront: null);
+      await open(tester);
+      expect(find.text('Tap to change'), findsOneWidget);
+      expect(find.text('Upload'), findsOneWidget);
+    });
+
+    testWidgets('expiry colours: ok grey, within 30 days orange, past red',
+        (tester) async {
+      profile = profile.copyWith(
+          expiryDateLicense: DateTime(2026, 11, 7), // 30 days
+          expiryDateVehicleCard: DateTime(2026, 10, 7)); // yesterday
+      await open(tester);
+      Color? colorOf(String text) =>
+          tester.widget<Text>(find.text(text)).style?.color;
+      expect(colorOf('Expires 07/11/2026'), const Color(0xFFF57C00));
+      expect(colorOf('Expired 07/10/2026'), const Color(0xFFE53935));
+    });
+
+    testWidgets('a far expiry is plain grey', (tester) async {
+      await open(tester);
+      expect(tester.widget<Text>(find.text('Expires 15/03/2027')).style?.color,
+          const Color(0xFF8A94A6));
+    });
+
+    testWidgets('uploaded: tapping the card offers View, Change and Remove',
+        (tester) async {
+      await open(tester);
+      await tester.tap(find.text('Driving License'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Upload New Document'));
+      expect(find.text('View'), findsOneWidget);
+      expect(find.text('Change'), findsOneWidget);
+      expect(find.text('Remove'), findsOneWidget);
+    });
+
+    testWidgets('View opens the picture full screen with zoom', (tester) async {
+      await open(tester);
+      await tester.tap(find.text('Driving License'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Driving License').last);
+      await tester.tap(find.text('View'));
+      await tester.pumpAndSettle();
+      expect(find.byType(InteractiveViewer), findsOneWidget);
+      expect(find.byType(DocumentViewerScreen), findsOneWidget);
+    });
+
+    testWidgets('not uploaded: tapping goes straight to camera / gallery',
+        (tester) async {
+      profile = const DriverProfile();
+      await open(tester);
+      await tester.tap(find.text('Driving License'));
+      await tester.pumpAndSettle();
+      expect(find.text('Take photo'), findsOneWidget);
+      expect(find.text('Choose from gallery'), findsOneWidget);
+      expect(find.text('View'), findsNothing);
+      expect(find.text('Remove'), findsNothing);
+    });
+
+    testWidgets('Change → gallery → expiry date → uploads with it and confirms',
+        (tester) async {
+      stubPick();
+      await open(tester);
+      await tester.tap(find.text('Driving License'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Change'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choose from gallery'));
+      await tester.pumpAndSettle();
+      verify(() => picker.pickImage(
+          source: ImageSource.gallery,
+          imageQuality: any(named: 'imageQuality'))).called(1);
+      // The old date (15 Mar 2027) is already selected.
+      expect(find.text('Expiry date (optional)'), findsOneWidget);
+      await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
       verify(() => repo.uploadDocument(
-              DriverDocumentType.drivingLicense, 'https://example.test/d.png'))
-          .called(1);
+          DriverDocumentType.drivingLicense, 'https://example.test/d.png',
+          expiry: DateTime(2027, 3, 15))).called(1);
       expect(
           find.text('Driving License uploaded successfully!'), findsOneWidget);
     });
 
-    testWidgets('dismissing the type sheet uploads nothing', (tester) async {
+    testWidgets('Take photo uses the camera', (tester) async {
+      stubPick();
       profile = const DriverProfile();
-      await pumpScreen(tester, screen(const DocumentsScreen()));
+      await open(tester);
+      await tester.tap(find.text('Vehicle Registration Certificate'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Upload New Document'));
+      await tester.tap(find.text('Take photo'));
+      await tester.pumpAndSettle();
+      verify(() => picker.pickImage(
+          source: ImageSource.camera,
+          imageQuality: any(named: 'imageQuality'))).called(1);
+      // No old date: today is offered; skipping it uploads without one.
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      verify(() => repo.uploadDocument(
+              DriverDocumentType.vehicleCard, 'https://example.test/d.png'))
+          .called(1);
+    });
+
+    testWidgets('backing out of the source sheet or the picker uploads nothing',
+        (tester) async {
+      profile = const DriverProfile();
+      await open(tester);
+      await tester.tap(find.text('Driving License'));
       await tester.pumpAndSettle();
       await tester.tapAt(const Offset(10, 10)); // barrier
       await tester.pumpAndSettle();
-      verifyNever(() => picker.pickImage(
-          source: any(named: 'source'),
-          imageQuality: any(named: 'imageQuality')));
+      when(() => picker.pickImage(
+              source: any(named: 'source'),
+              imageQuality: any(named: 'imageQuality')))
+          .thenAnswer((_) async => null);
+      await tester.tap(find.text('Driving License'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choose from gallery'));
+      await tester.pumpAndSettle();
+      verifyNever(() => repo.uploadImage(any()));
+    });
+
+    testWidgets('a failed upload shows an error and keeps the old image',
+        (tester) async {
+      stubPick();
+      when(() => repo.uploadImage(any())).thenThrow(const NetworkException());
+      await open(tester);
+      await tester.tap(find.text('Driving License'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Change'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choose from gallery'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(
+          find.text(
+              'No internet connection. Please check your network and try again.'),
+          findsOneWidget);
+      verifyNever(() =>
+          repo.uploadDocument(any(), any(), expiry: any(named: 'expiry')));
+      expect(find.text('Uploaded'), findsWidgets); // still there
+      expect(find.text('Tap to change'), findsWidgets);
+    });
+
+    testWidgets('the card shows a spinner while it uploads', (tester) async {
+      stubPick();
+      final gate = Completer<String>();
+      when(() => repo.uploadImage(any())).thenAnswer((_) => gate.future);
+      await open(tester);
+      await tester.tap(find.text('Driving License'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Change'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choose from gallery'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      gate.complete('https://example.test/d.png');
+      await tester.pumpAndSettle();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    });
+
+    testWidgets('Remove asks first; confirming removes and says so',
+        (tester) async {
+      await open(tester);
+      await tester.tap(find.text('Driving License'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+      expect(find.text('Remove Driving License?'), findsOneWidget);
+      verifyNever(() => repo.removeDocument(any()));
+      await tester.tap(find.widgetWithText(TextButton, 'Remove'));
+      await tester.pumpAndSettle();
+      verify(() => repo.removeDocument(DriverDocumentType.drivingLicense))
+          .called(1);
+      expect(find.text('Driving License removed.'), findsOneWidget);
+    });
+
+    testWidgets('cancelling the confirmation removes nothing', (tester) async {
+      await open(tester);
+      await tester.tap(find.text('Vehicle Registration Certificate'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+      expect(find.text('Remove Vehicle Registration Certificate?'),
+          findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      verifyNever(() => repo.removeDocument(any()));
+    });
+
+    testWidgets('a failed removal shows the error and the card stays',
+        (tester) async {
+      when(() => repo.removeDocument(any()))
+          .thenThrow(const ApiError(status: 500));
+      await open(tester);
+      await tester.tap(find.text('Driving License'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Remove'));
+      await tester.pumpAndSettle();
+      expect(find.text('Driving License removed.'), findsNothing);
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Tap to change'), findsWidgets);
+    });
+
+    testWidgets('after removal the refreshed profile shows an empty card',
+        (tester) async {
+      when(() => repo.removeDocument(any())).thenAnswer((_) async {
+        profile = profile.copyWith(
+            licenceImageFront: null,
+            licenceImageBack: null,
+            expiryDateLicense: null);
+      });
+      await open(tester);
+      await tester.tap(find.text('Driving License'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Remove'));
+      await tester.pumpAndSettle();
+      expect(find.text('Upload'), findsOneWidget);
+      expect(find.text('Expires 15/03/2027'), findsNothing);
     });
   });
 

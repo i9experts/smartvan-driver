@@ -424,12 +424,6 @@ abstract class AppLocalizations {
   /// **'Driving License'**
   String get documentsDrivingLicense;
 
-  /// No description provided for @documentsUploadNew.
-  ///
-  /// In en, this message translates to:
-  /// **'Upload New Document'**
-  String get documentsUploadNew;
-
   /// No description provided for @documentsUpload.
   ///
   /// In en, this message translates to:
@@ -448,11 +442,83 @@ abstract class AppLocalizations {
   /// **'Failed to load documents'**
   String get documentsLoadFailed;
 
-  /// No description provided for @documentsUploading.
+  /// No description provided for @documentsTapToChange.
   ///
   /// In en, this message translates to:
-  /// **'Uploading...'**
-  String get documentsUploading;
+  /// **'Tap to change'**
+  String get documentsTapToChange;
+
+  /// No description provided for @documentsView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get documentsView;
+
+  /// No description provided for @documentsChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get documentsChange;
+
+  /// No description provided for @documentsRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get documentsRemove;
+
+  /// No description provided for @documentsTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get documentsTakePhoto;
+
+  /// No description provided for @documentsChooseGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get documentsChooseGallery;
+
+  /// No description provided for @documentsRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String documentsRemoveTitle(String name);
+
+  /// No description provided for @documentsRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This document will be taken off your profile.'**
+  String get documentsRemoveBody;
+
+  /// No description provided for @documentsRemovedOk.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} removed.'**
+  String documentsRemovedOk(String name);
+
+  /// No description provided for @documentsRemoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to remove document.'**
+  String get documentsRemoveFailed;
+
+  /// No description provided for @documentsExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String documentsExpires(String date);
+
+  /// No description provided for @documentsExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired {date}'**
+  String documentsExpired(String date);
+
+  /// No description provided for @documentsExpiryHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry date (optional)'**
+  String get documentsExpiryHelp;
 
   /// No description provided for @documentsUploadedOk.
   ///

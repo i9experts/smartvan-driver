@@ -7,14 +7,19 @@ part of 'documents_controller.dart';
 // **************************************************************************
 
 String _$documentsControllerHash() =>
-    r'f9c742a42de221bea26a40496b819a3e339e8824';
+    r'46200c695a1c3caa102021a69c428e423704944c';
 
-/// Uploads a driver document. State is the status of the last upload.
+/// Uploads and removes driver documents. State is the document being worked
+/// on (null when idle), so its card can show a spinner.
+///
+/// Both methods return the error, or null on success. A failed upload leaves
+/// the saved document exactly as it was: the new image is attached only
+/// after it has been uploaded.
 ///
 /// Copied from [DocumentsController].
 @ProviderFor(DocumentsController)
-final documentsControllerProvider =
-    AutoDisposeAsyncNotifierProvider<DocumentsController, void>.internal(
+final documentsControllerProvider = AutoDisposeNotifierProvider<
+    DocumentsController, DriverDocumentType?>.internal(
   DocumentsController.new,
   name: r'documentsControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -24,6 +29,6 @@ final documentsControllerProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$DocumentsController = AutoDisposeAsyncNotifier<void>;
+typedef _$DocumentsController = AutoDisposeNotifier<DriverDocumentType?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

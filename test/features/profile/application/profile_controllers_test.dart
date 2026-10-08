@@ -180,44 +180,120 @@ void main() {
   });
 
   group('DocumentsController', () {
+    setUp(() {
+      when(() => profileRepo.getProfile())
+          .thenAnswer((_) async => const DriverProfile());
+    });
+
     test(
-        'uploads the image, attaches it to the document and refreshes the profile',
+        'uploads the image, attaches it with the expiry and refreshes the profile',
         () async {
       when(() => profileRepo.uploadImage(image))
           .thenAnswer((_) async => 'https://example.test/d.png');
       when(() => profileRepo.uploadDocument(any(), any(),
           expiry: any(named: 'expiry'))).thenAnswer((_) async {});
-      when(() => profileRepo.getProfile())
-          .thenAnswer((_) async => const DriverProfile());
       await container.read(driverProfileProvider.future);
       clearInteractions(profileRepo);
       when(() => profileRepo.getProfile())
           .thenAnswer((_) async => const DriverProfile());
+
+      final error = await container
+          .read(documentsControllerProvider.notifier)
+          .upload(DriverDocumentType.drivingLicense, image,
+              expiry: DateTime(2027, 3, 5));
+      expect(error, isNull);
+      verify(() => profileRepo.uploadDocument(
+          DriverDocumentType.drivingLicense, 'https://example.test/d.png',
+          expiry: DateTime(2027, 3, 5))).called(1);
+      await container.read(driverProfileProvider.future);
+      verify(() => profileRepo.getProfile()).called(1);
+    });
+
+    test('without an expiry none is sent', () async {
       when(() => profileRepo.uploadImage(image))
           .thenAnswer((_) async => 'https://example.test/d.png');
       when(() => profileRepo.uploadDocument(any(), any(),
           expiry: any(named: 'expiry'))).thenAnswer((_) async {});
-
-      final ok = await container
+      await container
           .read(documentsControllerProvider.notifier)
-          .upload(DriverDocumentType.drivingLicense, image);
-      expect(ok, isTrue);
+          .upload(DriverDocumentType.vehicleCard, image);
       verify(() => profileRepo.uploadDocument(
-              DriverDocumentType.drivingLicense, 'https://example.test/d.png'))
+              DriverDocumentType.vehicleCard, 'https://example.test/d.png'))
+          .called(1);
+    });
+
+    test('state names the document being worked on, then goes idle', () async {
+      when(() => profileRepo.uploadImage(image))
+          .thenAnswer((_) async => 'https://example.test/d.png');
+      when(() => profileRepo.uploadDocument(any(), any(),
+          expiry: any(named: 'expiry'))).thenAnswer((_) async {});
+      final seen = <DriverDocumentType?>[];
+      container.listen(documentsControllerProvider, (_, v) => seen.add(v));
+      await container
+          .read(documentsControllerProvider.notifier)
+          .upload(DriverDocumentType.vehicleCard, image);
+      expect(seen, [DriverDocumentType.vehicleCard, null]);
+    });
+
+    test('a failed upload never attaches a document or refreshes', () async {
+      when(() => profileRepo.uploadImage(any()))
+          .thenThrow(const NetworkException());
+      await container.read(driverProfileProvider.future);
+      clearInteractions(profileRepo);
+      final error = await container
+          .read(documentsControllerProvider.notifier)
+          .upload(DriverDocumentType.vehicleCard, image);
+      expect(error, isA<NetworkException>());
+      verifyNever(() => profileRepo.uploadDocument(any(), any(),
+          expiry: any(named: 'expiry')));
+      verifyNever(() => profileRepo.getProfile());
+      expect(container.read(documentsControllerProvider), isNull);
+    });
+
+    test('a rejected attach is an error and the profile is left alone',
+        () async {
+      when(() => profileRepo.uploadImage(any()))
+          .thenAnswer((_) async => 'https://example.test/d.png');
+      when(() => profileRepo.uploadDocument(any(), any(),
+              expiry: any(named: 'expiry')))
+          .thenThrow(const ApiError(status: 400, message: 'bad'));
+      await container.read(driverProfileProvider.future);
+      clearInteractions(profileRepo);
+      final error = await container
+          .read(documentsControllerProvider.notifier)
+          .upload(DriverDocumentType.vehicleCard, image);
+      expect(error, isA<ApiError>());
+      verifyNever(() => profileRepo.getProfile());
+    });
+
+    test('remove calls the repository and refreshes the profile', () async {
+      when(() => profileRepo.removeDocument(any())).thenAnswer((_) async {});
+      await container.read(driverProfileProvider.future);
+      clearInteractions(profileRepo);
+      when(() => profileRepo.getProfile())
+          .thenAnswer((_) async => const DriverProfile());
+      final error = await container
+          .read(documentsControllerProvider.notifier)
+          .remove(DriverDocumentType.drivingLicense);
+      expect(error, isNull);
+      verify(() =>
+              profileRepo.removeDocument(DriverDocumentType.drivingLicense))
           .called(1);
       await container.read(driverProfileProvider.future);
       verify(() => profileRepo.getProfile()).called(1);
     });
 
-    test('a failed upload never attaches a document', () async {
-      when(() => profileRepo.uploadImage(any()))
+    test('a failed remove returns the error and keeps the profile', () async {
+      when(() => profileRepo.removeDocument(any()))
           .thenThrow(const NetworkException());
-      final ok = await container
+      await container.read(driverProfileProvider.future);
+      clearInteractions(profileRepo);
+      final error = await container
           .read(documentsControllerProvider.notifier)
-          .upload(DriverDocumentType.vehicleCard, image);
-      expect(ok, isFalse);
-      verifyNever(() => profileRepo.uploadDocument(any(), any(),
-          expiry: any(named: 'expiry')));
+          .remove(DriverDocumentType.vehicleCard);
+      expect(error, isA<NetworkException>());
+      verifyNever(() => profileRepo.getProfile());
+      expect(container.read(documentsControllerProvider), isNull);
     });
   });
 

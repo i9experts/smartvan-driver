@@ -188,9 +188,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get documentsDrivingLicense => 'Driving License';
 
   @override
-  String get documentsUploadNew => 'Upload New Document';
-
-  @override
   String get documentsUpload => 'Upload';
 
   @override
@@ -200,7 +197,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get documentsLoadFailed => 'Failed to load documents';
 
   @override
-  String get documentsUploading => 'Uploading...';
+  String get documentsTapToChange => 'Tap to change';
+
+  @override
+  String get documentsView => 'View';
+
+  @override
+  String get documentsChange => 'Change';
+
+  @override
+  String get documentsRemove => 'Remove';
+
+  @override
+  String get documentsTakePhoto => 'Take photo';
+
+  @override
+  String get documentsChooseGallery => 'Choose from gallery';
+
+  @override
+  String documentsRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get documentsRemoveBody =>
+      'This document will be taken off your profile.';
+
+  @override
+  String documentsRemovedOk(String name) {
+    return '$name removed.';
+  }
+
+  @override
+  String get documentsRemoveFailed => 'Failed to remove document.';
+
+  @override
+  String documentsExpires(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String documentsExpired(String date) {
+    return 'Expired $date';
+  }
+
+  @override
+  String get documentsExpiryHelp => 'Expiry date (optional)';
 
   @override
   String documentsUploadedOk(String name) {
