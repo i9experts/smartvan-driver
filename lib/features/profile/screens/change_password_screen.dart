@@ -116,7 +116,7 @@ class _ChangePasswordScreenState
                   context.go('/profile');
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFB800),
+                  backgroundColor: const Color(0xFFFEC610),
                   foregroundColor: const Color(0xFF1B3B69),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
@@ -243,7 +243,7 @@ class _ChangePasswordScreenState
                     child: ElevatedButton(
                       onPressed: _isSaving ? null : _changePassword,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFFB800),
+                        backgroundColor: const Color(0xFFFEC610),
                         foregroundColor: const Color(0xFF1B3B69),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14)),

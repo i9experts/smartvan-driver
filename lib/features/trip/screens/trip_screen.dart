@@ -605,7 +605,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _isTripStarted
                                   ? const Color(0xFF1B3B69)
-                                  : const Color(0xFFFFB800),
+                                  : const Color(0xFFFEC610),
                               foregroundColor: _isTripStarted
                                   ? Colors.white
                                   : const Color(0xFF1B3B69),

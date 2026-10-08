@@ -78,7 +78,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFB800),
+                          color: const Color(0xFFFEC610),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Row(
@@ -260,9 +260,9 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
         bgColor = const Color(0xFF27AE60).withOpacity(0.1);
         break;
       default:
-        alertColor = const Color(0xFFFFB800);
+        alertColor = const Color(0xFFFEC610);
         alertIcon = Icons.notifications_outlined;
-        bgColor = const Color(0xFFFFB800).withOpacity(0.1);
+        bgColor = const Color(0xFFFEC610).withOpacity(0.1);
     }
 
     return GestureDetector(
@@ -478,7 +478,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                             }
                           },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFB800),
+                      backgroundColor: const Color(0xFFFEC610),
                       foregroundColor: const Color(0xFF1B3B69),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),

@@ -407,7 +407,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                         child: ElevatedButton(
                           onPressed: _isSaving ? null : _submitReport,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFFB800),
+                            backgroundColor: const Color(0xFFFEC610),
                             foregroundColor: const Color(0xFF1B3B69),
                             shape: RoundedRectangleBorder(
                                 borderRadius:
@@ -502,7 +502,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                         child: ElevatedButton(
                           onPressed: () => context.go('/profile'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFFB800),
+                            backgroundColor: const Color(0xFFFEC610),
                             foregroundColor: const Color(0xFF1B3B69),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),

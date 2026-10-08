@@ -186,7 +186,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                  color: const Color(0xFFFFB800),
+                                  color: const Color(0xFFFEC610),
                                   width: 2.5),
                               boxShadow: [
                                 BoxShadow(
@@ -280,7 +280,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(Icons.location_on,
-                                  color: Color(0xFFFFB800), size: 16),
+                                  color: Color(0xFFFEC610), size: 16),
                               const SizedBox(width: 6),
                               Flexible(
                                 child: Text(
@@ -561,7 +561,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 decoration: BoxDecoration(
                   color: tripStarted
                       ? const Color(0xFF27AE60).withOpacity(0.1)
-                      : const Color(0xFFFFB800).withOpacity(0.15),
+                      : const Color(0xFFFEC610).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -801,7 +801,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         child: Column(
           children: [
-            Icon(icon, color: const Color(0xFFFFB800), size: 20),
+            Icon(icon, color: const Color(0xFFFEC610), size: 20),
             const SizedBox(height: 4),
             Text(
               value,
@@ -905,21 +905,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             padding: const EdgeInsets.symmetric(
                 horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFB800).withOpacity(0.1),
+              color: const Color(0xFFFEC610).withOpacity(0.1),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
-                  color: const Color(0xFFFFB800).withOpacity(0.3)),
+                  color: const Color(0xFFFEC610).withOpacity(0.3)),
             ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.info_outline,
-                    color: Color(0xFFFFB800), size: 16),
+                    color: Color(0xFFFEC610), size: 16),
                 SizedBox(width: 6),
                 Text(
                   'You\'ll be notified when assigned',
                   style: TextStyle(
-                    color: Color(0xFFFFB800),
+                    color: Color(0xFFFEC610),
                     fontSize: 12,
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w500,
@@ -966,7 +966,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final bool isCompleted = status.toLowerCase() == 'end' ||
         status.toLowerCase() == 'completed';
 
-    Color statusColor = const Color(0xFFFFB800);
+    Color statusColor = const Color(0xFFFEC610);
     String statusText = 'Starting';
     if (isActive) {
       statusColor = const Color(0xFF27AE60);
@@ -1098,7 +1098,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ? null
                         : () => context.go('/trip', extra: trip),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFB800),
+                      backgroundColor: const Color(0xFFFEC610),
                       foregroundColor: const Color(0xFF1B3B69),
                       disabledBackgroundColor:
                           const Color(0xFF8A94A6).withOpacity(0.2),

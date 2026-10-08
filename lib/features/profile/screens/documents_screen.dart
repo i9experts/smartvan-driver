@@ -223,7 +223,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFFB800),
+                              backgroundColor: const Color(0xFFFEC610),
                               foregroundColor: const Color(0xFF1B3B69),
                               shape: RoundedRectangleBorder(
                                   borderRadius:

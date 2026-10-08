@@ -42,7 +42,7 @@ class AlertDetailScreen extends StatelessWidget {
         alertIcon = Icons.directions_bus_outlined;
         break;
       default:
-        alertColor = const Color(0xFFFFB800);
+        alertColor = const Color(0xFFFEC610);
         alertIcon = Icons.notifications_outlined;
     }
 
@@ -211,7 +211,7 @@ class AlertDetailScreen extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () => context.go('/home'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFB800),
+                          backgroundColor: const Color(0xFFFEC610),
                           foregroundColor: const Color(0xFF1B3B69),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),

@@ -74,7 +74,7 @@ class KidProfileScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                            color: const Color(0xFFFFB800), width: 3),
+                            color: const Color(0xFFFEC610), width: 3),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.2),
@@ -106,7 +106,7 @@ class KidProfileScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(Icons.location_on,
-                            color: Color(0xFFFFB800), size: 14),
+                            color: Color(0xFFFEC610), size: 14),
                         const SizedBox(width: 4),
                         Text(
                           location,

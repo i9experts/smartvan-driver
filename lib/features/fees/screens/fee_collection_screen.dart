@@ -112,7 +112,7 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
         break;
       case 'pending':
         bg = const Color(0xFFFFF6E5);
-        fg = const Color(0xFFFFB800);
+        fg = const Color(0xFFFEC610);
         label = 'Pending';
         break;
       default:

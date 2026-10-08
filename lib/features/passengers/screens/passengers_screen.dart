@@ -188,7 +188,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
                       children: [
                         const SizedBox(width: 16),
                         _buildHeaderStat(
-                            'Total', total.toString(), const Color(0xFFFFB800)),
+                            'Total', total.toString(), const Color(0xFFFEC610)),
                         const SizedBox(width: 12),
                         _buildHeaderStat('Picked', _pickedCount.toString(),
                             const Color(0xFF27AE60)),
@@ -535,22 +535,22 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFB800).withOpacity(0.1),
+          color: const Color(0xFFFEC610).withOpacity(0.1),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: const Color(0xFFFFB800).withOpacity(0.5)),
+              color: const Color(0xFFFEC610).withOpacity(0.5)),
         ),
         child: const Row(
           children: [
             Icon(Icons.arrow_upward,
-                size: 14, color: Color(0xFFFFB800)),
+                size: 14, color: Color(0xFFFEC610)),
             SizedBox(width: 4),
             Text(
               'Pick Up',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFFFFB800),
+                color: Color(0xFFFEC610),
                 fontFamily: 'Poppins',
               ),
             ),

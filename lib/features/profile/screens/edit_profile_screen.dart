@@ -214,7 +214,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   width: 28,
                                   height: 28,
                                   decoration: const BoxDecoration(
-                                    color: Color(0xFFFFB800),
+                                    color: Color(0xFFFEC610),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(Icons.camera_alt,
@@ -263,7 +263,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           child: ElevatedButton(
                             onPressed: _isSaving ? null : _saveProfile,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFFB800),
+                              backgroundColor: const Color(0xFFFEC610),
                               foregroundColor: const Color(0xFF1B3B69),
                               shape: RoundedRectangleBorder(
                                   borderRadius:

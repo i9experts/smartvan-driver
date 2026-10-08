@@ -135,7 +135,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                    color: const Color(0xFFFFB800),
+                                    color: const Color(0xFFFEC610),
                                     width: 3),
                                 boxShadow: [
                                   BoxShadow(
@@ -168,14 +168,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 4),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFFB800)
+                                color: const Color(0xFFFEC610)
                                     .withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Text(
                                 'Driver',
                                 style: TextStyle(
-                                  color: Color(0xFFFFB800),
+                                  color: Color(0xFFFEC610),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   fontFamily: 'Poppins',
@@ -414,7 +414,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _buildActionItem(
             Icons.lock_outlined,
             'Change Password',
-            const Color(0xFFFFB800),
+            const Color(0xFFFEC610),
             () => context.go('/change-password'),
           ),
           const Divider(height: 1, color: Color(0xFFEAECF0)),
