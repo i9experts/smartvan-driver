@@ -2,6 +2,7 @@ import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
 import 'package:smartvan_driver/features/trip/application/tracking_state.dart';
 import 'package:smartvan_driver/features/trip/data/models/active_trip.dart';
 import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
+import 'package:smartvan_driver/features/trip/data/models/trip_type.dart';
 
 /// What a [FakeTracking] was asked to do, and what it should answer.
 class TrackingProbe {
@@ -44,7 +45,9 @@ class FakeTracking extends TripTracking {
             : ActiveTrip(
                 id: _tripId,
                 name: 'Sample School - Morning Pick',
-                routeTitle: 'Sample School - Morning'),
+                routeTitle: 'Sample School - Morning',
+                type: TripType.pick,
+                startTime: DateTime(2026, 10, 6, 12)),
         isTracking: _isTracking ?? _tripId != null,
         socketConnected: _socketConnected,
         lastPosition: _position,

@@ -1870,11 +1870,17 @@ abstract class AppLocalizations {
   /// **'Morning Trip'**
   String get tripDefaultName;
 
-  /// No description provided for @tripDefaultShift.
+  /// No description provided for @tripShiftMorning.
   ///
   /// In en, this message translates to:
   /// **'Morning'**
-  String get tripDefaultShift;
+  String get tripShiftMorning;
+
+  /// No description provided for @tripShiftAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Afternoon'**
+  String get tripShiftAfternoon;
 
   /// No description provided for @tripDriverFallback.
   ///

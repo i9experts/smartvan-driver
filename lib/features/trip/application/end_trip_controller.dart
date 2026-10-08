@@ -51,7 +51,9 @@ class EndTripController extends _$EndTripController {
     } on PendingSyncException catch (e) {
       return UnsyncedUpdates(e.pending);
     } on ApiError catch (e) {
-      return e.isKidsNotDropped ? KidsStillOnBoard(e.kidsNotDropped) : EndTripFailed(e);
+      return e.isKidsNotDropped
+          ? KidsStillOnBoard(e.kidsNotDropped)
+          : EndTripFailed(e);
     } catch (e) {
       return EndTripFailed(e);
     } finally {

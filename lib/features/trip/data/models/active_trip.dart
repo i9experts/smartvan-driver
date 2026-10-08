@@ -28,6 +28,10 @@ abstract class ActiveTrip with _$ActiveTrip {
     @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
     @Default(TripType.unknown)
     TripType type,
+
+    /// When the trip started (`tripStart.startTime`); null if unknown.
+    @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
+    DateTime? startTime,
   }) = _ActiveTrip;
 
   factory ActiveTrip.fromJson(Map<String, dynamic> json) =>
@@ -41,6 +45,7 @@ abstract class ActiveTrip with _$ActiveTrip {
         routeTitle: routeTitle,
         name: trip.name,
         type: trip.type,
+        startTime: trip.startTime,
       );
 }
 

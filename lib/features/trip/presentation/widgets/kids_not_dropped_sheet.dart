@@ -90,7 +90,9 @@ class _KidsNotDroppedSheetState extends State<KidsNotDroppedSheet> {
                   dense: true,
                   leading: const Icon(Icons.child_care, color: _red),
                   title: Text(
-                      k.fullname.isEmpty ? l10n.kidsNotDroppedStudent : k.fullname,
+                      k.fullname.isEmpty
+                          ? l10n.kidsNotDroppedStudent
+                          : k.fullname,
                       style: const TextStyle(fontFamily: 'Poppins')),
                 ),
               const SizedBox(height: 12),
@@ -119,8 +121,8 @@ class _KidsNotDroppedSheetState extends State<KidsNotDroppedSheet> {
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
                   title: Text(l10n.kidsNotDroppedChecked,
-                      style: const TextStyle(
-                          fontFamily: 'Poppins', fontSize: 13)),
+                      style:
+                          const TextStyle(fontFamily: 'Poppins', fontSize: 13)),
                 ),
                 TextField(
                   controller: _note,

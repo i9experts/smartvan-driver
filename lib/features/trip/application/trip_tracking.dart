@@ -103,6 +103,7 @@ class TripTracking extends _$TripTracking {
           routeId: update.routeId ?? old.routeId,
           routeTitle: update.routeTitle ?? old.routeTitle,
           name: update.name ?? old.name,
+          startTime: update.startTime ?? old.startTime,
         );
 
   /// Stops tracking without touching the trip on the server.

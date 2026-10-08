@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../../../../core/formatting/date_formats.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/app_snack.dart';
@@ -16,6 +17,7 @@ import '../../application/end_trip_controller.dart';
 import '../../application/trip_tracking.dart';
 import '../../data/models/active_trip.dart';
 import '../../data/models/geo_point.dart';
+import '../../data/models/trip_type.dart';
 import '../widgets/kids_not_dropped_sheet.dart';
 import '../widgets/trip_banners.dart';
 import '../widgets/trip_bottom_card.dart';
@@ -124,7 +126,8 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       case UnsyncedUpdates(:final count):
         AppSnack.error(context, l10n.tripPendingSync(count));
       case EndTripFailed(:final error):
-        AppSnack.error(context, errorText(l10n, error, fallback: l10n.tripEndFailed));
+        AppSnack.error(
+            context, errorText(l10n, error, fallback: l10n.tripEndFailed));
       case KidsStillOnBoard(:final kids):
         final choice = await KidsNotDroppedSheet.show(context, kids);
         if (!mounted) return;
@@ -182,8 +185,10 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     );
     ref.listen(passengersControllerProvider(widget.tripId), (_, next) {
       if (next.hasError && !next.hasValue) {
-        AppSnack.error(context,
-            errorText(l10n, next.error!, fallback: l10n.tripPassengersLoadFailed));
+        AppSnack.error(
+            context,
+            errorText(l10n, next.error!,
+                fallback: l10n.tripPassengersLoadFailed));
       }
     });
 
@@ -313,8 +318,14 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                   child: TripBottomCard(
                     driverName: driverName,
                     routeTitle: trip.routeTitle ?? '—',
-                    shift: l10n.tripDefaultShift,
-                    date: '—',
+                    shift: switch (trip.type) {
+                      TripType.pick => l10n.tripShiftMorning,
+                      TripType.drop => l10n.tripShiftAfternoon,
+                      TripType.unknown => '—',
+                    },
+                    date: trip.startTime == null
+                        ? '—'
+                        : formatDayMonthYear(trip.startTime!),
                     total: total,
                     picked: picked,
                     ending: ending,

@@ -598,7 +598,8 @@
   "kidProfileDefaultLocation": "Karachi, Pakistan",
   "kidProfileNotFound": "Student not found",
   "tripDefaultName": "Morning Trip",
-  "tripDefaultShift": "Morning",
+  "tripShiftMorning": "Morning",
+  "tripShiftAfternoon": "Afternoon",
   "tripDriverFallback": "Driver",
   "tripSchoolRoute": "School Route: {route}",
   "@tripSchoolRoute": {

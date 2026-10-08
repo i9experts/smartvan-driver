@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartvan_driver/core/network/json_helpers.dart';
+import 'package:smartvan_driver/features/trip/data/models/active_trip.dart';
 import 'package:smartvan_driver/features/trip/data/models/assigned_route.dart';
 import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
 import 'package:smartvan_driver/features/trip/data/models/kid_not_dropped.dart';
@@ -90,6 +91,21 @@ void main() {
       expect(r.tripStarted, isTrue);
       expect(r.routeTitle, isNull);
       expect(r.passengers, isEmpty);
+    });
+  });
+
+  group('ActiveTrip start time', () {
+    test('comes from the trip document and survives save and restore', () {
+      final trip = Trip.fromJson(fixtureMap('trip/trip_ongoing.json'));
+      final active = ActiveTrip.fromTrip(trip, routeTitle: 'R');
+      expect(active.startTime, DateTime.utc(2026, 10, 6, 8));
+      final restored = ActiveTrip.fromJson(active.toJson());
+      expect(restored.startTime, active.startTime);
+      expect(restored.type, TripType.pick);
+    });
+
+    test('is null when the trip has none', () {
+      expect(ActiveTrip.fromJson(const {'id': 't'}).startTime, isNull);
     });
   });
 

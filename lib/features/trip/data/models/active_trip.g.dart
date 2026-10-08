@@ -16,6 +16,7 @@ _ActiveTrip _$ActiveTripFromJson(Map<String, dynamic> json) => _ActiveTrip(
       type: $enumDecodeNullable(_$TripTypeEnumMap, readTypeLower(json, 'type'),
               unknownValue: TripType.unknown) ??
           TripType.unknown,
+      startTime: looseDateTime(readTripStartTime(json, 'startTime')),
     );
 
 Map<String, dynamic> _$ActiveTripToJson(_ActiveTrip instance) =>
@@ -25,6 +26,7 @@ Map<String, dynamic> _$ActiveTripToJson(_ActiveTrip instance) =>
       'schoolRoute': instance.routeTitle,
       'tripName': instance.name,
       'type': _$TripTypeEnumMap[instance.type]!,
+      'startTime': instance.startTime?.toIso8601String(),
     };
 
 const _$TripTypeEnumMap = {

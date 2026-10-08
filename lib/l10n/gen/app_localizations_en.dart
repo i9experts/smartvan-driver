@@ -1021,7 +1021,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripDefaultName => 'Morning Trip';
 
   @override
-  String get tripDefaultShift => 'Morning';
+  String get tripShiftMorning => 'Morning';
+
+  @override
+  String get tripShiftAfternoon => 'Afternoon';
 
   @override
   String get tripDriverFallback => 'Driver';

@@ -15,6 +15,7 @@ import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
 import 'package:smartvan_driver/features/trip/data/active_trip_store.dart';
 import 'package:smartvan_driver/features/trip/data/models/active_trip.dart';
 import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
+import 'package:smartvan_driver/features/trip/data/models/trip_type.dart';
 import 'package:smartvan_driver/features/trip/presentation/screens/trip_screen.dart';
 import 'package:smartvan_driver/features/trip/presentation/widgets/trip_map.dart';
 
@@ -35,10 +36,12 @@ void main() {
   late MemoryActiveTripStore store;
   late List<Passenger> kids;
 
-  const trip = ActiveTrip(
+  final trip = ActiveTrip(
       id: 'trip-001',
       name: 'Sample School - Morning Pick',
-      routeTitle: 'Sample School - Morning');
+      routeTitle: 'Sample School - Morning',
+      type: TripType.pick,
+      startTime: DateTime(2026, 10, 6, 12));
 
   setUp(() {
     probe = TrackingProbe();
@@ -176,10 +179,26 @@ void main() {
       expect(
           find.text('School Route: Sample School - Morning'), findsOneWidget);
       expect(find.text('2/3'), findsOneWidget); // picked + dropped
-      expect(find.text('Morning'), findsOneWidget);
+      expect(find.text('Morning'), findsOneWidget); // pick = Morning
+      expect(find.text('06/10/2026'), findsOneWidget);
       expect(find.text('End Trip'), findsOneWidget);
       expect(find.text('Scan student card'), findsOneWidget);
       expect(find.text('SOS'), findsOneWidget);
+    });
+
+    testWidgets('a drop trip is the Afternoon shift', (tester) async {
+      final drop = trip.copyWith(type: TripType.drop);
+      await tester.pumpWidget(app(extra: drop));
+      await tester.pumpAndSettle();
+      expect(find.text('Afternoon'), findsOneWidget);
+      expect(find.text('Morning'), findsNothing);
+    });
+
+    testWidgets('no trip type and no start time show a dash', (tester) async {
+      const bare = ActiveTrip(id: 'trip-001', routeTitle: 'R');
+      await tester.pumpWidget(app(extra: bare));
+      await tester.pumpAndSettle();
+      expect(find.text('—'), findsNWidgets(2)); // shift and date
     });
 
     testWidgets('offline pill, and defaults when nothing else is known',

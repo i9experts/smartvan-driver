@@ -30,6 +30,10 @@ mixin _$ActiveTrip {
   @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
   TripType get type;
 
+  /// When the trip started (`tripStart.startTime`); null if unknown.
+  @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
+  DateTime? get startTime;
+
   /// Create a copy of ActiveTrip
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -50,17 +54,19 @@ mixin _$ActiveTrip {
             (identical(other.routeTitle, routeTitle) ||
                 other.routeTitle == routeTitle) &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.type, type) || other.type == type));
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.startTime, startTime) ||
+                other.startTime == startTime));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, id, routeId, routeTitle, name, type);
+      Object.hash(runtimeType, id, routeId, routeTitle, name, type, startTime);
 
   @override
   String toString() {
-    return 'ActiveTrip(id: $id, routeId: $routeId, routeTitle: $routeTitle, name: $name, type: $type)';
+    return 'ActiveTrip(id: $id, routeId: $routeId, routeTitle: $routeTitle, name: $name, type: $type, startTime: $startTime)';
   }
 }
 
@@ -81,7 +87,9 @@ abstract mixin class $ActiveTripCopyWith<$Res> {
       @JsonKey(name: 'tripName', readValue: _readName, fromJson: looseString)
       String? name,
       @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
-      TripType type});
+      TripType type,
+      @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
+      DateTime? startTime});
 }
 
 /// @nodoc
@@ -101,6 +109,7 @@ class _$ActiveTripCopyWithImpl<$Res> implements $ActiveTripCopyWith<$Res> {
     Object? routeTitle = freezed,
     Object? name = freezed,
     Object? type = null,
+    Object? startTime = freezed,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -123,6 +132,10 @@ class _$ActiveTripCopyWithImpl<$Res> implements $ActiveTripCopyWith<$Res> {
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
               as TripType,
+      startTime: freezed == startTime
+          ? _self.startTime
+          : startTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -233,15 +246,17 @@ extension ActiveTripPatterns on ActiveTrip {
             String? name,
             @JsonKey(
                 readValue: readTypeLower, unknownEnumValue: TripType.unknown)
-            TripType type)?
+            TripType type,
+            @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
+            DateTime? startTime)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _ActiveTrip() when $default != null:
-        return $default(
-            _that.id, _that.routeId, _that.routeTitle, _that.name, _that.type);
+        return $default(_that.id, _that.routeId, _that.routeTitle, _that.name,
+            _that.type, _that.startTime);
       case _:
         return orElse();
     }
@@ -275,14 +290,16 @@ extension ActiveTripPatterns on ActiveTrip {
             String? name,
             @JsonKey(
                 readValue: readTypeLower, unknownEnumValue: TripType.unknown)
-            TripType type)
+            TripType type,
+            @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
+            DateTime? startTime)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ActiveTrip():
-        return $default(
-            _that.id, _that.routeId, _that.routeTitle, _that.name, _that.type);
+        return $default(_that.id, _that.routeId, _that.routeTitle, _that.name,
+            _that.type, _that.startTime);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -315,14 +332,16 @@ extension ActiveTripPatterns on ActiveTrip {
             String? name,
             @JsonKey(
                 readValue: readTypeLower, unknownEnumValue: TripType.unknown)
-            TripType type)?
+            TripType type,
+            @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
+            DateTime? startTime)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ActiveTrip() when $default != null:
-        return $default(
-            _that.id, _that.routeId, _that.routeTitle, _that.name, _that.type);
+        return $default(_that.id, _that.routeId, _that.routeTitle, _that.name,
+            _that.type, _that.startTime);
       case _:
         return null;
     }
@@ -343,7 +362,9 @@ class _ActiveTrip implements ActiveTrip {
       @JsonKey(name: 'tripName', readValue: _readName, fromJson: looseString)
       this.name,
       @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
-      this.type = TripType.unknown});
+      this.type = TripType.unknown,
+      @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
+      this.startTime});
   factory _ActiveTrip.fromJson(Map<String, dynamic> json) =>
       _$ActiveTripFromJson(json);
 
@@ -367,6 +388,11 @@ class _ActiveTrip implements ActiveTrip {
   @override
   @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
   final TripType type;
+
+  /// When the trip started (`tripStart.startTime`); null if unknown.
+  @override
+  @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
+  final DateTime? startTime;
 
   /// Create a copy of ActiveTrip
   /// with the given fields replaced by the non-null parameter values.
@@ -393,17 +419,19 @@ class _ActiveTrip implements ActiveTrip {
             (identical(other.routeTitle, routeTitle) ||
                 other.routeTitle == routeTitle) &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.type, type) || other.type == type));
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.startTime, startTime) ||
+                other.startTime == startTime));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, id, routeId, routeTitle, name, type);
+      Object.hash(runtimeType, id, routeId, routeTitle, name, type, startTime);
 
   @override
   String toString() {
-    return 'ActiveTrip(id: $id, routeId: $routeId, routeTitle: $routeTitle, name: $name, type: $type)';
+    return 'ActiveTrip(id: $id, routeId: $routeId, routeTitle: $routeTitle, name: $name, type: $type, startTime: $startTime)';
   }
 }
 
@@ -426,7 +454,9 @@ abstract mixin class _$ActiveTripCopyWith<$Res>
       @JsonKey(name: 'tripName', readValue: _readName, fromJson: looseString)
       String? name,
       @JsonKey(readValue: readTypeLower, unknownEnumValue: TripType.unknown)
-      TripType type});
+      TripType type,
+      @JsonKey(readValue: readTripStartTime, fromJson: looseDateTime)
+      DateTime? startTime});
 }
 
 /// @nodoc
@@ -446,6 +476,7 @@ class __$ActiveTripCopyWithImpl<$Res> implements _$ActiveTripCopyWith<$Res> {
     Object? routeTitle = freezed,
     Object? name = freezed,
     Object? type = null,
+    Object? startTime = freezed,
   }) {
     return _then(_ActiveTrip(
       id: null == id
@@ -468,6 +499,10 @@ class __$ActiveTripCopyWithImpl<$Res> implements _$ActiveTripCopyWith<$Res> {
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
               as TripType,
+      startTime: freezed == startTime
+          ? _self.startTime
+          : startTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }

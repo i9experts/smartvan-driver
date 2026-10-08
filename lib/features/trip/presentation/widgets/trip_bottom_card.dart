@@ -86,7 +86,8 @@ class TripBottomCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: navy.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
@@ -113,7 +114,8 @@ class TripBottomCard extends StatelessWidget {
               const _StatDivider(),
               _Stat(Icons.wb_sunny_outlined, shift, l10n.tripStatShift),
               const _StatDivider(),
-              _Stat(Icons.people_outline, '$picked/$total', l10n.tripStatPicked),
+              _Stat(
+                  Icons.people_outline, '$picked/$total', l10n.tripStatPicked),
             ],
           ),
           const SizedBox(height: 16),
