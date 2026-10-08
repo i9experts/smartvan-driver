@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../core/widgets/pinned_header_scroll.dart';
 import '../../../../l10n/error_text.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../alerts/presentation/screens/alerts_screen.dart';
@@ -119,108 +120,109 @@ class _HomeTab extends ConsumerWidget {
     final routes = state?.routes ?? const <AssignedRoute>[];
     final trips = state?.trips ?? const <Trip>[];
 
-    return RefreshIndicator(
+    Future<void> openMessages() async {
+      await context.push(AppRoutes.chats);
+      ref.invalidate(chatUnreadProvider);
+    }
+
+    return PinnedHeaderScroll(
       onRefresh: () => _refresh(ref),
-      color: const Color(0xFF1B2B6B),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            HomeHeader(
-              profile: profile,
-              state: state,
-              now: now,
-              chatUnread: chatUnread,
-              onMessages: () async {
-                await context.push(AppRoutes.chats);
-                ref.invalidate(chatUnreadProvider);
-              },
-              onAlerts: onOpenAlerts,
-              onLogout: () => showLogoutDialog(context, ref),
-            ),
-            const SizedBox(height: 24),
-            ActiveTripBanner(onOpen: (trip) => _openTrip(context, trip)),
-            if (routes.isNotEmpty)
-              ChecklistCard(
-                onOpen: () async {
-                  await context.push<bool>(AppRoutes.checklist);
-                  ref.invalidate(todayChecklistProvider);
-                },
-              ),
-            DocExpiryBanner(
-              docs: expiringDocuments(profile, now),
-              onTap: () => context.push(AppRoutes.documents),
-            ),
-            if (routes.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _SectionTitle(l10n.homeMyRouteToday),
-                    const SizedBox(height: 12),
-                    for (final route in routes)
-                      RouteCard(
-                        route: route,
-                        now: now,
-                        starting: startingRoute == route.routeId,
-                        onStart: () => _start(context, ref, route),
-                        onContinue: () => _openTrip(
-                          context,
-                          ActiveTrip.fromTrip(route.tripDetails!,
-                              routeTitle: route.routeTitle),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _SectionTitle(l10n.homeTodaysTrips),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1B2B6B).withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(l10n.homeTripsCount(trips.length),
-                            style: const TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF1B2B6B),
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Poppins')),
-                      ),
-                    ],
+      pinnedBar: HomeCompactBar(
+        profile: profile,
+        chatUnread: chatUnread,
+        onMessages: openMessages,
+        onAlerts: onOpenAlerts,
+        onLogout: () => showLogoutDialog(context, ref),
+      ),
+      children: [
+        HomeHeader(
+          profile: profile,
+          state: state,
+          now: now,
+          chatUnread: chatUnread,
+          onMessages: openMessages,
+          onAlerts: onOpenAlerts,
+          onLogout: () => showLogoutDialog(context, ref),
+        ),
+        const SizedBox(height: 24),
+        ActiveTripBanner(onOpen: (trip) => _openTrip(context, trip)),
+        if (routes.isNotEmpty)
+          ChecklistCard(
+            onOpen: () async {
+              await context.push<bool>(AppRoutes.checklist);
+              ref.invalidate(todayChecklistProvider);
+            },
+          ),
+        DocExpiryBanner(
+          docs: expiringDocuments(profile, now),
+          onTap: () => context.push(AppRoutes.documents),
+        ),
+        if (routes.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SectionTitle(l10n.homeMyRouteToday),
+                const SizedBox(height: 12),
+                for (final route in routes)
+                  RouteCard(
+                    route: route,
+                    now: now,
+                    starting: startingRoute == route.routeId,
+                    onStart: () => _start(context, ref, route),
+                    onContinue: () => _openTrip(
+                      context,
+                      ActiveTrip.fromTrip(route.tripDetails!,
+                          routeTitle: route.routeTitle),
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  if (!home.hasValue)
-                    const Center(
-                        child:
-                            CircularProgressIndicator(color: Color(0xFF1B2B6B)))
-                  else if (trips.isEmpty)
-                    const HomeEmptyState()
-                  else
-                    for (final trip in trips)
-                      TripCard(
-                        trip: trip,
-                        onView: () =>
-                            _openTrip(context, ActiveTrip.fromTrip(trip)),
-                      ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _SectionTitle(l10n.homeTodaysTrips),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B2B6B).withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(l10n.homeTripsCount(trips.length),
+                        style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF1B2B6B),
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Poppins')),
+                  ),
                 ],
               ),
-            ),
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 16),
+              if (!home.hasValue)
+                const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF1B2B6B)))
+              else if (trips.isEmpty)
+                const HomeEmptyState()
+              else
+                for (final trip in trips)
+                  TripCard(
+                    trip: trip,
+                    onView: () => _openTrip(context, ActiveTrip.fromTrip(trip)),
+                  ),
+            ],
+          ),
         ),
-      ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 }

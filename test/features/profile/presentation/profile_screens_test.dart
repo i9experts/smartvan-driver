@@ -87,6 +87,33 @@ void main() {
       );
 
   group('ProfileScreen', () {
+    testWidgets('collapsing the header keeps the name in the toolbar',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 700);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(screen(const ProfileScreen()));
+      await tester.pumpAndSettle();
+      double titleOpacity() => tester
+          .widget<Opacity>(find.byKey(const Key('profile-collapsed-title')))
+          .opacity;
+      expect(titleOpacity(), 0); // open: the big avatar and name show
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -900));
+      await tester.pumpAndSettle();
+      expect(titleOpacity(), 1);
+      expect(
+          find.descendant(
+              of: find.byKey(const Key('profile-collapsed-title')),
+              matching: find.text('Test Driver')),
+          findsOneWidget);
+      // The toolbar still has the edit button.
+      expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
+      // And back to the top it fades out again.
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, 1200));
+      await tester.pumpAndSettle();
+      expect(titleOpacity(), 0);
+    });
+
     testWidgets('shows the driver and vehicle details', (tester) async {
       await pumpScreen(tester, screen(const ProfileScreen()));
       await tester.pumpAndSettle();

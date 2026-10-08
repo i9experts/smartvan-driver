@@ -24,6 +24,9 @@ class AppTheme {
           backgroundColor: primary,
           foregroundColor: white,
           elevation: 0,
+          // Material 3 would tint the bar lighter once content scrolls under it.
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
           centerTitle: true,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(

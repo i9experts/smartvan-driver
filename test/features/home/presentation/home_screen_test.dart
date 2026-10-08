@@ -10,6 +10,7 @@ import 'package:smartvan_driver/features/home/presentation/screens/home_screen.d
 import 'package:smartvan_driver/features/profile/data/models/driver_profile.dart';
 import 'package:smartvan_driver/features/profile/data/profile_repository.dart';
 import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
+import 'package:smartvan_driver/features/home/presentation/widgets/home_header.dart';
 import 'package:smartvan_driver/features/trip/data/models/assigned_route.dart';
 import 'package:smartvan_driver/features/trip/data/models/route_passenger.dart';
 import 'package:smartvan_driver/features/trip/data/models/today_status.dart';
@@ -126,6 +127,28 @@ void main() {
     expect(find.text('Grade 3'), findsOneWidget);
     expect(find.text('2 trips'), findsOneWidget);
     expect(find.text('Completed'), findsWidgets);
+  });
+
+  testWidgets(
+      'scrolled down, a slim bar with the name and buttons stays on top',
+      (tester) async {
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    double barOpacity() => tester
+        .widget<AnimatedOpacity>(find.byKey(const Key('pinned-header-bar')))
+        .opacity;
+    expect(barOpacity(), 0);
+    await tester.drag(
+        find.byType(SingleChildScrollView).first, const Offset(0, -700));
+    await tester.pumpAndSettle();
+    expect(barOpacity(), 1);
+    final bar = find.byType(HomeCompactBar);
+    expect(find.descendant(of: bar, matching: find.textContaining('Danish')),
+        findsOneWidget);
+    expect(find.descendant(of: bar, matching: find.byTooltip('Messages')),
+        findsOneWidget);
+    expect(find.descendant(of: bar, matching: find.byTooltip('Alerts')),
+        findsOneWidget);
   });
 
   testWidgets('a running trip shows the banner and Continue Trip',

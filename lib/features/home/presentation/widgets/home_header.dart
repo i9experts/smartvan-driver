@@ -280,3 +280,87 @@ class _StatChip extends StatelessWidget {
         ),
       );
 }
+
+/// The slim version of [HomeHeader] that stays pinned on top once the big one
+/// has scrolled away: first name and the same three buttons.
+class HomeCompactBar extends StatelessWidget {
+  const HomeCompactBar({
+    super.key,
+    required this.profile,
+    required this.chatUnread,
+    required this.onMessages,
+    required this.onAlerts,
+    required this.onLogout,
+  });
+
+  final DriverProfile? profile;
+  final int chatUnread;
+  final VoidCallback onMessages;
+  final VoidCallback onAlerts;
+  final VoidCallback onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final fullname = profile?.fullname ?? '';
+    final name = fullname.isEmpty ? l10n.homeDriverFallback : fullname;
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins')),
+              ),
+              Badge(
+                isLabelVisible: chatUnread > 0,
+                label: Text('$chatUnread'),
+                backgroundColor: const Color(0xFF27AE60),
+                child: _HeaderButton(
+                  tooltip: l10n.homeMessages,
+                  icon: Icons.chat_bubble_outline,
+                  size: 20,
+                  onPressed: onMessages,
+                ),
+              ),
+              const SizedBox(width: 8),
+              _HeaderButton(
+                tooltip: l10n.homeNavAlerts,
+                icon: Icons.notifications_outlined,
+                size: 22,
+                onPressed: onAlerts,
+              ),
+              const SizedBox(width: 8),
+              _HeaderButton(
+                tooltip: l10n.logoutTitle,
+                icon: Icons.logout,
+                size: 20,
+                onPressed: onLogout,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
