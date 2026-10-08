@@ -283,7 +283,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B2B6B),
+              backgroundColor: const Color(0xFF1B3B69),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
@@ -356,7 +356,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+                colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
               ),
             ),
             child: SafeArea(
@@ -473,12 +473,12 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                       child: Row(
                         children: [
                           const Icon(Icons.people,
-                              color: Color(0xFF1B2B6B), size: 18),
+                              color: Color(0xFF1B3B69), size: 18),
                           const SizedBox(width: 6),
                           Text(
                             '$_totalPassengers Passengers',
                             style: const TextStyle(
-                              color: Color(0xFF1B2B6B),
+                              color: Color(0xFF1B3B69),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Poppins',
@@ -520,7 +520,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFF1B2B6B),
+                                    Color(0xFF1B3B69),
                                     Color(0xFF2D4099)
                                   ],
                                 ),
@@ -559,7 +559,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF1B2B6B)
+                                color: const Color(0xFF1B3B69)
                                     .withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -568,7 +568,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1B2B6B),
+                                  color: Color(0xFF1B3B69),
                                   fontFamily: 'Poppins',
                                 ),
                               ),
@@ -604,11 +604,11 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                             onPressed: _isEndingTrip ? null : _endTrip,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _isTripStarted
-                                  ? const Color(0xFF1B2B6B)
+                                  ? const Color(0xFF1B3B69)
                                   : const Color(0xFFFFB800),
                               foregroundColor: _isTripStarted
                                   ? Colors.white
-                                  : const Color(0xFF1B2B6B),
+                                  : const Color(0xFF1B3B69),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -621,7 +621,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                                     child: CircularProgressIndicator(
                                       color: _isTripStarted
                                           ? Colors.white
-                                          : const Color(0xFF1B2B6B),
+                                          : const Color(0xFF1B3B69),
                                       strokeWidth: 2,
                                     ),
                                   )
@@ -668,7 +668,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   Widget _buildTripStat(IconData icon, String value, String label) {
     return Column(
       children: [
-        Icon(icon, color: const Color(0xFF1B2B6B), size: 18),
+        Icon(icon, color: const Color(0xFF1B3B69), size: 18),
         const SizedBox(height: 4),
         Text(
           value,

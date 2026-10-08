@@ -160,12 +160,12 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                     margin: const EdgeInsets.only(bottom: 8),
                     decoration: BoxDecoration(
                       color: _selectedIssueType == type
-                          ? const Color(0xFF1B2B6B).withOpacity(0.05)
+                          ? const Color(0xFF1B3B69).withOpacity(0.05)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: _selectedIssueType == type
-                            ? const Color(0xFF1B2B6B).withOpacity(0.3)
+                            ? const Color(0xFF1B3B69).withOpacity(0.3)
                             : const Color(0xFFEAECF0),
                       ),
                     ),
@@ -177,7 +177,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                           style: TextStyle(
                             fontSize: 14,
                             color: _selectedIssueType == type
-                                ? const Color(0xFF1B2B6B)
+                                ? const Color(0xFF1B3B69)
                                 : const Color(0xFF1A1A2E),
                             fontWeight: _selectedIssueType == type
                                 ? FontWeight.w600
@@ -187,7 +187,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                         ),
                         if (_selectedIssueType == type)
                           const Icon(Icons.check_circle,
-                              color: Color(0xFF1B2B6B), size: 20),
+                              color: Color(0xFF1B3B69), size: 20),
                       ],
                     ),
                   ),
@@ -211,7 +211,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+                    colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
                   ),
                 ),
                 child: SafeArea(
@@ -324,7 +324,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
-                                color: Color(0xFF1B2B6B), width: 2),
+                                color: Color(0xFF1B3B69), width: 2),
                           ),
                         ),
                       ),
@@ -375,14 +375,14 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                                       width: 44,
                                       height: 44,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF1B2B6B)
+                                        color: const Color(0xFF1B3B69)
                                             .withOpacity(0.1),
                                         borderRadius:
                                             BorderRadius.circular(12),
                                       ),
                                       child: const Icon(
                                           Icons.add_a_photo_outlined,
-                                          color: Color(0xFF1B2B6B),
+                                          color: Color(0xFF1B3B69),
                                           size: 22),
                                     ),
                                     const SizedBox(height: 8),
@@ -390,7 +390,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                                       'Upload',
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color: Color(0xFF1B2B6B),
+                                        color: Color(0xFF1B3B69),
                                         fontWeight: FontWeight.w500,
                                         fontFamily: 'Poppins',
                                       ),
@@ -408,7 +408,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                           onPressed: _isSaving ? null : _submitReport,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFFB800),
-                            foregroundColor: const Color(0xFF1B2B6B),
+                            foregroundColor: const Color(0xFF1B3B69),
                             shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.circular(14)),
@@ -419,7 +419,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                                   width: 24,
                                   height: 24,
                                   child: CircularProgressIndicator(
-                                    color: Color(0xFF1B2B6B),
+                                    color: Color(0xFF1B3B69),
                                     strokeWidth: 2,
                                   ),
                                 )
@@ -503,7 +503,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
                           onPressed: () => context.go('/profile'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFFB800),
-                            foregroundColor: const Color(0xFF1B2B6B),
+                            foregroundColor: const Color(0xFF1B3B69),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
                           ),

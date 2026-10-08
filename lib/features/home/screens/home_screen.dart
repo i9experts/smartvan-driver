@@ -153,7 +153,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return RefreshIndicator(
       onRefresh: _loadData,
-      color: const Color(0xFF1B2B6B),
+      color: const Color(0xFF1B3B69),
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
@@ -164,7 +164,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+                  colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
                 ),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(32),
@@ -382,14 +382,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1B2B6B).withOpacity(0.08),
+                          color: const Color(0xFF1B3B69).withOpacity(0.08),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           '${_trips.length} trips',
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF1B2B6B),
+                            color: Color(0xFF1B3B69),
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Poppins',
                           ),
@@ -401,7 +401,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   _isLoading
                       ? const Center(
                           child: CircularProgressIndicator(
-                              color: Color(0xFF1B2B6B)))
+                              color: Color(0xFF1B3B69)))
                       : _trips.isEmpty
                           ? _buildEmptyState()
                           : Column(
@@ -665,7 +665,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       CircleAvatar(
                         radius: 16,
                         backgroundColor:
-                            const Color(0xFF1B2B6B).withOpacity(0.1),
+                            const Color(0xFF1B3B69).withOpacity(0.1),
                         backgroundImage: (p['image'] != null &&
                                 p['image'].toString().isNotEmpty)
                             ? NetworkImage(p['image'])
@@ -678,7 +678,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     .substring(0, 1)
                                     .toUpperCase(),
                                 style: const TextStyle(
-                                  color: Color(0xFF1B2B6B),
+                                  color: Color(0xFF1B3B69),
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -721,7 +721,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ? null
                     : () => _startTripFromRoute(route),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1B2B6B),
+                  backgroundColor: const Color(0xFF1B3B69),
                   foregroundColor: Colors.white,
                   disabledBackgroundColor:
                       const Color(0xFF8A94A6).withOpacity(0.2),
@@ -767,8 +767,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   context.go('/trip', extra: enriched);
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF1B2B6B),
-                  side: const BorderSide(color: Color(0xFF1B2B6B)),
+                  foregroundColor: const Color(0xFF1B3B69),
+                  side: const BorderSide(color: Color(0xFF1B3B69)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -830,7 +830,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF2D4099), Color(0xFF1B2B6B)],
+          colors: [Color(0xFF2D4099), Color(0xFF1B3B69)],
         ),
       ),
       child: Center(
@@ -870,14 +870,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF1B2B6B).withOpacity(0.1),
+                  const Color(0xFF1B3B69).withOpacity(0.1),
                   const Color(0xFF2D4099).withOpacity(0.05),
                 ],
               ),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.directions_bus_outlined,
-                size: 44, color: Color(0xFF1B2B6B)),
+                size: 44, color: Color(0xFF1B3B69)),
           ),
           const SizedBox(height: 20),
           const Text(
@@ -1007,7 +1007,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             const Color(0xFF2ECC71)
                           ]
                         : [
-                            const Color(0xFF1B2B6B),
+                            const Color(0xFF1B3B69),
                             const Color(0xFF2D4099)
                           ],
               ),
@@ -1029,7 +1029,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       height: 44,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+                          colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -1099,7 +1099,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         : () => context.go('/trip', extra: trip),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFFB800),
-                      foregroundColor: const Color(0xFF1B2B6B),
+                      foregroundColor: const Color(0xFF1B3B69),
                       disabledBackgroundColor:
                           const Color(0xFF8A94A6).withOpacity(0.2),
                       shape: RoundedRectangleBorder(
@@ -1118,13 +1118,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             fontFamily: 'Poppins',
                             color: isCompleted
                                 ? const Color(0xFF8A94A6)
-                                : const Color(0xFF1B2B6B),
+                                : const Color(0xFF1B3B69),
                           ),
                         ),
                         if (!isCompleted) ...[
                           const SizedBox(width: 8),
                           const Icon(Icons.arrow_forward,
-                              size: 18, color: Color(0xFF1B2B6B)),
+                              size: 18, color: Color(0xFF1B3B69)),
                         ],
                       ],
                     ),
@@ -1149,7 +1149,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 12, color: const Color(0xFF1B2B6B)),
+            Icon(icon, size: 12, color: const Color(0xFF1B3B69)),
             const SizedBox(width: 4),
             Expanded(
               child: Text(
@@ -1187,7 +1187,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onTap: (index) => setState(() => _currentIndex = index),
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF1B2B6B),
+        selectedItemColor: const Color(0xFF1B3B69),
         unselectedItemColor: const Color(0xFF8A94A6),
         selectedLabelStyle: const TextStyle(
           fontSize: 11,

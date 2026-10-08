@@ -99,7 +99,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       body: _isLoading
           ? const Center(
               child:
-                  CircularProgressIndicator(color: Color(0xFF1B2B6B)))
+                  CircularProgressIndicator(color: Color(0xFF1B3B69)))
           : CustomScrollView(
               slivers: [
                 SliverAppBar(
@@ -107,7 +107,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   floating: false,
                   pinned: true,
                   automaticallyImplyLeading: false,
-                  backgroundColor: const Color(0xFF1B2B6B),
+                  backgroundColor: const Color(0xFF1B3B69),
                   actions: [
                     IconButton(
                       icon: const Icon(Icons.edit_outlined,
@@ -121,7 +121,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+                          colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
                         ),
                       ),
                       child: SafeArea(
@@ -277,7 +277,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+          colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
         ),
       ),
       child: Center(
@@ -345,11 +345,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B2B6B).withOpacity(0.1),
+              color: const Color(0xFF1B3B69).withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child:
-                Icon(icon, color: const Color(0xFF1B2B6B), size: 18),
+                Icon(icon, color: const Color(0xFF1B3B69), size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -407,7 +407,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _buildActionItem(
             Icons.folder_outlined,
             'My Documents',
-            const Color(0xFF1B2B6B),
+            const Color(0xFF1B3B69),
             () => context.go('/documents'),
           ),
           const Divider(height: 1, color: Color(0xFFEAECF0)),

@@ -38,7 +38,7 @@ class AlertDetailScreen extends StatelessWidget {
         alertIcon = Icons.payment_outlined;
         break;
       case 'trip':
-        alertColor = const Color(0xFF1B2B6B);
+        alertColor = const Color(0xFF1B3B69);
         alertIcon = Icons.directions_bus_outlined;
         break;
       default:
@@ -55,7 +55,7 @@ class AlertDetailScreen extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+                colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
               ),
             ),
             child: SafeArea(
@@ -212,7 +212,7 @@ class AlertDetailScreen extends StatelessWidget {
                         onPressed: () => context.go('/home'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFFB800),
-                          foregroundColor: const Color(0xFF1B2B6B),
+                          foregroundColor: const Color(0xFF1B3B69),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),

@@ -133,7 +133,7 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF0F3FF),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1B2B6B),
+        backgroundColor: const Color(0xFF1B3B69),
         title: const Text('Fee Collection',
             style: TextStyle(color: Colors.white, fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -193,7 +193,7 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
                                   children: [
                                     CircleAvatar(
                                       radius: 22,
-                                      backgroundColor: const Color(0xFF1B2B6B).withOpacity(0.1),
+                                      backgroundColor: const Color(0xFF1B3B69).withOpacity(0.1),
                                       backgroundImage:
                                           s['image'] != null ? NetworkImage(s['image']) : null,
                                       child: s['image'] == null
@@ -202,7 +202,7 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
                                                   ? s['fullname'][0].toString().toUpperCase()
                                                   : '?',
                                               style: const TextStyle(
-                                                  color: Color(0xFF1B2B6B), fontWeight: FontWeight.bold),
+                                                  color: Color(0xFF1B3B69), fontWeight: FontWeight.bold),
                                             )
                                           : null,
                                     ),
@@ -236,7 +236,7 @@ class _FeeCollectionScreenState extends ConsumerState<FeeCollectionScreen> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                         fontFamily: 'Poppins',
-                                        color: Color(0xFF1B2B6B)),
+                                        color: Color(0xFF1B3B69)),
                                   ),
                                 ],
                                 if (!isPaid && s['status'] != 'not_generated') ...[

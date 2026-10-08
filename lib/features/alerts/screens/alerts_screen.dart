@@ -53,7 +53,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+                colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
               ),
             ),
             child: SafeArea(
@@ -83,12 +83,12 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.send, color: Color(0xFF1B2B6B), size: 16),
+                            Icon(Icons.send, color: Color(0xFF1B3B69), size: 16),
                             SizedBox(width: 6),
                             Text(
                               'Send Alert',
                               style: TextStyle(
-                                color: Color(0xFF1B2B6B),
+                                color: Color(0xFF1B3B69),
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Poppins',
@@ -109,14 +109,14 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
             child: _isLoading
                 ? const Center(
                     child: CircularProgressIndicator(
-                        color: Color(0xFF1B2B6B)))
+                        color: Color(0xFF1B3B69)))
                 : _hasError && _alerts.isEmpty
                     ? _buildErrorState()
                     : _alerts.isEmpty
                         ? _buildEmptyState()
                         : RefreshIndicator(
                         onRefresh: _loadAlerts,
-                        color: const Color(0xFF1B2B6B),
+                        color: const Color(0xFF1B3B69),
                         child: ListView.builder(
                           padding: const EdgeInsets.all(16),
                           itemCount: _alerts.length,
@@ -169,7 +169,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
           ElevatedButton(
             onPressed: _loadAlerts,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B2B6B),
+              backgroundColor: const Color(0xFF1B3B69),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
@@ -190,11 +190,11 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B2B6B).withOpacity(0.1),
+              color: const Color(0xFF1B3B69).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.notifications_off_outlined,
-                size: 40, color: Color(0xFF1B2B6B)),
+                size: 40, color: Color(0xFF1B3B69)),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -250,9 +250,9 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
         break;
       case 'trip':
       case 'new_trip':
-        alertColor = const Color(0xFF1B2B6B);
+        alertColor = const Color(0xFF1B3B69);
         alertIcon = Icons.directions_bus_outlined;
-        bgColor = const Color(0xFF1B2B6B).withOpacity(0.1);
+        bgColor = const Color(0xFF1B3B69).withOpacity(0.1);
         break;
       case 'profile':
         alertColor = const Color(0xFF27AE60);
@@ -479,7 +479,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFFB800),
-                      foregroundColor: const Color(0xFF1B2B6B),
+                      foregroundColor: const Color(0xFF1B3B69),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
@@ -488,7 +488,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Color(0xFF1B2B6B)),
+                                strokeWidth: 2, color: Color(0xFF1B3B69)),
                           )
                         : const Text(
                             'Send Alert',

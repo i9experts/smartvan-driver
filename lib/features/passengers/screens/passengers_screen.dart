@@ -116,7 +116,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${kid['fullname'] ?? 'Kid'} dropped off!'),
-            backgroundColor: const Color(0xFF1B2B6B),
+            backgroundColor: const Color(0xFF1B3B69),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10)),
@@ -155,7 +155,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+                colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
               ),
             ),
             child: SafeArea(
@@ -210,14 +210,14 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
             child: _isLoading
                 ? const Center(
                     child: CircularProgressIndicator(
-                        color: Color(0xFF1B2B6B)))
+                        color: Color(0xFF1B3B69)))
                 : _hasError && _passengers.isEmpty
                     ? _buildErrorState()
                     : _passengers.isEmpty
                         ? _buildEmptyState()
                         : RefreshIndicator(
                         onRefresh: _loadPassengers,
-                        color: const Color(0xFF1B2B6B),
+                        color: const Color(0xFF1B3B69),
                         child: ListView.builder(
                           padding: const EdgeInsets.all(16),
                           itemCount: _passengers.length,
@@ -306,7 +306,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
           ElevatedButton(
             onPressed: _loadPassengers,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B2B6B),
+              backgroundColor: const Color(0xFF1B3B69),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
@@ -327,11 +327,11 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B2B6B).withOpacity(0.1),
+              color: const Color(0xFF1B3B69).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.people_outline,
-                size: 40, color: Color(0xFF1B2B6B)),
+                size: 40, color: Color(0xFF1B3B69)),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -399,7 +399,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
                   color: isPicked
                       ? const Color(0xFF27AE60)
                       : isDropped
-                          ? const Color(0xFF1B2B6B)
+                          ? const Color(0xFF1B3B69)
                           : const Color(0xFFEAECF0),
                   width: 2,
                 ),
@@ -510,17 +510,17 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF1B2B6B).withOpacity(0.1),
+                color: const Color(0xFF1B3B69).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                    color: const Color(0xFF1B2B6B).withOpacity(0.3)),
+                    color: const Color(0xFF1B3B69).withOpacity(0.3)),
               ),
               child: const Text(
                 'Drop',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1B2B6B),
+                  color: Color(0xFF1B3B69),
                   fontFamily: 'Poppins',
                 ),
               ),
@@ -565,7 +565,7 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF1B2B6B).withOpacity(0.7),
+            const Color(0xFF1B3B69).withOpacity(0.7),
             const Color(0xFF2D4099).withOpacity(0.7),
           ],
         ),

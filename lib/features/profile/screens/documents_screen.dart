@@ -147,7 +147,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+                colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
               ),
             ),
             child: SafeArea(
@@ -179,7 +179,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
             child: _isLoading
                 ? const Center(
                     child: CircularProgressIndicator(
-                        color: Color(0xFF1B2B6B)))
+                        color: Color(0xFF1B3B69)))
                 : SingleChildScrollView(
                     padding: const EdgeInsets.all(20),
                     child: Column(
@@ -224,7 +224,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFFFB800),
-                              foregroundColor: const Color(0xFF1B2B6B),
+                              foregroundColor: const Color(0xFF1B3B69),
                               shape: RoundedRectangleBorder(
                                   borderRadius:
                                       BorderRadius.circular(14)),
@@ -262,11 +262,11 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B2B6B).withOpacity(0.1),
+              color: const Color(0xFF1B3B69).withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(Icons.folder_outlined,
-                size: 32, color: Color(0xFF1B2B6B)),
+                size: 32, color: Color(0xFF1B3B69)),
           ),
           const SizedBox(height: 12),
           const Text(
@@ -319,11 +319,11 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1B2B6B).withOpacity(0.1),
+                    color: const Color(0xFF1B3B69).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child:
-                      Icon(icon, color: const Color(0xFF1B2B6B), size: 20),
+                      Icon(icon, color: const Color(0xFF1B3B69), size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -390,7 +390,7 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                   color: const Color(0xFFF0F3FF),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFF1B2B6B).withOpacity(0.2),
+                    color: const Color(0xFF1B3B69).withOpacity(0.2),
                     style: BorderStyle.solid,
                   ),
                 ),
@@ -398,13 +398,13 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.upload_outlined,
-                        color: Color(0xFF1B2B6B), size: 28),
+                        color: Color(0xFF1B3B69), size: 28),
                     SizedBox(height: 8),
                     Text(
                       'Upload',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF1B2B6B),
+                        color: Color(0xFF1B3B69),
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Poppins',
                       ),

@@ -79,7 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+            colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
           ),
         ),
         child: SafeArea(
@@ -190,7 +190,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 fontSize: 14,
                                 fontFamily: 'Poppins'),
                             prefixIcon: const Icon(Icons.phone_outlined,
-                                color: Color(0xFF1B2B6B)),
+                                color: Color(0xFF1B3B69)),
                             filled: true,
                             fillColor: Colors.white,
                             border: OutlineInputBorder(
@@ -206,7 +206,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                  color: Color(0xFF1B2B6B), width: 2),
+                                  color: Color(0xFF1B3B69), width: 2),
                             ),
                           ),
                         ),
@@ -229,7 +229,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 fontSize: 14,
                                 fontFamily: 'Poppins'),
                             prefixIcon: const Icon(Icons.lock_outlined,
-                                color: Color(0xFF1B2B6B)),
+                                color: Color(0xFF1B3B69)),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscurePassword
@@ -255,7 +255,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                  color: Color(0xFF1B2B6B), width: 2),
+                                  color: Color(0xFF1B3B69), width: 2),
                             ),
                           ),
                         ),
@@ -267,7 +267,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             onPressed: _isLoading ? null : _login,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFFFB800),
-                              foregroundColor: const Color(0xFF1B2B6B),
+                              foregroundColor: const Color(0xFF1B3B69),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -277,7 +277,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     width: 24,
                                     height: 24,
                                     child: CircularProgressIndicator(
-                                      color: Color(0xFF1B2B6B),
+                                      color: Color(0xFF1B3B69),
                                       strokeWidth: 2,
                                     ),
                                   )

@@ -135,7 +135,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+                colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
               ),
             ),
             child: SafeArea(
@@ -167,7 +167,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             child: _isLoading
                 ? const Center(
                     child: CircularProgressIndicator(
-                        color: Color(0xFF1B2B6B)))
+                        color: Color(0xFF1B3B69)))
                 : _hasError
                     ? _buildErrorState()
                     : SingleChildScrollView(
@@ -185,7 +185,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                      color: const Color(0xFF1B2B6B),
+                                      color: const Color(0xFF1B3B69),
                                       width: 2),
                                 ),
                                 child: ClipOval(
@@ -197,13 +197,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                               _profile!['image'],
                                               fit: BoxFit.cover)
                                           : Container(
-                                              color: const Color(0xFF1B2B6B)
+                                              color: const Color(0xFF1B3B69)
                                                   .withOpacity(0.1),
                                               child: const Icon(
                                                   Icons.person,
                                                   size: 40,
                                                   color:
-                                                      Color(0xFF1B2B6B)),
+                                                      Color(0xFF1B3B69)),
                                             ),
                                 ),
                               ),
@@ -228,7 +228,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         const Text(
                           'Change Image',
                           style: TextStyle(
-                            color: Color(0xFF1B2B6B),
+                            color: Color(0xFF1B3B69),
                             fontSize: 13,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w500,
@@ -264,7 +264,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             onPressed: _isSaving ? null : _saveProfile,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFFFB800),
-                              foregroundColor: const Color(0xFF1B2B6B),
+                              foregroundColor: const Color(0xFF1B3B69),
                               shape: RoundedRectangleBorder(
                                   borderRadius:
                                       BorderRadius.circular(14)),
@@ -275,7 +275,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     width: 24,
                                     height: 24,
                                     child: CircularProgressIndicator(
-                                      color: Color(0xFF1B2B6B),
+                                      color: Color(0xFF1B3B69),
                                       strokeWidth: 2,
                                     ),
                                   )
@@ -351,7 +351,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 _loadProfile();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1B2B6B),
+                backgroundColor: const Color(0xFF1B3B69),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -389,7 +389,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           keyboardType: keyboardType,
           maxLines: maxLines,
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: const Color(0xFF1B2B6B)),
+            prefixIcon: Icon(icon, color: const Color(0xFF1B3B69)),
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
@@ -403,7 +403,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide:
-                  const BorderSide(color: Color(0xFF1B2B6B), width: 2),
+                  const BorderSide(color: Color(0xFF1B3B69), width: 2),
             ),
           ),
         ),
