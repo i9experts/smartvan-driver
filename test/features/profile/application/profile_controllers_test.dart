@@ -185,8 +185,8 @@ void main() {
         () async {
       when(() => profileRepo.uploadImage(image))
           .thenAnswer((_) async => 'https://example.test/d.png');
-      when(() => profileRepo.uploadDocument(any(), any()))
-          .thenAnswer((_) async {});
+      when(() => profileRepo.uploadDocument(any(), any(),
+          expiry: any(named: 'expiry'))).thenAnswer((_) async {});
       when(() => profileRepo.getProfile())
           .thenAnswer((_) async => const DriverProfile());
       await container.read(driverProfileProvider.future);
@@ -195,8 +195,8 @@ void main() {
           .thenAnswer((_) async => const DriverProfile());
       when(() => profileRepo.uploadImage(image))
           .thenAnswer((_) async => 'https://example.test/d.png');
-      when(() => profileRepo.uploadDocument(any(), any()))
-          .thenAnswer((_) async {});
+      when(() => profileRepo.uploadDocument(any(), any(),
+          expiry: any(named: 'expiry'))).thenAnswer((_) async {});
 
       final ok = await container
           .read(documentsControllerProvider.notifier)
@@ -216,7 +216,8 @@ void main() {
           .read(documentsControllerProvider.notifier)
           .upload(DriverDocumentType.vehicleCard, image);
       expect(ok, isFalse);
-      verifyNever(() => profileRepo.uploadDocument(any(), any()));
+      verifyNever(() => profileRepo.uploadDocument(any(), any(),
+          expiry: any(named: 'expiry')));
     });
   });
 

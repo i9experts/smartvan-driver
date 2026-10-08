@@ -59,12 +59,30 @@ class ProfileRepository {
     return url;
   }
 
-  /// `POST /van/uploadDocuments` with an already uploaded [imageUrl].
-  Future<void> uploadDocument(DriverDocumentType type, String imageUrl) =>
+  /// `POST /van/uploadDocuments` with an already uploaded [imageUrl] and,
+  /// when the driver gave one, the document's [expiry] date (sent as
+  /// `YYYY-MM-DD`; left out otherwise so the saved date stays).
+  Future<void> uploadDocument(
+    DriverDocumentType type,
+    String imageUrl, {
+    DateTime? expiry,
+  }) =>
       _api.post<void>(
         '/van/uploadDocuments',
         (_) {},
-        body: {'title': type.title, type.frontImageField: imageUrl},
+        body: {
+          'title': type.title,
+          type.frontImageField: imageUrl,
+          if (expiry != null) type.expiryField: _isoDate(expiry),
+        },
+      );
+
+  /// `POST /van/removeDocument`: takes the document off the profile, both
+  /// sides (the app only ever shows the front).
+  Future<void> removeDocument(DriverDocumentType type) => _api.post<void>(
+        '/van/removeDocument',
+        (_) {},
+        body: {'document': type.removeKey, 'side': 'both'},
       );
 
   /// `POST /report/addReportByDriver`.
@@ -74,6 +92,10 @@ class ProfileRepository {
         body: report.toJson(),
       );
 }
+
+String _isoDate(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
 
 final profileRepositoryProvider = Provider<ProfileRepository>(
     (ref) => ProfileRepository(ref.watch(apiClientProvider)));

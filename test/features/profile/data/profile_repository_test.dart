@@ -168,6 +168,68 @@ void main() {
     });
   });
 
+  group('uploadDocument with an expiry date', () {
+    test('sends it as YYYY-MM-DD under the document\'s own key', () async {
+      env.adapter.onPost(
+        '/van/uploadDocuments',
+        (s) => s.reply(200, {}),
+        data: {
+          'title': 'driving_license',
+          'licenceImageFront': 'https://example.test/d/2.png',
+          'expiryDateLicense': '2027-03-05',
+        },
+      );
+      await repo.uploadDocument(
+          DriverDocumentType.drivingLicense, 'https://example.test/d/2.png',
+          expiry: DateTime(2027, 3, 5));
+    });
+
+    test('vehicle card uses expiryDateVehicleCard', () async {
+      env.adapter.onPost(
+        '/van/uploadDocuments',
+        (s) => s.reply(200, {}),
+        data: {
+          'title': 'vehicle_card',
+          'vehicleCardImageFront': 'https://example.test/d/1.png',
+          'expiryDateVehicleCard': '2026-11-30',
+        },
+      );
+      await repo.uploadDocument(
+          DriverDocumentType.vehicleCard, 'https://example.test/d/1.png',
+          expiry: DateTime(2026, 11, 30));
+    });
+  });
+
+  group('removeDocument', () {
+    test('POSTs the licence with both sides', () async {
+      env.adapter.onPost(
+        '/van/removeDocument',
+        (s) => s.reply(200, {'success': true}),
+        data: {'document': 'licence', 'side': 'both'},
+      );
+      await repo.removeDocument(DriverDocumentType.drivingLicense);
+    });
+
+    test('POSTs the vehicle card', () async {
+      env.adapter.onPost(
+        '/van/removeDocument',
+        (s) => s.reply(200, {'success': true}),
+        data: {'document': 'vehicleCard', 'side': 'both'},
+      );
+      await repo.removeDocument(DriverDocumentType.vehicleCard);
+    });
+
+    test('a rejected removal is an ApiError', () async {
+      env.adapter.onPost(
+        '/van/removeDocument',
+        (s) => s.reply(404, {'success': false, 'message': 'Not found'}),
+        data: Matchers.any,
+      );
+      await expectLater(repo.removeDocument(DriverDocumentType.vehicleCard),
+          throwsA(isA<ApiError>()));
+    });
+  });
+
   test('submitReport POSTs the report body to /report/addReportByDriver',
       () async {
     env.adapter.onPost(

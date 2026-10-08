@@ -258,7 +258,9 @@ void main() {
           .thenAnswer((_) async => XFile(file.path));
       when(() => repo.uploadImage(any()))
           .thenAnswer((_) async => 'https://example.test/d.png');
-      when(() => repo.uploadDocument(any(), any())).thenAnswer((_) async {});
+      when(() =>
+              repo.uploadDocument(any(), any(), expiry: any(named: 'expiry')))
+          .thenAnswer((_) async {});
 
       await pumpScreen(tester, screen(const DocumentsScreen()));
       await tester.pumpAndSettle();
