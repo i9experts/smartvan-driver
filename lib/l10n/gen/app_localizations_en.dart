@@ -1362,6 +1362,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeContinueTrip => 'Continue Trip';
 
   @override
+  String get homeRouteCompleted => 'Completed ✓';
+
+  @override
+  String get homeRouteDoneToday => 'Today\'s trip is done';
+
+  @override
+  String get homeTripAlreadyCompleted =>
+      'Today\'s trip for this route is already completed.';
+
+  @override
+  String get homeTripAlreadyStarted =>
+      'This trip has already started. Open it with Continue Trip.';
+
+  @override
   String get homeUnknownKid => 'Unknown';
 
   @override

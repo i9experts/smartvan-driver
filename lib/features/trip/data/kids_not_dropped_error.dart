@@ -7,6 +7,12 @@ class TripErrorCodes {
   static const kidsNotDropped = 'KIDS_NOT_DROPPED';
   static const checklistRequired = 'CHECKLIST_REQUIRED';
   static const tripNotOngoing = 'TRIP_NOT_ONGOING';
+
+  /// 409 of `/trips/startTrip`: today's trip of this route is already done.
+  static const tripAlreadyCompleted = 'TRIP_ALREADY_COMPLETED';
+
+  /// 409 of `/trips/startTrip`: this route's trip is already running.
+  static const tripAlreadyStarted = 'TRIP_ALREADY_STARTED';
 }
 
 /// The kids list of a 409 `KIDS_NOT_DROPPED` answer of `/trips/endTrip`.

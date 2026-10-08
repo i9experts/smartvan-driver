@@ -4,6 +4,7 @@ import 'package:smartvan_driver/features/trip/data/models/active_trip.dart';
 import 'package:smartvan_driver/features/trip/data/models/assigned_route.dart';
 import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
 import 'package:smartvan_driver/features/trip/data/models/kid_not_dropped.dart';
+import 'package:smartvan_driver/features/trip/data/models/today_status.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip_status.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip_type.dart';
@@ -74,6 +75,42 @@ void main() {
       expect(r.passengers[0].image, 'https://example.test/img/1.png');
       expect(r.passengers[1].image, isNull);
       expect(r.passengers[1].grade, '4'); // number as grade
+      expect(r.todayStatus, TodayStatus.ongoing);
+      expect(r.tripCompleted, isFalse);
+      expect(r.isCompletedToday, isFalse);
+    });
+
+    test('a route finished today (todayStatus and TripCompleted)', () {
+      final r = routes[3];
+      expect(r.todayStatus, TodayStatus.completed);
+      expect(r.tripCompleted, isTrue);
+      expect(r.tripStarted, isFalse);
+      expect(r.isCompletedToday, isTrue);
+    });
+
+    test('not_started is not completed', () {
+      expect(routes[1].todayStatus, TodayStatus.notStarted);
+      expect(routes[1].isCompletedToday, isFalse);
+    });
+
+    test('an older backend without the new keys is unknown, not completed', () {
+      final r = routes[2];
+      expect(r.todayStatus, TodayStatus.unknown);
+      expect(r.tripCompleted, isFalse);
+      expect(r.isCompletedToday, isFalse);
+    });
+
+    test('an unknown todayStatus falls back; TripCompleted alone is enough',
+        () {
+      final odd = AssignedRoute.fromJson(
+          {'routeId': 'r', 'todayStatus': 'paused', 'tripCompleted': 'true'});
+      expect(odd.todayStatus, TodayStatus.unknown);
+      expect(odd.tripCompleted, isTrue);
+      expect(odd.isCompletedToday, isTrue);
+      // A running trip is never hidden by a stale flag.
+      final running = AssignedRoute.fromJson(
+          {'routeId': 'r', 'todayStatus': 'ongoing', 'TripCompleted': true});
+      expect(running.isCompletedToday, isFalse);
     });
 
     test('a not-started drop route', () {

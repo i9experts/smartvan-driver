@@ -25,6 +25,16 @@ class ChecklistNotDone extends StartTripResult {
   const ChecklistNotDone();
 }
 
+/// 409 `TRIP_ALREADY_COMPLETED`: the route's trip for today is done.
+class TripAlreadyCompleted extends StartTripResult {
+  const TripAlreadyCompleted();
+}
+
+/// 409 `TRIP_ALREADY_STARTED`: the route's trip is already running.
+class TripAlreadyStarted extends StartTripResult {
+  const TripAlreadyStarted();
+}
+
 class StartTripFailed extends StartTripResult {
   const StartTripFailed(this.error);
   final Object error;
@@ -50,17 +60,30 @@ class StartTripController extends _$StartTripController {
       try {
         return await _start(route);
       } on ApiError catch (e) {
-        if (e.code != TripErrorCodes.checklistRequired) {
-          return StartTripFailed(e);
-        }
+        if (e.code != TripErrorCodes.checklistRequired) return _failed(e);
       }
       if (!await completeChecklist()) return const ChecklistNotDone();
       return await _start(route);
     } catch (e) {
-      return StartTripFailed(e);
+      return _failed(e);
     } finally {
       state = null;
     }
+  }
+
+  /// The two 409s say the home list is out of date: reload it so the card
+  /// shows what the server knows.
+  StartTripResult _failed(Object error) {
+    final code = error is ApiError ? error.code : null;
+    if (code == TripErrorCodes.tripAlreadyCompleted) {
+      ref.invalidate(homeControllerProvider);
+      return const TripAlreadyCompleted();
+    }
+    if (code == TripErrorCodes.tripAlreadyStarted) {
+      ref.invalidate(homeControllerProvider);
+      return const TripAlreadyStarted();
+    }
+    return StartTripFailed(error);
   }
 
   Future<StartTripResult> _start(AssignedRoute route) async {

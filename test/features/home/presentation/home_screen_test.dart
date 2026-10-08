@@ -12,6 +12,7 @@ import 'package:smartvan_driver/features/profile/data/profile_repository.dart';
 import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
 import 'package:smartvan_driver/features/trip/data/models/assigned_route.dart';
 import 'package:smartvan_driver/features/trip/data/models/route_passenger.dart';
+import 'package:smartvan_driver/features/trip/data/models/today_status.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip_status.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip_type.dart';
@@ -147,6 +148,80 @@ void main() {
     await tester.tap(find.text('Continue Trip'));
     await tester.pumpAndSettle();
     expect(find.text('Trip t-1'), findsOneWidget);
+  });
+
+  testWidgets('a route finished today shows Completed and cannot be started',
+      (tester) async {
+    useTallView(tester);
+    when(() => trips.assignedRoutes()).thenAnswer((_) async => [
+          morning.copyWith(
+              todayStatus: TodayStatus.completed, tripCompleted: true),
+        ]);
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Completed ✓'), findsOneWidget);
+    expect(find.text("Today's trip is done"), findsOneWidget);
+    expect(find.text('Not Started'), findsNothing);
+    expect(find.text('Continue Trip'), findsNothing);
+    final start = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, 'Start Trip'));
+    expect(start.onPressed, isNull);
+  });
+
+  testWidgets('a 409 already-completed answer says so and reloads the list',
+      (tester) async {
+    useTallView(tester);
+    var loads = 0;
+    when(() => trips.assignedRoutes()).thenAnswer((_) async {
+      loads++;
+      return [
+        loads == 1
+            ? morning
+            : morning.copyWith(
+                todayStatus: TodayStatus.completed, tripCompleted: true),
+      ];
+    });
+    when(() => trips.startTrip(routeId: 'r-1', type: TripType.unknown))
+        .thenAnswer((_) async => throw const ApiError(
+            status: 409, code: 'TRIP_ALREADY_COMPLETED', message: 'done'));
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Start Trip'));
+    await tester.pumpAndSettle();
+    expect(find.text("Today's trip for this route is already completed."),
+        findsOneWidget);
+    expect(find.text('Completed ✓'), findsOneWidget);
+  });
+
+  testWidgets('a 409 already-started answer points to Continue Trip',
+      (tester) async {
+    useTallView(tester);
+    var loads = 0;
+    when(() => trips.assignedRoutes()).thenAnswer((_) async {
+      loads++;
+      return [
+        loads == 1
+            ? morning
+            : morning.copyWith(
+                tripStarted: true,
+                todayStatus: TodayStatus.ongoing,
+                tripDetails: const Trip(id: 't-1', status: TripStatus.ongoing)),
+      ];
+    });
+    when(() => trips.startTrip(routeId: 'r-1', type: TripType.unknown))
+        .thenAnswer((_) async => throw const ApiError(
+            status: 409, code: 'TRIP_ALREADY_STARTED', message: 'running'));
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Start Trip'));
+    await tester.pumpAndSettle();
+    // The reload turns the card into Continue Trip (home then resumes the
+    // trip and says so, which replaces the 409 message).
+    expect(find.text('Start Trip'), findsNothing);
+    expect(find.text('Continue Trip'), findsOneWidget);
   });
 
   testWidgets('Start Trip only inside the window', (tester) async {

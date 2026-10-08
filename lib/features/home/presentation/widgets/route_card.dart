@@ -32,7 +32,8 @@ class RouteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final started = route.tripStarted;
+    final completed = route.isCompletedToday;
+    final started = route.tripStarted && !completed;
     // Backend stores startTime as a UTC instant; formatTime12h converts to
     // local time (reading UTC hours showed "3:00 PM" instead of 8:00 AM).
     final startText =
@@ -68,7 +69,7 @@ class RouteCard extends StatelessWidget {
                         color: _ink,
                         fontFamily: 'Poppins')),
               ),
-              _StatusPill(started: started),
+              _StatusPill(started: started, completed: completed),
             ],
           ),
           const SizedBox(height: 4),
@@ -117,7 +118,9 @@ class RouteCard extends StatelessWidget {
                             fontFamily: 'Poppins')),
                   )
                 : ElevatedButton(
-                    onPressed: (starting || !withinWindow) ? null : onStart,
+                    onPressed: (starting || completed || !withinWindow)
+                        ? null
+                        : onStart,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _navy,
                       foregroundColor: Colors.white,
@@ -133,7 +136,7 @@ class RouteCard extends StatelessWidget {
                             child: CircularProgressIndicator(
                                 color: Colors.white, strokeWidth: 2))
                         : Text(
-                            withinWindow
+                            withinWindow || completed
                                 ? l10n.homeStartTrip
                                 : l10n.homeAvailableAt(startText),
                             style: const TextStyle(
@@ -142,6 +145,14 @@ class RouteCard extends StatelessWidget {
                                 fontFamily: 'Poppins')),
                   ),
           ),
+          if (completed) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: Text(l10n.homeRouteDoneToday,
+                  style: const TextStyle(
+                      fontSize: 12, color: _grey, fontFamily: 'Poppins')),
+            ),
+          ],
         ],
       ),
     );
@@ -149,28 +160,32 @@ class RouteCard extends StatelessWidget {
 }
 
 class _StatusPill extends StatelessWidget {
-  const _StatusPill({required this.started});
+  const _StatusPill({required this.started, required this.completed});
 
   final bool started;
+  final bool completed;
 
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: started
+          color: started || completed
               ? const Color(0xFF27AE60).withOpacity(0.1)
               : const Color(0xFFFFB800).withOpacity(0.15),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
-          started
-              ? context.l10n.homeRouteInProgress
-              : context.l10n.homeRouteNotStarted,
+          completed
+              ? context.l10n.homeRouteCompleted
+              : started
+                  ? context.l10n.homeRouteInProgress
+                  : context.l10n.homeRouteNotStarted,
           style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color:
-                  started ? const Color(0xFF27AE60) : const Color(0xFFB8860B),
+              color: started || completed
+                  ? const Color(0xFF27AE60)
+                  : const Color(0xFFB8860B),
               fontFamily: 'Poppins'),
         ),
       );

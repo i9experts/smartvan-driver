@@ -200,6 +200,29 @@ void main() {
           .called(1);
     });
 
+    test(
+        '409 TRIP_ALREADY_COMPLETED and TRIP_ALREADY_STARTED are their own results and reload home',
+        () async {
+      for (final (code, matcher) in [
+        ('TRIP_ALREADY_COMPLETED', isA<TripAlreadyCompleted>()),
+        ('TRIP_ALREADY_STARTED', isA<TripAlreadyStarted>()),
+      ]) {
+        when(() => repo.startTrip(routeId: 'r-2', type: TripType.drop))
+            .thenAnswer((_) async =>
+                throw ApiError(status: 409, code: code, message: 'x'));
+        final c = make();
+        c.listen(homeControllerProvider, (_, __) {});
+        await c.read(homeControllerProvider.future);
+        clearInteractions(repo);
+        final result = await c
+            .read(startTripControllerProvider.notifier)
+            .start(waiting, completeChecklist: () async => fail('no check'));
+        expect(result, matcher, reason: code);
+        await c.read(homeControllerProvider.future);
+        verify(() => repo.assignedRoutes()).called(1); // reloaded
+      }
+    });
+
     test('other failures come back as StartTripFailed', () async {
       when(() => repo.startTrip(routeId: 'r-2', type: TripType.drop))
           .thenAnswer((_) async =>

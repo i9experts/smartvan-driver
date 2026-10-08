@@ -138,8 +138,7 @@ void main() {
           photoUrl: any(named: 'photoUrl')));
     });
 
-    test('a network failure while uploading is also a photo failure',
-        () async {
+    test('a network failure while uploading is also a photo failure', () async {
       final photo = tempImage('smartvan_check_test3.png');
       addTearDown(photo.deleteSync);
       when(() => profileRepo.uploadImage(any()))

@@ -92,6 +92,10 @@ class _HomeTab extends ConsumerWidget {
         context.push(AppRoutes.tripOf(trip.id), extra: trip);
       case ChecklistNotDone():
         break;
+      case TripAlreadyCompleted():
+        AppSnack.info(context, l10n.homeTripAlreadyCompleted);
+      case TripAlreadyStarted():
+        AppSnack.info(context, l10n.homeTripAlreadyStarted);
       case StartTripFailed(:final error):
         AppSnack.error(
             context, errorText(l10n, error, fallback: l10n.homeStartFailed));

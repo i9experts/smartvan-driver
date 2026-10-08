@@ -802,6 +802,10 @@
     }
   },
   "homeContinueTrip": "Continue Trip",
+  "homeRouteCompleted": "Completed ✓",
+  "homeRouteDoneToday": "Today's trip is done",
+  "homeTripAlreadyCompleted": "Today's trip for this route is already completed.",
+  "homeTripAlreadyStarted": "This trip has already started. Open it with Continue Trip.",
   "homeUnknownKid": "Unknown",
   "homeEmptyTitle": "No Trip Today",
   "homeEmptyBody": "No active trips have been assigned\nto you today. Check back later.",

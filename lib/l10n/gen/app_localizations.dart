@@ -2404,6 +2404,30 @@ abstract class AppLocalizations {
   /// **'Continue Trip'**
   String get homeContinueTrip;
 
+  /// No description provided for @homeRouteCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed ✓'**
+  String get homeRouteCompleted;
+
+  /// No description provided for @homeRouteDoneToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s trip is done'**
+  String get homeRouteDoneToday;
+
+  /// No description provided for @homeTripAlreadyCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s trip for this route is already completed.'**
+  String get homeTripAlreadyCompleted;
+
+  /// No description provided for @homeTripAlreadyStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'This trip has already started. Open it with Continue Trip.'**
+  String get homeTripAlreadyStarted;
+
   /// No description provided for @homeUnknownKid.
   ///
   /// In en, this message translates to:

@@ -31,6 +31,14 @@ mixin _$AssignedRoute {
   @JsonKey(readValue: readTripStarted, fromJson: looseBool)
   bool get tripStarted;
 
+  /// Today's state of the route; a route can be run once a day.
+  @JsonKey(unknownEnumValue: TodayStatus.unknown)
+  TodayStatus get todayStatus;
+
+  /// Backend key is `TripCompleted`: today's trip is already done.
+  @JsonKey(readValue: readTripCompleted, fromJson: looseBool)
+  bool get tripCompleted;
+
   /// The running trip, when [tripStarted].
   Trip? get tripDetails;
   List<RoutePassenger> get passengers;
@@ -62,6 +70,10 @@ mixin _$AssignedRoute {
                 other.tripType == tripType) &&
             (identical(other.tripStarted, tripStarted) ||
                 other.tripStarted == tripStarted) &&
+            (identical(other.todayStatus, todayStatus) ||
+                other.todayStatus == todayStatus) &&
+            (identical(other.tripCompleted, tripCompleted) ||
+                other.tripCompleted == tripCompleted) &&
             (identical(other.tripDetails, tripDetails) ||
                 other.tripDetails == tripDetails) &&
             const DeepCollectionEquality()
@@ -78,12 +90,14 @@ mixin _$AssignedRoute {
       startTime,
       tripType,
       tripStarted,
+      todayStatus,
+      tripCompleted,
       tripDetails,
       const DeepCollectionEquality().hash(passengers));
 
   @override
   String toString() {
-    return 'AssignedRoute(routeId: $routeId, routeTitle: $routeTitle, vehicleNumber: $vehicleNumber, startTime: $startTime, tripType: $tripType, tripStarted: $tripStarted, tripDetails: $tripDetails, passengers: $passengers)';
+    return 'AssignedRoute(routeId: $routeId, routeTitle: $routeTitle, vehicleNumber: $vehicleNumber, startTime: $startTime, tripType: $tripType, tripStarted: $tripStarted, todayStatus: $todayStatus, tripCompleted: $tripCompleted, tripDetails: $tripDetails, passengers: $passengers)';
   }
 }
 
@@ -101,6 +115,9 @@ abstract mixin class $AssignedRouteCopyWith<$Res> {
       @JsonKey(unknownEnumValue: TripType.unknown) TripType tripType,
       @JsonKey(readValue: readTripStarted, fromJson: looseBool)
       bool tripStarted,
+      @JsonKey(unknownEnumValue: TodayStatus.unknown) TodayStatus todayStatus,
+      @JsonKey(readValue: readTripCompleted, fromJson: looseBool)
+      bool tripCompleted,
       Trip? tripDetails,
       List<RoutePassenger> passengers});
 
@@ -126,6 +143,8 @@ class _$AssignedRouteCopyWithImpl<$Res>
     Object? startTime = freezed,
     Object? tripType = null,
     Object? tripStarted = null,
+    Object? todayStatus = null,
+    Object? tripCompleted = null,
     Object? tripDetails = freezed,
     Object? passengers = null,
   }) {
@@ -153,6 +172,14 @@ class _$AssignedRouteCopyWithImpl<$Res>
       tripStarted: null == tripStarted
           ? _self.tripStarted
           : tripStarted // ignore: cast_nullable_to_non_nullable
+              as bool,
+      todayStatus: null == todayStatus
+          ? _self.todayStatus
+          : todayStatus // ignore: cast_nullable_to_non_nullable
+              as TodayStatus,
+      tripCompleted: null == tripCompleted
+          ? _self.tripCompleted
+          : tripCompleted // ignore: cast_nullable_to_non_nullable
               as bool,
       tripDetails: freezed == tripDetails
           ? _self.tripDetails
@@ -281,6 +308,10 @@ extension AssignedRoutePatterns on AssignedRoute {
             @JsonKey(unknownEnumValue: TripType.unknown) TripType tripType,
             @JsonKey(readValue: readTripStarted, fromJson: looseBool)
             bool tripStarted,
+            @JsonKey(unknownEnumValue: TodayStatus.unknown)
+            TodayStatus todayStatus,
+            @JsonKey(readValue: readTripCompleted, fromJson: looseBool)
+            bool tripCompleted,
             Trip? tripDetails,
             List<RoutePassenger> passengers)?
         $default, {
@@ -296,6 +327,8 @@ extension AssignedRoutePatterns on AssignedRoute {
             _that.startTime,
             _that.tripType,
             _that.tripStarted,
+            _that.todayStatus,
+            _that.tripCompleted,
             _that.tripDetails,
             _that.passengers);
       case _:
@@ -326,6 +359,10 @@ extension AssignedRoutePatterns on AssignedRoute {
             @JsonKey(unknownEnumValue: TripType.unknown) TripType tripType,
             @JsonKey(readValue: readTripStarted, fromJson: looseBool)
             bool tripStarted,
+            @JsonKey(unknownEnumValue: TodayStatus.unknown)
+            TodayStatus todayStatus,
+            @JsonKey(readValue: readTripCompleted, fromJson: looseBool)
+            bool tripCompleted,
             Trip? tripDetails,
             List<RoutePassenger> passengers)
         $default,
@@ -340,6 +377,8 @@ extension AssignedRoutePatterns on AssignedRoute {
             _that.startTime,
             _that.tripType,
             _that.tripStarted,
+            _that.todayStatus,
+            _that.tripCompleted,
             _that.tripDetails,
             _that.passengers);
       case _:
@@ -369,6 +408,10 @@ extension AssignedRoutePatterns on AssignedRoute {
             @JsonKey(unknownEnumValue: TripType.unknown) TripType tripType,
             @JsonKey(readValue: readTripStarted, fromJson: looseBool)
             bool tripStarted,
+            @JsonKey(unknownEnumValue: TodayStatus.unknown)
+            TodayStatus todayStatus,
+            @JsonKey(readValue: readTripCompleted, fromJson: looseBool)
+            bool tripCompleted,
             Trip? tripDetails,
             List<RoutePassenger> passengers)?
         $default,
@@ -383,6 +426,8 @@ extension AssignedRoutePatterns on AssignedRoute {
             _that.startTime,
             _that.tripType,
             _that.tripStarted,
+            _that.todayStatus,
+            _that.tripCompleted,
             _that.tripDetails,
             _that.passengers);
       case _:
@@ -403,6 +448,10 @@ class _AssignedRoute implements AssignedRoute {
       this.tripType = TripType.unknown,
       @JsonKey(readValue: readTripStarted, fromJson: looseBool)
       this.tripStarted = false,
+      @JsonKey(unknownEnumValue: TodayStatus.unknown)
+      this.todayStatus = TodayStatus.unknown,
+      @JsonKey(readValue: readTripCompleted, fromJson: looseBool)
+      this.tripCompleted = false,
       this.tripDetails,
       final List<RoutePassenger> passengers = const <RoutePassenger>[]})
       : _passengers = passengers;
@@ -431,6 +480,16 @@ class _AssignedRoute implements AssignedRoute {
   @override
   @JsonKey(readValue: readTripStarted, fromJson: looseBool)
   final bool tripStarted;
+
+  /// Today's state of the route; a route can be run once a day.
+  @override
+  @JsonKey(unknownEnumValue: TodayStatus.unknown)
+  final TodayStatus todayStatus;
+
+  /// Backend key is `TripCompleted`: today's trip is already done.
+  @override
+  @JsonKey(readValue: readTripCompleted, fromJson: looseBool)
+  final bool tripCompleted;
 
   /// The running trip, when [tripStarted].
   @override
@@ -475,6 +534,10 @@ class _AssignedRoute implements AssignedRoute {
                 other.tripType == tripType) &&
             (identical(other.tripStarted, tripStarted) ||
                 other.tripStarted == tripStarted) &&
+            (identical(other.todayStatus, todayStatus) ||
+                other.todayStatus == todayStatus) &&
+            (identical(other.tripCompleted, tripCompleted) ||
+                other.tripCompleted == tripCompleted) &&
             (identical(other.tripDetails, tripDetails) ||
                 other.tripDetails == tripDetails) &&
             const DeepCollectionEquality()
@@ -491,12 +554,14 @@ class _AssignedRoute implements AssignedRoute {
       startTime,
       tripType,
       tripStarted,
+      todayStatus,
+      tripCompleted,
       tripDetails,
       const DeepCollectionEquality().hash(_passengers));
 
   @override
   String toString() {
-    return 'AssignedRoute(routeId: $routeId, routeTitle: $routeTitle, vehicleNumber: $vehicleNumber, startTime: $startTime, tripType: $tripType, tripStarted: $tripStarted, tripDetails: $tripDetails, passengers: $passengers)';
+    return 'AssignedRoute(routeId: $routeId, routeTitle: $routeTitle, vehicleNumber: $vehicleNumber, startTime: $startTime, tripType: $tripType, tripStarted: $tripStarted, todayStatus: $todayStatus, tripCompleted: $tripCompleted, tripDetails: $tripDetails, passengers: $passengers)';
   }
 }
 
@@ -516,6 +581,9 @@ abstract mixin class _$AssignedRouteCopyWith<$Res>
       @JsonKey(unknownEnumValue: TripType.unknown) TripType tripType,
       @JsonKey(readValue: readTripStarted, fromJson: looseBool)
       bool tripStarted,
+      @JsonKey(unknownEnumValue: TodayStatus.unknown) TodayStatus todayStatus,
+      @JsonKey(readValue: readTripCompleted, fromJson: looseBool)
+      bool tripCompleted,
       Trip? tripDetails,
       List<RoutePassenger> passengers});
 
@@ -542,6 +610,8 @@ class __$AssignedRouteCopyWithImpl<$Res>
     Object? startTime = freezed,
     Object? tripType = null,
     Object? tripStarted = null,
+    Object? todayStatus = null,
+    Object? tripCompleted = null,
     Object? tripDetails = freezed,
     Object? passengers = null,
   }) {
@@ -569,6 +639,14 @@ class __$AssignedRouteCopyWithImpl<$Res>
       tripStarted: null == tripStarted
           ? _self.tripStarted
           : tripStarted // ignore: cast_nullable_to_non_nullable
+              as bool,
+      todayStatus: null == todayStatus
+          ? _self.todayStatus
+          : todayStatus // ignore: cast_nullable_to_non_nullable
+              as TodayStatus,
+      tripCompleted: null == tripCompleted
+          ? _self.tripCompleted
+          : tripCompleted // ignore: cast_nullable_to_non_nullable
               as bool,
       tripDetails: freezed == tripDetails
           ? _self.tripDetails

@@ -79,12 +79,17 @@ Object? readLng(Map<dynamic, dynamic> m, String _) =>
 Object? readTripStarted(Map<dynamic, dynamic> m, String _) =>
     firstOf(m, ['TripStarted', 'tripStarted']);
 
+/// `TripCompleted` (PascalCase, assigned-route endpoint) | `tripCompleted`
+Object? readTripCompleted(Map<dynamic, dynamic> m, String _) =>
+    firstOf(m, ['TripCompleted', 'tripCompleted']);
+
 /// `tripStatus` | `status`, lower-cased.
 Object? readTripStatus(Map<dynamic, dynamic> m, String _) =>
     lowerCased(firstOf(m, ['tripStatus', 'status']));
 
 /// `type` lower-cased (trip documents; the app compared it case-insensitively).
-Object? readTypeLower(Map<dynamic, dynamic> m, String _) => lowerCased(m['type']);
+Object? readTypeLower(Map<dynamic, dynamic> m, String _) =>
+    lowerCased(m['type']);
 
 /// `tripType` lower-cased (passenger rows carry the trip's direction).
 Object? readTripTypeLower(Map<dynamic, dynamic> m, String _) =>

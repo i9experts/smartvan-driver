@@ -19,6 +19,13 @@ _AssignedRoute _$AssignedRouteFromJson(Map<String, dynamic> json) =>
       tripStarted: readTripStarted(json, 'tripStarted') == null
           ? false
           : looseBool(readTripStarted(json, 'tripStarted')),
+      todayStatus: $enumDecodeNullable(
+              _$TodayStatusEnumMap, json['todayStatus'],
+              unknownValue: TodayStatus.unknown) ??
+          TodayStatus.unknown,
+      tripCompleted: readTripCompleted(json, 'tripCompleted') == null
+          ? false
+          : looseBool(readTripCompleted(json, 'tripCompleted')),
       tripDetails: json['tripDetails'] == null
           ? null
           : Trip.fromJson(json['tripDetails'] as Map<String, dynamic>),
@@ -36,6 +43,8 @@ Map<String, dynamic> _$AssignedRouteToJson(_AssignedRoute instance) =>
       'startTime': instance.startTime?.toIso8601String(),
       'tripType': _$TripTypeEnumMap[instance.tripType]!,
       'tripStarted': instance.tripStarted,
+      'todayStatus': _$TodayStatusEnumMap[instance.todayStatus]!,
+      'tripCompleted': instance.tripCompleted,
       'tripDetails': instance.tripDetails,
       'passengers': instance.passengers,
     };
@@ -44,4 +53,11 @@ const _$TripTypeEnumMap = {
   TripType.pick: 'pick',
   TripType.drop: 'drop',
   TripType.unknown: 'unknown',
+};
+
+const _$TodayStatusEnumMap = {
+  TodayStatus.notStarted: 'not_started',
+  TodayStatus.ongoing: 'ongoing',
+  TodayStatus.completed: 'completed',
+  TodayStatus.unknown: 'unknown',
 };

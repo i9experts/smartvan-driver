@@ -29,7 +29,7 @@ void main() {
       env.adapter.onGet('/route/getAssignedTripByDriver',
           (s) => s.reply(200, fixture('trip/assigned_routes.json')));
       final routes = await repo.assignedRoutes();
-      expect(routes, hasLength(3));
+      expect(routes, hasLength(4));
       expect(routes.first.tripStarted, isTrue);
       expect(routes.first.passengers, hasLength(2));
     });

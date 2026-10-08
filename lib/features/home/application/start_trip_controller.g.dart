@@ -7,7 +7,7 @@ part of 'start_trip_controller.dart';
 // **************************************************************************
 
 String _$startTripControllerHash() =>
-    r'7bc3f59fddcf21e8bae3f3a4bc625a845ff40728';
+    r'dbc4986e01ddb7654062253c5218f713dd108cb6';
 
 /// Starts a trip from a route. State is the id of the route being started
 /// (null when idle).

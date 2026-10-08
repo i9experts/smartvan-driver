@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/network/json_helpers.dart';
 import 'route_passenger.dart';
+import 'today_status.dart';
 import 'trip.dart';
 import 'trip_type.dart';
 
@@ -26,6 +27,16 @@ abstract class AssignedRoute with _$AssignedRoute {
     @Default(false)
     bool tripStarted,
 
+    /// Today's state of the route; a route can be run once a day.
+    @JsonKey(unknownEnumValue: TodayStatus.unknown)
+    @Default(TodayStatus.unknown)
+    TodayStatus todayStatus,
+
+    /// Backend key is `TripCompleted`: today's trip is already done.
+    @JsonKey(readValue: readTripCompleted, fromJson: looseBool)
+    @Default(false)
+    bool tripCompleted,
+
     /// The running trip, when [tripStarted].
     Trip? tripDetails,
     @Default(<RoutePassenger>[]) List<RoutePassenger> passengers,
@@ -33,4 +44,11 @@ abstract class AssignedRoute with _$AssignedRoute {
 
   factory AssignedRoute.fromJson(Map<String, dynamic> json) =>
       _$AssignedRouteFromJson(json);
+}
+
+extension AssignedRouteToday on AssignedRoute {
+  /// Today's trip of this route is finished and cannot be started again.
+  bool get isCompletedToday =>
+      todayStatus == TodayStatus.completed ||
+      (tripCompleted && todayStatus != TodayStatus.ongoing);
 }

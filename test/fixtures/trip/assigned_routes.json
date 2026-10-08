@@ -12,12 +12,26 @@
         "_id": "65f000000000000000000a01",
         "status": "ongoing",
         "type": "pick",
-        "tripStart": { "startTime": "2026-10-06T08:00:00.000Z" }
+        "tripStart": {
+          "startTime": "2026-10-06T08:00:00.000Z"
+        }
       },
       "passengers": [
-        { "kidId": "kid-001", "fullname": "Test Kid One", "image": "https://example.test/img/1.png", "grade": "3" },
-        { "kidId": "kid-002", "fullname": "Test Kid Two", "image": null, "grade": 4 }
-      ]
+        {
+          "kidId": "kid-001",
+          "fullname": "Test Kid One",
+          "image": "https://example.test/img/1.png",
+          "grade": "3"
+        },
+        {
+          "kidId": "kid-002",
+          "fullname": "Test Kid Two",
+          "image": null,
+          "grade": 4
+        }
+      ],
+      "todayStatus": "ongoing",
+      "TripCompleted": false
     },
     {
       "routeId": "65f000000000000000000b02",
@@ -26,12 +40,25 @@
       "startTime": "2026-10-06T12:00:00.000Z",
       "tripType": "drop",
       "TripStarted": false,
-      "passengers": []
+      "passengers": [],
+      "todayStatus": "not_started",
+      "TripCompleted": false
     },
     {
       "routeId": "65f000000000000000000b03",
       "tripType": "excursion",
       "tripStarted": "true"
+    },
+    {
+      "routeId": "65f000000000000000000b04",
+      "routeTitle": "Sample School - Evening Drop",
+      "vehicleNumber": "TST-1234",
+      "startTime": "2026-10-06T13:00:00.000Z",
+      "tripType": "drop",
+      "TripStarted": false,
+      "todayStatus": "completed",
+      "TripCompleted": true,
+      "passengers": []
     }
   ]
 }
