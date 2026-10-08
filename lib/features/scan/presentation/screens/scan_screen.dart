@@ -6,8 +6,10 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../../l10n/l10n.dart';
 import '../../application/scan_controller.dart';
 import '../../application/scan_state.dart';
+import '../../application/scan_window.dart';
 import '../widgets/qr_scanner_view.dart';
 import '../widgets/scan_outcome_cards.dart';
+import '../widgets/scan_overlay.dart';
 
 /// Continuous scanner for student QR cards. Each successful scan shows a
 /// result card for a moment, then scanning resumes — so a line of kids can
@@ -29,8 +31,17 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     formats: const [BarcodeFormat.qrCode],
   );
 
+  /// Counts codes read inside the square; the overlay blinks on each.
+  final ValueNotifier<int> _detections = ValueNotifier(0);
+
+  void _onCode(String raw) {
+    _detections.value++;
+    ref.read(scanControllerProvider.notifier).onCode(raw);
+  }
+
   @override
   void dispose() {
+    _detections.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -75,38 +86,31 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          ref.watch(scannerViewBuilderProvider)(
-            context,
-            _controller,
-            (raw) => ref.read(scanControllerProvider.notifier).onCode(raw),
-          ),
-          // Viewfinder
-          Center(
-            child: Container(
-              width: 240,
-              height: 240,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 3),
-                borderRadius: BorderRadius.circular(20),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final area = ScanArea.square(constraints.biggest);
+          return Stack(
+            children: [
+              ref.watch(scannerViewBuilderProvider)(
+                  context, _controller, area, _onCode),
+              ScanOverlay(window: area.window, detections: _detections),
+              if (scan.busy)
+                const Center(
+                    child: CircularProgressIndicator(color: Colors.white)),
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 24,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: outcome == null
+                      ? ScanHintCard(scannedCount: scan.session.length)
+                      : ScanOutcomeCard(outcome: outcome),
+                ),
               ),
-            ),
-          ),
-          if (scan.busy)
-            const Center(child: CircularProgressIndicator(color: Colors.white)),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 24,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: outcome == null
-                  ? ScanHintCard(scannedCount: scan.session.length)
-                  : ScanOutcomeCard(outcome: outcome),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

@@ -10,7 +10,9 @@ import 'package:smartvan_driver/features/scan/application/scan_controller.dart';
 import 'package:smartvan_driver/features/scan/application/scan_state.dart';
 import 'package:smartvan_driver/features/scan/data/scan_repository.dart';
 import 'package:smartvan_driver/features/scan/presentation/screens/scan_screen.dart';
+import 'package:smartvan_driver/features/scan/application/scan_window.dart';
 import 'package:smartvan_driver/features/scan/presentation/widgets/qr_scanner_view.dart';
+import 'package:smartvan_driver/features/scan/presentation/widgets/scan_overlay.dart';
 import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
 import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
 
@@ -163,6 +165,7 @@ void main() {
 
   group('ScanScreen', () {
     void Function(String)? emit;
+    ScanArea? lastArea;
 
     Widget app({List<Override>? o}) => routerHost(
           {
@@ -176,13 +179,38 @@ void main() {
           overrides: [
             ...(o ?? overrides()),
             scannerViewBuilderProvider
-                .overrideWithValue((context, controller, onCode) {
+                .overrideWithValue((context, controller, area, onCode) {
               emit = onCode;
+              lastArea = area;
               return const ColoredBox(
                   color: Colors.black12, child: SizedBox.expand());
             }),
           ],
         );
+
+    testWidgets('the camera reads only the centred square the overlay draws',
+        (tester) async {
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      final area = lastArea!;
+      expect(area.window.width, area.window.height); // a square
+      expect(area.window.center, area.size.center(Offset.zero));
+      expect(area.window.width, lessThan(area.size.width));
+      expect(find.byType(ScanOverlay), findsOneWidget);
+      expect(tester.widget<ScanOverlay>(find.byType(ScanOverlay)).window,
+          area.window);
+    });
+
+    testWidgets('a code read in the square blinks the overlay, then it settles',
+        (tester) async {
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      emit!(card);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(tester.hasRunningAnimations, isTrue); // blinking
+      await tester.pumpAndSettle();
+      expect(tester.hasRunningAnimations, isFalse);
+    });
 
     testWidgets('opens with the hint, title and torch', (tester) async {
       await tester.pumpWidget(app());
