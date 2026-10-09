@@ -103,7 +103,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
           ElevatedButton(
             onPressed: () => Navigator.pop(dialogContext, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B2B6B),
+              backgroundColor: const Color(0xFF1B3B69),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
@@ -283,12 +283,12 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                       child: Row(
                         children: [
                           const Icon(Icons.people,
-                              color: Color(0xFF1B2B6B), size: 18),
+                              color: Color(0xFF1B3B69), size: 18),
                           const SizedBox(width: 6),
                           Text(
                             l10n.tripPassengersCount(total),
                             style: const TextStyle(
-                              color: Color(0xFF1B2B6B),
+                              color: Color(0xFF1B3B69),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Poppins',

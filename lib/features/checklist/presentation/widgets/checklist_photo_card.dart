@@ -27,7 +27,7 @@ class ChecklistPhotoCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 child: Image.file(photo!,
                     width: 48, height: 48, fit: BoxFit.cover))
-            : const Icon(Icons.photo_camera_outlined, color: Color(0xFF1B2B6B)),
+            : const Icon(Icons.photo_camera_outlined, color: Color(0xFF1B3B69)),
         title: Text(
             hasPhoto ? l10n.checklistPhotoAdded : l10n.checklistAddPhoto,
             style: const TextStyle(fontFamily: 'Poppins')),

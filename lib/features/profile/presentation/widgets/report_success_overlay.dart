@@ -61,8 +61,8 @@ class ReportSuccessOverlay extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: onDone,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFB800),
-                    foregroundColor: const Color(0xFF1B2B6B),
+                    backgroundColor: const Color(0xFFFEC610),
+                    foregroundColor: const Color(0xFF1B3B69),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),

@@ -5,9 +5,9 @@ import '../../../passengers/data/models/scan_result.dart';
 import '../../application/scan_state.dart';
 
 const _green = Color(0xFF27AE60);
-const _navy = Color(0xFF1B2B6B);
+const _navy = Color(0xFF1B3B69);
 const _red = Color(0xFFE53935);
-const _amber = Color(0xFFFFB800);
+const _amber = Color(0xFFFEC610);
 
 /// What the result card shows for an [ScanOutcome].
 class _View {

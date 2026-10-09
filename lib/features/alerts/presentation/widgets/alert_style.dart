@@ -19,10 +19,10 @@ class AlertStyle {
           const AlertStyle(Color(0xFF27AE60), Icons.payment_outlined),
         AlertType.trip ||
         AlertType.newTrip =>
-          const AlertStyle(Color(0xFF1B2B6B), Icons.directions_bus_outlined),
+          const AlertStyle(Color(0xFF1B3B69), Icons.directions_bus_outlined),
         AlertType.profile =>
           const AlertStyle(Color(0xFF27AE60), Icons.verified_outlined),
-        _ => const AlertStyle(Color(0xFFFFB800), Icons.notifications_outlined),
+        _ => const AlertStyle(Color(0xFFFEC610), Icons.notifications_outlined),
       };
 
   /// Detail screen: like the list, except `new_trip` and `profile` use the
@@ -34,8 +34,8 @@ class AlertStyle {
         AlertType.payment =>
           const AlertStyle(Color(0xFF27AE60), Icons.payment_outlined),
         AlertType.trip =>
-          const AlertStyle(Color(0xFF1B2B6B), Icons.directions_bus_outlined),
-        _ => const AlertStyle(Color(0xFFFFB800), Icons.notifications_outlined),
+          const AlertStyle(Color(0xFF1B3B69), Icons.directions_bus_outlined),
+        _ => const AlertStyle(Color(0xFFFEC610), Icons.notifications_outlined),
       };
 }
 

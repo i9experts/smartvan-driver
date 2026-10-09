@@ -101,7 +101,7 @@ class _KidHeader extends StatelessWidget {
           height: 80,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFFFB800), width: 3),
+            border: Border.all(color: const Color(0xFFFEC610), width: 3),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.2),
@@ -131,7 +131,7 @@ class _KidHeader extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.location_on, color: Color(0xFFFFB800), size: 14),
+            const Icon(Icons.location_on, color: Color(0xFFFEC610), size: 14),
             const SizedBox(width: 4),
             Text(
               location,
@@ -238,7 +238,7 @@ class _AvatarFallback extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+          colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
         ),
       ),
       child: Center(

@@ -21,7 +21,7 @@ class ProfileSliverHeader extends StatelessWidget {
       floating: false,
       pinned: true,
       automaticallyImplyLeading: false,
-      backgroundColor: const Color(0xFF1B2B6B),
+      backgroundColor: const Color(0xFF1B3B69),
       surfaceTintColor: Colors.transparent,
       actions: [
         IconButton(
@@ -72,7 +72,7 @@ class ProfileSliverHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+          colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
         ),
       ),
       child: SafeArea(
@@ -85,7 +85,7 @@ class ProfileSliverHeader extends StatelessWidget {
               height: 90,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFFFB800), width: 3),
+                border: Border.all(color: const Color(0xFFFEC610), width: 3),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.2),
@@ -118,13 +118,13 @@ class ProfileSliverHeader extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFB800).withValues(alpha: 0.2),
+                color: const Color(0xFFFEC610).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 context.l10n.profileDriver,
                 style: const TextStyle(
-                  color: Color(0xFFFFB800),
+                  color: Color(0xFFFEC610),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Poppins',
@@ -155,7 +155,7 @@ class _CollapsedTitle extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFFFB800), width: 2),
+                border: Border.all(color: const Color(0xFFFEC610), width: 2),
               ),
               child: ClipOval(
                 child: image != null
@@ -195,7 +195,7 @@ class _AvatarFallback extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+          colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
         ),
       ),
       child: Center(

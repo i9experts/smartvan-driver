@@ -74,10 +74,10 @@ class ProfileInfoRow extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B2B6B).withValues(alpha: 0.1),
+              color: const Color(0xFF1B3B69).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: const Color(0xFF1B2B6B), size: 18),
+            child: Icon(icon, color: const Color(0xFF1B3B69), size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(

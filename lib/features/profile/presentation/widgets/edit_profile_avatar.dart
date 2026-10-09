@@ -28,7 +28,7 @@ class EditProfileAvatar extends StatelessWidget {
                 height: 90,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF1B2B6B), width: 2),
+                  border: Border.all(color: const Color(0xFF1B3B69), width: 2),
                 ),
                 child: ClipOval(
                   child: selectedImage != null
@@ -36,10 +36,10 @@ class EditProfileAvatar extends StatelessWidget {
                       : currentImageUrl != null
                           ? Image.network(currentImageUrl!, fit: BoxFit.cover)
                           : Container(
-                              color: const Color(0xFF1B2B6B)
+                              color: const Color(0xFF1B3B69)
                                   .withValues(alpha: 0.1),
                               child: const Icon(Icons.person,
-                                  size: 40, color: Color(0xFF1B2B6B)),
+                                  size: 40, color: Color(0xFF1B3B69)),
                             ),
                 ),
               ),
@@ -50,7 +50,7 @@ class EditProfileAvatar extends StatelessWidget {
                   width: 28,
                   height: 28,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFFFB800),
+                    color: Color(0xFFFEC610),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.camera_alt,
@@ -64,7 +64,7 @@ class EditProfileAvatar extends StatelessWidget {
         Text(
           context.l10n.editProfileChangeImage,
           style: const TextStyle(
-            color: Color(0xFF1B2B6B),
+            color: Color(0xFF1B3B69),
             fontSize: 13,
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w500,

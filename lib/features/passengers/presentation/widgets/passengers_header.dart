@@ -51,7 +51,7 @@ class PassengersHeader extends StatelessWidget {
           Row(
             children: [
               const SizedBox(width: 16),
-              _Stat(l10n.passengersTotal, '$total', const Color(0xFFFFB800)),
+              _Stat(l10n.passengersTotal, '$total', const Color(0xFFFEC610)),
               const SizedBox(width: 12),
               _Stat(l10n.passengersPickedLabel, '$picked', const Color(0xFF27AE60)),
               const SizedBox(width: 12),

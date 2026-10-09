@@ -34,7 +34,7 @@ class TripBanners extends StatelessWidget {
         _Banner(
           icon: Icons.cloud_off,
           text: l10n.tripSavedOffline(pending),
-          color: const Color(0xFFFFB800),
+          color: const Color(0xFFFEC610),
         ),
     ];
     if (warnings.isEmpty) return const SizedBox.shrink();

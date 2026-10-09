@@ -201,7 +201,7 @@ class _DescriptionField extends StatelessWidget {
         fillColor: Colors.white,
         border: border(const Color(0xFFEAECF0)),
         enabledBorder: border(const Color(0xFFEAECF0)),
-        focusedBorder: border(const Color(0xFF1B2B6B), 2),
+        focusedBorder: border(const Color(0xFF1B3B69), 2),
       ),
     );
   }
@@ -237,18 +237,18 @@ class _PhotoBox extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1B2B6B).withValues(alpha: 0.1),
+                      color: const Color(0xFF1B3B69).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.add_a_photo_outlined,
-                        color: Color(0xFF1B2B6B), size: 22),
+                        color: Color(0xFF1B3B69), size: 22),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     context.l10n.reportUpload,
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF1B2B6B),
+                      color: Color(0xFF1B3B69),
                       fontWeight: FontWeight.w500,
                       fontFamily: 'Poppins',
                     ),

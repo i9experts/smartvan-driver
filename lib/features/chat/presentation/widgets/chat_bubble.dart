@@ -10,7 +10,7 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const navy = Color(0xFF1B2B6B);
+    const navy = Color(0xFF1B3B69);
     final m = message;
     final mine = m.senderType == myChatRole;
     final locale = Localizations.localeOf(context).toString();

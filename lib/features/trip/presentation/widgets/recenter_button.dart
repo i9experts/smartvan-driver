@@ -13,7 +13,7 @@ class RecenterButton extends StatelessWidget {
         heroTag: null,
         onPressed: onPressed,
         backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1B2B6B),
+        foregroundColor: const Color(0xFF1B3B69),
         icon: const Icon(Icons.my_location, size: 20),
         label: Text(context.l10n.tripRecenter,
             style: const TextStyle(

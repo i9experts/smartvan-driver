@@ -6,7 +6,7 @@ import '../../../trip/data/models/trip_status.dart';
 import '../../../trip/data/models/trip_type.dart';
 
 const _grey = Color(0xFF8A94A6);
-const _navy = Color(0xFF1B2B6B);
+const _navy = Color(0xFF1B3B69);
 
 /// One entry of "Today's Trips".
 class TripCard extends StatelessWidget {
@@ -24,7 +24,7 @@ class TripCard extends StatelessWidget {
         ? (const Color(0xFF27AE60), l10n.homeTripActive)
         : isCompleted
             ? (_grey, l10n.homeTripCompleted)
-            : (const Color(0xFFFFB800), l10n.homeTripStarting);
+            : (const Color(0xFFFEC610), l10n.homeTripStarting);
     final barColors = isCompleted
         ? const [_grey, _grey]
         : isActive
@@ -128,7 +128,7 @@ class TripCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: isCompleted ? null : onView,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFB800),
+                      backgroundColor: const Color(0xFFFEC610),
                       foregroundColor: _navy,
                       disabledBackgroundColor: _grey.withOpacity(0.2),
                       shape: RoundedRectangleBorder(

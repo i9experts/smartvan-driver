@@ -88,7 +88,7 @@ class PassengerCard extends StatelessWidget {
                           color: isPicked
                               ? const Color(0xFF27AE60)
                               : isDropped
-                                  ? const Color(0xFF1B2B6B)
+                                  ? const Color(0xFF1B3B69)
                                   : const Color(0xFFEAECF0),
                           width: 2,
                         ),
@@ -127,7 +127,7 @@ class PassengerCard extends StatelessWidget {
                               Tooltip(
                                 message: l10n.passengersSavedOffline,
                                 child: const Icon(Icons.cloud_upload_outlined,
-                                    size: 16, color: Color(0xFFFFB800)),
+                                    size: 16, color: Color(0xFFFEC610)),
                               ),
                             ],
                             if (kid.id.isNotEmpty)
@@ -135,7 +135,7 @@ class PassengerCard extends StatelessWidget {
                                 tooltip: l10n.passengersMessageParent,
                                 visualDensity: VisualDensity.compact,
                                 icon: const Icon(Icons.chat_bubble_outline,
-                                    size: 18, color: Color(0xFF1B2B6B)),
+                                    size: 18, color: Color(0xFF1B3B69)),
                                 onPressed: onMessage,
                               ),
                           ],
@@ -234,7 +234,7 @@ class PassengerCard extends StatelessWidget {
           style: TextButton.styleFrom(
               padding: EdgeInsets.zero,
               visualDensity: VisualDensity.compact,
-              foregroundColor: const Color(0xFF1B2B6B)),
+              foregroundColor: const Color(0xFF1B3B69)),
         ),
       );
     }
@@ -245,7 +245,7 @@ class PassengerCard extends StatelessWidget {
       children: [
         Expanded(
             child: chip(Icons.timer_outlined,
-                l10n.passengersWaiting(waited.inMinutes, ss), const Color(0xFFFFB800))),
+                l10n.passengersWaiting(waited.inMinutes, ss), const Color(0xFFFEC610))),
         if (!isDropTrip && waited >= waitBeforeNoShow)
           TextButton(
             onPressed: stopBusy ? null : onNoShow,
@@ -319,17 +319,17 @@ class _ActionButton extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF1B2B6B).withValues(alpha: 0.1),
+                color: const Color(0xFF1B3B69).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                    color: const Color(0xFF1B2B6B).withValues(alpha: 0.3)),
+                    color: const Color(0xFF1B3B69).withValues(alpha: 0.3)),
               ),
               child: Text(
                 l10n.passengersDropButton,
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1B2B6B),
+                  color: Color(0xFF1B3B69),
                   fontFamily: 'Poppins',
                 ),
               ),
@@ -344,20 +344,20 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFB800).withValues(alpha: 0.1),
+          color: const Color(0xFFFEC610).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFFFB800).withValues(alpha: 0.5)),
+          border: Border.all(color: const Color(0xFFFEC610).withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
-            const Icon(Icons.arrow_upward, size: 14, color: Color(0xFFFFB800)),
+            const Icon(Icons.arrow_upward, size: 14, color: Color(0xFFFEC610)),
             const SizedBox(width: 4),
             Text(
               l10n.passengersPickUp,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFFFFB800),
+                color: Color(0xFFFEC610),
                 fontFamily: 'Poppins',
               ),
             ),
@@ -379,7 +379,7 @@ class _AvatarFallback extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF1B2B6B).withValues(alpha: 0.7),
+            const Color(0xFF1B3B69).withValues(alpha: 0.7),
             const Color(0xFF2D4099).withValues(alpha: 0.7),
           ],
         ),

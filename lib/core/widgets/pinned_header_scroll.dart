@@ -10,7 +10,7 @@ class PinnedHeaderScroll extends StatefulWidget {
     required this.onRefresh,
     required this.children,
     this.showBarAfter = 120,
-    this.refreshColor = const Color(0xFF1B2B6B),
+    this.refreshColor = const Color(0xFF1B3B69),
   });
 
   /// Shown at the top, full width, when scrolled past [showBarAfter].

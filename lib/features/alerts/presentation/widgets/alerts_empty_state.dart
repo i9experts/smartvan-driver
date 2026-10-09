@@ -15,11 +15,11 @@ class AlertsEmptyState extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B2B6B).withValues(alpha: 0.1),
+              color: const Color(0xFF1B3B69).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.notifications_off_outlined,
-                size: 40, color: Color(0xFF1B2B6B)),
+                size: 40, color: Color(0xFF1B3B69)),
           ),
           const SizedBox(height: 16),
           Text(

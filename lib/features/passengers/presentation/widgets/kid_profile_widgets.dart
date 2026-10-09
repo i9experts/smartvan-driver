@@ -71,7 +71,7 @@ class KidInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final callable = onCall != null;
-    final accent = callable ? const Color(0xFF27AE60) : const Color(0xFF1B2B6B);
+    final accent = callable ? const Color(0xFF27AE60) : const Color(0xFF1B3B69);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -148,11 +148,11 @@ class KidAddressCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B2B6B).withValues(alpha: 0.1),
+              color: const Color(0xFF1B3B69).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.home_outlined,
-                color: Color(0xFF1B2B6B), size: 18),
+                color: Color(0xFF1B3B69), size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(

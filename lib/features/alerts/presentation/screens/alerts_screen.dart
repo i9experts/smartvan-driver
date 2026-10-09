@@ -26,7 +26,7 @@ class AlertsScreen extends ConsumerWidget {
           ? const AlertsEmptyState()
           : RefreshIndicator(
               onRefresh: () => ref.refresh(alertsProvider.future),
-              color: const Color(0xFF1B2B6B),
+              color: const Color(0xFF1B3B69),
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: alerts.length,
@@ -77,18 +77,18 @@ class AlertsScreen extends ConsumerWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFB800),
+                      color: const Color(0xFFFEC610),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.send,
-                            color: Color(0xFF1B2B6B), size: 16),
+                            color: Color(0xFF1B3B69), size: 16),
                         const SizedBox(width: 6),
                         Text(
                           l10n.alertsSend,
                           style: const TextStyle(
-                            color: Color(0xFF1B2B6B),
+                            color: Color(0xFF1B3B69),
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Poppins',

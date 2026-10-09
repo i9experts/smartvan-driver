@@ -28,13 +28,13 @@ class HomeEmptyState extends StatelessWidget {
             height: 90,
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-                const Color(0xFF1B2B6B).withOpacity(0.1),
+                const Color(0xFF1B3B69).withOpacity(0.1),
                 const Color(0xFF2D4099).withOpacity(0.05),
               ]),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.directions_bus_outlined,
-                size: 44, color: Color(0xFF1B2B6B)),
+                size: 44, color: Color(0xFF1B3B69)),
           ),
           const SizedBox(height: 20),
           Text(l10n.homeEmptyTitle,
@@ -55,20 +55,20 @@ class HomeEmptyState extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFB800).withOpacity(0.1),
+              color: const Color(0xFFFEC610).withOpacity(0.1),
               borderRadius: BorderRadius.circular(30),
               border:
-                  Border.all(color: const Color(0xFFFFB800).withOpacity(0.3)),
+                  Border.all(color: const Color(0xFFFEC610).withOpacity(0.3)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.info_outline,
-                    color: Color(0xFFFFB800), size: 16),
+                    color: Color(0xFFFEC610), size: 16),
                 const SizedBox(width: 6),
                 Text(l10n.homeEmptyNotified,
                     style: const TextStyle(
-                        color: Color(0xFFFFB800),
+                        color: Color(0xFFFEC610),
                         fontSize: 12,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w500)),

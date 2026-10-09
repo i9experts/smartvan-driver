@@ -45,7 +45,7 @@ class HomeHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+          colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
         ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(32),
@@ -173,7 +173,7 @@ class _Avatar extends StatelessWidget {
     final fallback = Container(
       decoration: const BoxDecoration(
         gradient:
-            LinearGradient(colors: [Color(0xFF2D4099), Color(0xFF1B2B6B)]),
+            LinearGradient(colors: [Color(0xFF2D4099), Color(0xFF1B3B69)]),
       ),
       child: Center(
         child: Text(
@@ -191,7 +191,7 @@ class _Avatar extends StatelessWidget {
       height: 54,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFFFB800), width: 2.5),
+        border: Border.all(color: const Color(0xFFFEC610), width: 2.5),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8)
         ],
@@ -226,7 +226,7 @@ class _LocationPill extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.location_on,
-                    color: Color(0xFFFFB800), size: 16),
+                    color: Color(0xFFFEC610), size: 16),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(location,
@@ -262,7 +262,7 @@ class _StatChip extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Icon(icon, color: const Color(0xFFFFB800), size: 20),
+              Icon(icon, color: const Color(0xFFFEC610), size: 20),
               const SizedBox(height: 4),
               Text(value,
                   style: const TextStyle(
@@ -309,7 +309,7 @@ class HomeCompactBar extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+          colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
         ),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(20),

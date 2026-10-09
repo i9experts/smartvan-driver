@@ -76,8 +76,8 @@ class ChecklistCard extends ConsumerWidget {
     if (t == null) return const SizedBox.shrink();
     final done = t.done;
     final color = !done
-        ? (t.required ? const Color(0xFFE53935) : const Color(0xFFFFB800))
-        : (t.allOk ? const Color(0xFF27AE60) : const Color(0xFFFFB800));
+        ? (t.required ? const Color(0xFFE53935) : const Color(0xFFFEC610))
+        : (t.allOk ? const Color(0xFF27AE60) : const Color(0xFFFEC610));
     final title = !done
         ? l10n.homeChecklistNotDone
         : (t.allOk ? l10n.homeChecklistDone : l10n.homeChecklistDoneIssues);
@@ -141,7 +141,7 @@ class DocExpiryBanner extends StatelessWidget {
     final l10n = context.l10n;
     final color = docs.any((d) => d.expired)
         ? const Color(0xFFE53935)
-        : const Color(0xFFFFB800);
+        : const Color(0xFFFEC610);
     final text = docs.map((d) => _line(l10n, d)).join(' · ');
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),

@@ -8,7 +8,7 @@ import '../../../trip/data/models/trip_type.dart';
 
 const _grey = Color(0xFF8A94A6);
 const _ink = Color(0xFF1A1A2E);
-const _navy = Color(0xFF1B2B6B);
+const _navy = Color(0xFF1B3B69);
 
 /// One of today's routes: schedule, passengers and Start / Continue Trip.
 class RouteCard extends StatelessWidget {
@@ -171,7 +171,7 @@ class _StatusPill extends StatelessWidget {
         decoration: BoxDecoration(
           color: started || completed
               ? const Color(0xFF27AE60).withOpacity(0.1)
-              : const Color(0xFFFFB800).withOpacity(0.15),
+              : const Color(0xFFFEC610).withOpacity(0.15),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(

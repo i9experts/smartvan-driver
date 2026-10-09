@@ -50,7 +50,7 @@ class LoginHeader extends StatelessWidget {
           Text(
             l10n.loginPortal,
             style: const TextStyle(
-              color: Color(0xFFFFB800),
+              color: Color(0xFFFEC610),
               fontSize: 13,
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w600,

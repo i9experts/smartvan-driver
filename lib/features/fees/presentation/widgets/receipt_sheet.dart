@@ -95,7 +95,7 @@ class ReceiptSheet extends ConsumerWidget {
                 style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1B2B6B),
+                    color: Color(0xFF1B3B69),
                     fontFamily: 'Poppins'),
               ),
               const SizedBox(height: 12),

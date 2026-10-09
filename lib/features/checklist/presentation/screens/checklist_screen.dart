@@ -25,7 +25,7 @@ class ChecklistScreen extends ConsumerStatefulWidget {
 }
 
 class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
-  static const _navy = Color(0xFF1B2B6B);
+  static const _navy = Color(0xFF1B3B69);
 
   // Form state: what the driver has tapped / typed so far.
   final Map<String, bool> _answers = {};
@@ -138,7 +138,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
         content: Text(
             issues > 0 ? l10n.checklistSavedIssues : l10n.checklistSavedOk),
         backgroundColor:
-            issues > 0 ? const Color(0xFFFFB800) : const Color(0xFF27AE60),
+            issues > 0 ? const Color(0xFFFEC610) : const Color(0xFF27AE60),
         behavior: SnackBarBehavior.floating,
       ));
       context.pop(true);
@@ -231,7 +231,7 @@ class _ChecklistScreenState extends ConsumerState<ChecklistScreen> {
                     onPressed: complete && !saving ? () => _submit(data) : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          issues > 0 ? const Color(0xFFFFB800) : _navy,
+                          issues > 0 ? const Color(0xFFFEC610) : _navy,
                       foregroundColor: issues > 0 ? _navy : Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),

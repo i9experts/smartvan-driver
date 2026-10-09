@@ -134,8 +134,8 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
               child: ElevatedButton(
                 onPressed: sending ? null : _send,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFB800),
-                  foregroundColor: const Color(0xFF1B2B6B),
+                  backgroundColor: const Color(0xFFFEC610),
+                  foregroundColor: const Color(0xFF1B3B69),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
@@ -144,7 +144,7 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Color(0xFF1B2B6B)),
+                            strokeWidth: 2, color: Color(0xFF1B3B69)),
                       )
                     : Text(
                         l10n.alertsSend,

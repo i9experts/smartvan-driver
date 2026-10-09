@@ -145,7 +145,7 @@ abstract class AppLocalizations {
   /// No description provided for @splashTagline.
   ///
   /// In en, this message translates to:
-  /// **'Safe Ride, Every Side'**
+  /// **'Track the Van. Stay Informed.'**
   String get splashTagline;
 
   /// No description provided for @loginPortal.

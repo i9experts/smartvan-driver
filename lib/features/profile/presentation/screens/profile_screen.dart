@@ -119,13 +119,13 @@ class ProfileScreen extends ConsumerWidget {
                     ProfileActionItem(
                       icon: Icons.folder_outlined,
                       label: l10n.profileMyDocuments,
-                      color: const Color(0xFF1B2B6B),
+                      color: const Color(0xFF1B3B69),
                       onTap: () => context.push(AppRoutes.documents),
                     ),
                     ProfileActionItem(
                       icon: Icons.lock_outlined,
                       label: l10n.profileChangePassword,
-                      color: const Color(0xFFFFB800),
+                      color: const Color(0xFFFEC610),
                       onTap: () => context.push(AppRoutes.changePassword),
                     ),
                     ProfileActionItem(

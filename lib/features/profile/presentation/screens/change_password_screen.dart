@@ -104,8 +104,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   context.popOrGo(AppRoutes.profile);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFB800),
-                  foregroundColor: const Color(0xFF1B2B6B),
+                  backgroundColor: const Color(0xFFFEC610),
+                  foregroundColor: const Color(0xFF1B3B69),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
@@ -151,20 +151,20 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1B2B6B).withValues(alpha: 0.08),
+                      color: const Color(0xFF1B3B69).withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.info_outline,
-                            color: Color(0xFF1B2B6B), size: 20),
+                            color: Color(0xFF1B3B69), size: 20),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             l10n.changePasswordHint,
                             style: const TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF1B2B6B),
+                              color: Color(0xFF1B3B69),
                               fontFamily: 'Poppins',
                             ),
                           ),

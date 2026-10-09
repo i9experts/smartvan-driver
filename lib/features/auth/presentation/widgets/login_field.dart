@@ -38,12 +38,12 @@ InputDecoration loginInputDecoration({
       fontSize: 14,
       fontFamily: 'Poppins',
     ),
-    prefixIcon: Icon(icon, color: const Color(0xFF1B2B6B)),
+    prefixIcon: Icon(icon, color: const Color(0xFF1B3B69)),
     suffixIcon: suffix,
     filled: true,
     fillColor: Colors.white,
     border: border(const Color(0xFFEAECF0)),
     enabledBorder: border(const Color(0xFFEAECF0)),
-    focusedBorder: border(const Color(0xFF1B2B6B), 2),
+    focusedBorder: border(const Color(0xFF1B3B69), 2),
   );
 }

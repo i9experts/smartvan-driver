@@ -29,7 +29,7 @@ class PassengersScreen extends ConsumerStatefulWidget {
 }
 
 class _PassengersScreenState extends ConsumerState<PassengersScreen> {
-  static const _navy = Color(0xFF1B2B6B);
+  static const _navy = Color(0xFF1B3B69);
 
   /// Refreshes the "waiting 1:23" timers on the cards.
   Timer? _ticker;
@@ -280,10 +280,10 @@ class _EmptyPassengers extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B2B6B).withValues(alpha: 0.1),
+              color: const Color(0xFF1B3B69).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.people_outline, size: 40, color: Color(0xFF1B2B6B)),
+            child: const Icon(Icons.people_outline, size: 40, color: Color(0xFF1B3B69)),
           ),
           const SizedBox(height: 16),
           Text(

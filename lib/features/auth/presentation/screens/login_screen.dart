@@ -65,7 +65,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)],
+            colors: [Color(0xFF1B3B69), Color(0xFF2D4099)],
           ),
         ),
         child: SafeArea(
@@ -145,8 +145,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: ElevatedButton(
                             onPressed: login.isLoading ? null : _signIn,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFFB800),
-                              foregroundColor: const Color(0xFF1B2B6B),
+                              backgroundColor: const Color(0xFFFEC610),
+                              foregroundColor: const Color(0xFF1B3B69),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -156,7 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     width: 24,
                                     height: 24,
                                     child: CircularProgressIndicator(
-                                      color: Color(0xFF1B2B6B),
+                                      color: Color(0xFF1B3B69),
                                       strokeWidth: 2,
                                     ),
                                   )

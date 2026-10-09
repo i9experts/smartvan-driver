@@ -13,7 +13,7 @@ import '../../data/models/conversation.dart';
 class ConversationsScreen extends ConsumerWidget {
   const ConversationsScreen({super.key});
 
-  static const _navy = Color(0xFF1B2B6B);
+  static const _navy = Color(0xFF1B3B69);
 
   String _time(DateTime? t, String locale) {
     if (t == null) return '';
@@ -112,7 +112,7 @@ class _ConversationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = conversation;
     final subtitle = c.kidNames.isEmpty ? '' : '${c.kidNames.join(', ')} · ';
-    const navy = Color(0xFF1B2B6B);
+    const navy = Color(0xFF1B3B69);
     return ListTile(
       tileColor: Colors.white,
       leading: CircleAvatar(

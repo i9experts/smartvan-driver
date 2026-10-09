@@ -36,7 +36,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonLoginFailed => 'Login failed. Please try again.';
 
   @override
-  String get splashTagline => 'Safe Ride, Every Side';
+  String get splashTagline => 'Track the Van. Stay Informed.';
 
   @override
   String get loginPortal => 'Driver Portal';

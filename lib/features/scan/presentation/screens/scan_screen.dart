@@ -22,7 +22,7 @@ class ScanScreen extends ConsumerStatefulWidget {
 }
 
 class _ScanScreenState extends ConsumerState<ScanScreen> {
-  static const _navy = Color(0xFF1B2B6B);
+  static const _navy = Color(0xFF1B3B69);
 
   final MobileScannerController _controller = MobileScannerController(
     // Not noDuplicates: on a drop trip the same card is scanned twice

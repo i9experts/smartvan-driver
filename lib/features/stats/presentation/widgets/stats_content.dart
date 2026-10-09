@@ -3,11 +3,11 @@ import '../../../../core/formatting/money_format.dart';
 import '../../../../l10n/l10n.dart';
 import '../../data/models/driver_stats.dart';
 
-const _navy = Color(0xFF1B2B6B);
+const _navy = Color(0xFF1B3B69);
 
 Color _scoreColor(int score) {
   if (score >= 85) return const Color(0xFF27AE60);
-  if (score >= 60) return const Color(0xFFFFB800);
+  if (score >= 60) return const Color(0xFFFEC610);
   return const Color(0xFFE53935);
 }
 

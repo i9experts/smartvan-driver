@@ -53,9 +53,9 @@ class FeeSummaryCard extends StatelessWidget {
               stat(
                   l10n.feesPaidOnline,
                   formatMoney(cur, summary.collectedOnline),
-                  const Color(0xFF1B2B6B)),
+                  const Color(0xFF1B3B69)),
               stat(l10n.feesPending, formatMoney(cur, summary.totalPending),
-                  const Color(0xFFFFB800)),
+                  const Color(0xFFFEC610)),
             ],
           ),
         ],

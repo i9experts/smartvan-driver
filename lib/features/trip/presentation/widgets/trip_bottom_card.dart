@@ -30,7 +30,7 @@ class TripBottomCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    const navy = Color(0xFF1B2B6B);
+    const navy = Color(0xFF1B3B69);
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -55,7 +55,7 @@ class TripBottomCard extends StatelessWidget {
                 height: 48,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                      colors: [Color(0xFF1B2B6B), Color(0xFF2D4099)]),
+                      colors: [Color(0xFF1B3B69), Color(0xFF2D4099)]),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.person, color: Colors.white, size: 26),
@@ -192,7 +192,7 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: const Color(0xFF1B2B6B), size: 18),
+        Icon(icon, color: const Color(0xFF1B3B69), size: 18),
         const SizedBox(height: 4),
         Text(
           value,

@@ -75,7 +75,7 @@ class ChatComposer extends StatelessWidget {
             IconButton.filled(
               onPressed: sending ? null : onSend,
               style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFF1B2B6B)),
+                  backgroundColor: const Color(0xFF1B3B69)),
               icon: sending
                   ? const SizedBox(
                       width: 18,

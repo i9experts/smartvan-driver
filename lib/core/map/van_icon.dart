@@ -7,7 +7,7 @@ const vanIconLogicalSize = 48.0;
 
 /// A van seen from above, nose pointing up (north at rotation 0).
 class VanIconPainter extends CustomPainter {
-  const VanIconPainter({this.body = const Color(0xFF1B2B6B)});
+  const VanIconPainter({this.body = const Color(0xFF1B3B69)});
 
   final Color body;
 

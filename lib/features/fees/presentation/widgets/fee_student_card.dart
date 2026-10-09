@@ -29,7 +29,7 @@ class FeeStatusBadge extends StatelessWidget {
         ),
       PaymentStatus.pending => (
           const Color(0xFFFFF6E5),
-          const Color(0xFFFFB800),
+          const Color(0xFFFEC610),
           l10n.feesStatusPending
         ),
       _ => (
@@ -93,7 +93,7 @@ class FeeStudentCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 22,
-                backgroundColor: const Color(0xFF1B2B6B).withValues(alpha: 0.1),
+                backgroundColor: const Color(0xFF1B3B69).withValues(alpha: 0.1),
                 backgroundImage:
                     s.image != null ? NetworkImage(s.image!) : null,
                 child: s.image == null
@@ -102,7 +102,7 @@ class FeeStudentCard extends StatelessWidget {
                             ? s.fullname[0].toUpperCase()
                             : '?',
                         style: const TextStyle(
-                            color: Color(0xFF1B2B6B),
+                            color: Color(0xFF1B3B69),
                             fontWeight: FontWeight.bold),
                       )
                     : null,
@@ -146,7 +146,7 @@ class FeeStudentCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   fontFamily: 'Poppins',
-                  color: Color(0xFF1B2B6B)),
+                  color: Color(0xFF1B3B69)),
             ),
           ],
           if (isPaid && s.paymentId != null)

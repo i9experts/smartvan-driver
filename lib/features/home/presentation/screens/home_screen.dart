@@ -194,13 +194,13 @@ class _HomeTab extends ConsumerWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1B2B6B).withOpacity(0.08),
+                      color: const Color(0xFF1B3B69).withOpacity(0.08),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(l10n.homeTripsCount(trips.length),
                         style: const TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF1B2B6B),
+                            color: Color(0xFF1B3B69),
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Poppins')),
                   ),
@@ -209,7 +209,7 @@ class _HomeTab extends ConsumerWidget {
               const SizedBox(height: 16),
               if (!home.hasValue)
                 const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF1B2B6B)))
+                    child: CircularProgressIndicator(color: Color(0xFF1B3B69)))
               else if (trips.isEmpty)
                 const HomeEmptyState()
               else
@@ -265,7 +265,7 @@ class _BottomNav extends StatelessWidget {
         onTap: onTap,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF1B2B6B),
+        selectedItemColor: const Color(0xFF1B3B69),
         unselectedItemColor: const Color(0xFF8A94A6),
         selectedLabelStyle: const TextStyle(
             fontSize: 11, fontWeight: FontWeight.w600, fontFamily: 'Poppins'),

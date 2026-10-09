@@ -24,7 +24,7 @@ class ChatScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
-  static const _navy = Color(0xFF1B2B6B);
+  static const _navy = Color(0xFF1B3B69);
   final _input = TextEditingController();
 
   @override

@@ -123,7 +123,7 @@ class FeeCollectionScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF0F3FF),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1B2B6B),
+        backgroundColor: const Color(0xFF1B3B69),
         title: Text(l10n.feesTitle,
             style: const TextStyle(
                 color: Colors.white,

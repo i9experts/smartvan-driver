@@ -73,12 +73,12 @@ class _IssueTypeSheet extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
                   color: selected == type
-                      ? const Color(0xFF1B2B6B).withValues(alpha: 0.05)
+                      ? const Color(0xFF1B3B69).withValues(alpha: 0.05)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: selected == type
-                        ? const Color(0xFF1B2B6B).withValues(alpha: 0.3)
+                        ? const Color(0xFF1B3B69).withValues(alpha: 0.3)
                         : const Color(0xFFEAECF0),
                   ),
                 ),
@@ -90,7 +90,7 @@ class _IssueTypeSheet extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         color: selected == type
-                            ? const Color(0xFF1B2B6B)
+                            ? const Color(0xFF1B3B69)
                             : const Color(0xFF1A1A2E),
                         fontWeight: selected == type
                             ? FontWeight.w600
@@ -100,7 +100,7 @@ class _IssueTypeSheet extends StatelessWidget {
                     ),
                     if (selected == type)
                       const Icon(Icons.check_circle,
-                          color: Color(0xFF1B2B6B), size: 20),
+                          color: Color(0xFF1B3B69), size: 20),
                   ],
                 ),
               ),

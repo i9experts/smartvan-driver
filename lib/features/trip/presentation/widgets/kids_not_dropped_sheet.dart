@@ -40,7 +40,7 @@ class KidsNotDroppedSheet extends StatefulWidget {
 
 class _KidsNotDroppedSheetState extends State<KidsNotDroppedSheet> {
   static const _red = Color(0xFFE53935);
-  static const _navy = Color(0xFF1B2B6B);
+  static const _navy = Color(0xFF1B3B69);
   static const _minNote = 5;
 
   bool _confirming = false;
