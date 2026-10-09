@@ -67,6 +67,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: Column(
             children: [
               const LoginHeader(),
+              // Leaves room for the van in the backdrop photo.
+              SizedBox(height: MediaQuery.sizeOf(context).height * 0.22),
               Expanded(
                 child: Container(
                   decoration: const BoxDecoration(
