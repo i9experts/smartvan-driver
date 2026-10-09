@@ -8,13 +8,14 @@ class LoginHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final compact = MediaQuery.sizeOf(context).height < 700;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: compact ? 16 : 32),
       child: Column(
         children: [
           Container(
-            width: 100,
-            height: 100,
+            width: compact ? 72 : 100,
+            height: compact ? 72 : 100,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
@@ -28,7 +29,7 @@ class LoginHeader extends StatelessWidget {
             ),
             child: ClipOval(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(compact ? 12 : 16),
                 child: Image.asset(
                   'assets/images/logo.png',
                   fit: BoxFit.contain,
@@ -36,7 +37,7 @@ class LoginHeader extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: compact ? 8 : 16),
           Text(
             l10n.appTitle,
             style: const TextStyle(

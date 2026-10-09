@@ -46,6 +46,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final login = ref.watch(loginControllerProvider);
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    // Hide the header while the keyboard is up so the form and Sign In stay visible.
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
 
     // Shows the server's real reason (account not found, wrong password, ...)
     // and a proper "no internet" message when offline.
@@ -66,9 +69,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           bottom: false,
           child: Column(
             children: [
-              const LoginHeader(),
-              // Leaves room for the van in the backdrop photo.
-              SizedBox(height: MediaQuery.sizeOf(context).height * 0.22),
+              if (!keyboardOpen) ...[
+                const LoginHeader(),
+                // Leaves room for the van in the backdrop photo.
+                SizedBox(height: screenHeight * (screenHeight < 700 ? 0.1 : 0.22)),
+              ] else
+                const SizedBox(height: 16),
               Expanded(
                 child: Container(
                   decoration: const BoxDecoration(
@@ -83,6 +89,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (!keyboardOpen) ...[
                         const SizedBox(height: 8),
                         Text(
                           l10n.loginWelcome,
@@ -103,6 +110,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 28),
+                        ],
                         LoginFieldLabel(l10n.loginIdLabel),
                         const SizedBox(height: 8),
                         TextFormField(

@@ -38,6 +38,21 @@ void main() {
         ],
       );
 
+  testWidgets('on a small phone with the keyboard open Sign In stays on screen',
+      (tester) async {
+    tester.view.physicalSize = const Size(750, 1334); // iPhone SE: 375x667
+    tester.view.devicePixelRatio = 2;
+    tester.view.viewInsets = const FakeViewPadding(bottom: 600); // 300pt keyboard
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+
+    final button = tester.getRect(find.text('Sign In'));
+    expect(button.bottom, lessThanOrEqualTo(667 - 300));
+    expect(button.top, greaterThanOrEqualTo(0));
+  });
+
   testWidgets('shows the English texts', (tester) async {
     await tester.pumpWidget(app());
     await tester.pumpAndSettle();
