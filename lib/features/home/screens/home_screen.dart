@@ -57,7 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _loadMyRoutes() async {
     try {
-      final response = await ApiService.get('/route/getAssignedTripByDriver');
+      final response = await ApiService.get('/Route/getAssignedTripByDriver');
       if (response.statusCode == 200) {
         final raw = response.data;
         final data = raw['data'];
