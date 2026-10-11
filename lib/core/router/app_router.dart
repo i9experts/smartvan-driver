@@ -13,6 +13,7 @@ import '../../features/profile/screens/documents_screen.dart';
 import '../../features/profile/screens/change_password_screen.dart';
 import '../../features/profile/screens/report_issue_screen.dart';
 import '../../features/fees/screens/fee_collection_screen.dart';
+import '../../features/rating/screens/rate_trip_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -84,6 +85,16 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/fee-collection',
       builder: (context, state) => const FeeCollectionScreen(),
+    ),
+    GoRoute(
+      path: '/rate-trip',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final items = (extra?['pendingRatees'] as List<dynamic>?) ?? [];
+        return RateTripScreen(
+          pendingRatees: items.cast<Map<String, dynamic>>(),
+        );
+      },
     ),
   ],
 );
