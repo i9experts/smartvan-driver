@@ -317,7 +317,29 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                   borderRadius: BorderRadius.circular(10)),
             ),
           );
-          context.go('/home');
+
+          // Give the driver a chance to rate the parent(s) on this trip
+          // before heading home. Best-effort — if this fails, just go home
+          // as before rather than blocking the end-trip flow.
+          List<dynamic> pendingRatees = [];
+          try {
+            final pendingResponse = await ApiService.get('/rating/pendingRatings');
+            if (pendingResponse.statusCode == 200) {
+              final raw = pendingResponse.data;
+              final all = (raw['data'] ?? raw ?? []) as List<dynamic>;
+              pendingRatees =
+                  all.where((r) => r['tripId'] == tripId).toList();
+            }
+          } catch (e) {
+            debugPrint('Failed to load pending ratings: $e');
+          }
+
+          if (!mounted) return;
+          if (pendingRatees.isNotEmpty) {
+            context.go('/rate-trip', extra: {'pendingRatees': pendingRatees});
+          } else {
+            context.go('/home');
+          }
         }
       } catch (e) {
         if (mounted) {

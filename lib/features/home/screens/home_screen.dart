@@ -21,6 +21,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<dynamic> _trips = [];
   List<dynamic> _myRoutes = [];
   bool _isLoading = true;
+  double _avgRating = 0;
+  int _ratingCount = 0;
+  int _completedTripCount = 0;
 
   @override
   void initState() {
@@ -29,8 +32,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _loadData() async {
-    await Future.wait([_loadProfile(), _loadTrips(), _loadMyRoutes()]);
+    await Future.wait(
+        [_loadProfile(), _loadTrips(), _loadMyRoutes(), _loadRatingSummary()]);
     if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _loadRatingSummary() async {
+    try {
+      final response = await ApiService.get('/rating/myRatingSummary');
+      if (response.statusCode == 200) {
+        final raw = response.data;
+        final data = raw['data'] ?? raw ?? {};
+        setState(() {
+          _avgRating = (data['avgRating'] as num?)?.toDouble() ?? 0;
+          _ratingCount = (data['ratingCount'] as num?)?.toInt() ?? 0;
+          _completedTripCount = (data['completedTripCount'] as num?)?.toInt() ?? 0;
+        });
+      }
+    } catch (e) {
+      // Non-fatal — the rating card just shows "No ratings yet".
+      debugPrint('Failed to load rating summary: $e');
+    }
   }
 
   Future<void> _loadMyRoutes() async {
@@ -327,6 +349,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               'Completed'),
                         ],
                       ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                      child: _buildRatingCard(),
                     ),
                   ],
                 ),
@@ -822,6 +848,67 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildRatingCard() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withOpacity(0.15)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.star, color: Color(0xFFFEC610), size: 26),
+          const SizedBox(width: 10),
+          Text(
+            _ratingCount > 0 ? _avgRating.toStringAsFixed(1) : '—',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _ratingCount > 0
+                  ? 'Your rating · $_ratingCount review${_ratingCount == 1 ? '' : 's'}'
+                  : 'No ratings yet',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '$_completedTripCount',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              const Text(
+                'trips completed',
+                style: TextStyle(
+                  color: Colors.white60,
+                  fontSize: 10,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
