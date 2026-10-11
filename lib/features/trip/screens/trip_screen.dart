@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:location/location.dart' as loc;
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/network/api_service.dart';
 
@@ -30,6 +31,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   int _pickedCount = 0;
   int _totalPassengers = 0;
   Map<String, dynamic>? _profile;
+  bool _isOptimizing = false;
   StreamSubscription<loc.LocationData>? _positionStream;
   final loc.Location _location = loc.Location();
 
@@ -262,6 +264,238 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     });
   }
 
+  // Advisory only — never blocks the driver's own judgment. Asks the
+  // backend to compare the route's stops in the admin's original order
+  // against Google's optimize:true reordering, from the driver's current
+  // position, and shows the result as a suggestion they can take or leave.
+  Future<void> _optimizeRoute() async {
+    if (_isOptimizing) return;
+    setState(() => _isOptimizing = true);
+    try {
+      final response = await ApiService.post('/trips/optimizeRoute', {
+        'tripId': _tripId,
+        'lat': _driverPosition.latitude,
+        'long': _driverPosition.longitude,
+      });
+      final raw = response.data;
+      final data = (raw['data'] ?? raw) as Map<String, dynamic>;
+      if (mounted) _showOptimizedRouteSheet(data);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Could not optimize this route right now.'),
+            backgroundColor: const Color(0xFFFF4B4B),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isOptimizing = false);
+    }
+  }
+
+  void _showOptimizedRouteSheet(Map<String, dynamic> data) {
+    final stops = (data['stops'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
+    final distanceSavedKm = ((data['distanceSavedMeters'] as num?) ?? 0) / 1000;
+    final durationSavedMin = ((data['durationSavedSeconds'] as num?) ?? 0) / 60;
+    final hasSavings = distanceSavedKm > 0.05 || durationSavedMin > 0.5;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => DraggableScrollableSheet(
+        initialChildSize: 0.65,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 10),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAECF0),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.alt_route, color: Color(0xFF1B3B69)),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Suggested Stop Order',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A1A2E),
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: hasSavings
+                        ? const Color(0xFF27AE60).withOpacity(0.08)
+                        : const Color(0xFFF0F3FF),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    hasSavings
+                        ? 'Following this order saves about ${durationSavedMin.round()} min and ${distanceSavedKm.toStringAsFixed(1)} km versus the planned order.'
+                        : 'The planned order is already close to optimal for your current position.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: hasSavings ? const Color(0xFF1C7A42) : const Color(0xFF5B6B8C),
+                      fontFamily: 'Poppins',
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                  itemCount: stops.length,
+                  itemBuilder: (context, i) {
+                    final stop = stops[i];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF1B3B69),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${stop['sequence'] ?? i + 1}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              stop['kidName']?.toString() ?? 'Student',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF1A1A2E),
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _openInGoogleMaps(data),
+                        icon: const Icon(Icons.map_outlined, color: Colors.white, size: 18),
+                        label: const Text('Open in Google Maps',
+                            style: TextStyle(fontFamily: 'Poppins')),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1B3B69),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () => Navigator.pop(sheetContext),
+                      child: const Text(
+                        "I'll use my own order",
+                        style: TextStyle(color: Color(0xFF8A94A6), fontFamily: 'Poppins'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openInGoogleMaps(Map<String, dynamic> data) async {
+    final origin = data['origin'] as Map<String, dynamic>?;
+    final destination = data['destination'] as Map<String, dynamic>?;
+    final stops = (data['stops'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
+
+    if (origin == null || destination == null) return;
+
+    final waypointCoords = stops
+        .where((s) => s['lat'] != null && s['long'] != null)
+        .map((s) => '${s['lat']},${s['long']}')
+        .toList();
+
+    final originStr = '${origin['lat']},${origin['lng']}';
+    final destStr = '${destination['lat']},${destination['lng']}';
+    final waypointsParam = waypointCoords.isNotEmpty
+        ? '&waypoints=${waypointCoords.join('|')}'
+        : '';
+
+    final url = 'https://www.google.com/maps/dir/?api=1'
+        '&origin=$originStr'
+        '&destination=$destStr'
+        '$waypointsParam'
+        '&travelmode=driving';
+
+    try {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Could not open Google Maps.'),
+            backgroundColor: const Color(0xFFFF4B4B),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _endTrip() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -467,6 +701,54 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                   myLocationButtonEnabled: false,
                   zoomControlsEnabled: false,
                   mapToolbarEnabled: false,
+                ),
+
+                // Optimize Route button
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: GestureDetector(
+                    onTap: _isOptimizing ? null : _optimizeRoute,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          _isOptimizing
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Color(0xFF1B3B69),
+                                  ),
+                                )
+                              : const Icon(Icons.alt_route,
+                                  color: Color(0xFF1B3B69), size: 18),
+                          const SizedBox(width: 6),
+                          const Text(
+                            'Optimize',
+                            style: TextStyle(
+                              color: Color(0xFF1B3B69),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
 
                 // Passengers button
