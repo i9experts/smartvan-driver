@@ -13,37 +13,44 @@ class LoginFieldLabel extends StatelessWidget {
       style: const TextStyle(
         fontSize: 13,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF1A1A2E),
+        color: Colors.white,
         fontFamily: 'Poppins',
       ),
     );
   }
 }
 
-/// The rounded white input style of the login form.
+/// Text style for typing into [loginInputDecoration] fields.
+const loginInputTextStyle = TextStyle(
+  fontSize: 14,
+  color: Colors.white,
+  fontFamily: 'Poppins',
+);
+
+/// The outlined, transparent input style of the login form (sits on the photo).
 InputDecoration loginInputDecoration({
   required String hint,
   required IconData icon,
   Widget? suffix,
 }) {
-  OutlineInputBorder border(Color color, [double width = 1]) =>
+  OutlineInputBorder border(Color color, [double width = 1.2]) =>
       OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(color: color, width: width),
       );
   return InputDecoration(
     hintText: hint,
     hintStyle: const TextStyle(
-      color: Color(0xFF8A94A6),
+      color: Colors.white54,
       fontSize: 14,
       fontFamily: 'Poppins',
     ),
-    prefixIcon: Icon(icon, color: const Color(0xFF1B3B69)),
+    prefixIcon: Icon(icon, color: Colors.white70, size: 20),
     suffixIcon: suffix,
-    filled: true,
-    fillColor: Colors.white,
-    border: border(const Color(0xFFEAECF0)),
-    enabledBorder: border(const Color(0xFFEAECF0)),
-    focusedBorder: border(const Color(0xFF1B3B69), 2),
+    filled: false,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    border: border(Colors.white38),
+    enabledBorder: border(Colors.white38),
+    focusedBorder: border(const Color(0xFFFEC610), 1.6),
   );
 }

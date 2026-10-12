@@ -10,7 +10,8 @@ class LoginHeader extends StatelessWidget {
     final l10n = context.l10n;
     final compact = MediaQuery.sizeOf(context).height < 700;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24, vertical: compact ? 16 : 32),
+      padding:
+          EdgeInsets.symmetric(horizontal: 24, vertical: compact ? 16 : 32),
       child: Column(
         children: [
           Container(
