@@ -201,7 +201,7 @@ the `*Raw` methods of `ApiClient` are gone.
 | R.2 | All models + fixtures + tests |
 | R.3 | Repositories per feature + tests |
 | R.4 | Feature by feature to controllers + typed routes: auth → profile/documents → alerts → fees → stats → checklist → chat → scan → passengers → trip/tracking → home. **Every string the feature shows moves to `app_en.arb` in the same commit.** |
-| R.5 | withOpacity migration, file splits, remaining widget tests |
+| R.5 | withOpacity migration, file splits, remaining widget tests. **TODO:** split `features/trip/presentation/screens/trip_screen.dart` (~390 lines, over the §8 ~300 limit; the manager's optimize button grew it) — e.g. move the map stack, the top-right buttons and the end-trip flow into widgets/controller |
 | R.6 | Urdu: `app_ur.arb` complete, RTL pass on every screen, language switch (§12) |
 | R.7 | Driver voice prompts (§13) |
 
