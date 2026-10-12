@@ -21,10 +21,12 @@ class TripRepository {
   final ApiClient _api;
   final SyncQueue _queue;
 
-  /// `GET /route/getAssignedTripByDriver` (lower-case `route`). A driver
+  /// `GET /Route/getAssignedTripByDriver` (capital `R`, like every other
+  /// route call; the server's case-insensitive matching used to hide the
+  /// lower-case spelling). A driver
   /// without a van gets a 400 `ApiError` ("Van not found for this driver").
   Future<List<AssignedRoute>> assignedRoutes() => _api.get(
-        '/route/getAssignedTripByDriver',
+        '/Route/getAssignedTripByDriver',
         (json) => asJsonList(json).map(AssignedRoute.fromJson).toList(),
       );
 

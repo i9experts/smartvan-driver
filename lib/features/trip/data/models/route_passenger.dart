@@ -4,7 +4,7 @@ import '../../../../core/network/json_helpers.dart';
 part 'route_passenger.freezed.dart';
 part 'route_passenger.g.dart';
 
-/// A kid listed on an assigned route (`/route/getAssignedTripByDriver`).
+/// A kid listed on an assigned route (`/Route/getAssignedTripByDriver`).
 /// Not the same as the live trip `Passenger` (pickup state, parent contact).
 @freezed
 abstract class RoutePassenger with _$RoutePassenger {

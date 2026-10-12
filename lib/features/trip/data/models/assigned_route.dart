@@ -8,7 +8,7 @@ import 'trip_type.dart';
 part 'assigned_route.freezed.dart';
 part 'assigned_route.g.dart';
 
-/// One route from `GET /route/getAssignedTripByDriver`.
+/// One route from `GET /Route/getAssignedTripByDriver`.
 @freezed
 abstract class AssignedRoute with _$AssignedRoute {
   const factory AssignedRoute({

@@ -25,8 +25,8 @@ void main() {
   });
 
   group('assignedRoutes', () {
-    test('GETs /route/getAssignedTripByDriver (lower-case route)', () async {
-      env.adapter.onGet('/route/getAssignedTripByDriver',
+    test('GETs /Route/getAssignedTripByDriver (capital R)', () async {
+      env.adapter.onGet('/Route/getAssignedTripByDriver',
           (s) => s.reply(200, fixture('trip/assigned_routes.json')));
       final routes = await repo.assignedRoutes();
       expect(routes, hasLength(4));
@@ -36,7 +36,7 @@ void main() {
 
     test('a driver without a van gets a 400 ApiError', () async {
       env.adapter.onGet(
-          '/route/getAssignedTripByDriver',
+          '/Route/getAssignedTripByDriver',
           (s) => s.reply(400, {
                 'message': 'Van not found for this driver',
                 'error': 'Bad Request',
