@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../profile/data/models/driver_profile.dart';
+import '../../../rating/data/models/rating_summary.dart';
 import '../../application/home_state.dart';
+import 'home_rating_card.dart';
 
 /// The blue top of the home screen: greeting, quick actions, location and
 /// the day's numbers.
@@ -10,6 +12,7 @@ class HomeHeader extends StatelessWidget {
     super.key,
     required this.profile,
     required this.state,
+    required this.rating,
     required this.now,
     required this.chatUnread,
     required this.onMessages,
@@ -19,6 +22,7 @@ class HomeHeader extends StatelessWidget {
 
   final DriverProfile? profile;
   final HomeState? state;
+  final RatingSummary rating;
   final DateTime now;
   final int chatUnread;
   final VoidCallback onMessages;
@@ -125,6 +129,10 @@ class HomeHeader extends StatelessWidget {
                       '${state?.completedTrips ?? 0}', l10n.homeStatCompleted),
                 ],
               ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+              child: HomeRatingCard(summary: rating),
             ),
           ],
         ),

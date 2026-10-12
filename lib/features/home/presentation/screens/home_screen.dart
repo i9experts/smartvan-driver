@@ -13,6 +13,8 @@ import '../../../chat/application/chat_providers.dart';
 import '../../../checklist/application/checklist_providers.dart';
 import '../../../profile/application/driver_profile_provider.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../rating/application/rating_providers.dart';
+import '../../../rating/data/models/rating_summary.dart';
 import '../../../trip/data/models/active_trip.dart';
 import '../../../trip/data/models/assigned_route.dart';
 import '../../../trip/data/models/trip.dart';
@@ -71,6 +73,7 @@ class _HomeTab extends ConsumerWidget {
     ref.invalidate(todayChecklistProvider);
     ref.invalidate(chatUnreadProvider);
     ref.invalidate(driverProfileProvider);
+    ref.invalidate(ratingSummaryProvider);
     await ref.read(homeControllerProvider.notifier).refresh();
   }
 
@@ -114,6 +117,8 @@ class _HomeTab extends ConsumerWidget {
     final home = ref.watch(homeControllerProvider);
     final state = home.valueOrNull;
     final profile = ref.watch(driverProfileProvider).valueOrNull;
+    final rating =
+        ref.watch(ratingSummaryProvider).valueOrNull ?? const RatingSummary();
     final chatUnread = ref.watch(chatUnreadProvider).valueOrNull ?? 0;
     final startingRoute = ref.watch(startTripControllerProvider);
     final now = ref.watch(clockProvider)();
@@ -138,6 +143,7 @@ class _HomeTab extends ConsumerWidget {
         HomeHeader(
           profile: profile,
           state: state,
+          rating: rating,
           now: now,
           chatUnread: chatUnread,
           onMessages: openMessages,

@@ -13,6 +13,7 @@ import '../../../../l10n/error_text.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../passengers/application/passengers_controller.dart';
 import '../../../profile/application/driver_profile_provider.dart';
+import '../../../rating/application/rating_providers.dart';
 import '../../../safety/presentation/widgets/sos_button.dart';
 import '../../application/active_trip_provider.dart';
 import '../../application/end_trip_controller.dart';
@@ -128,7 +129,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       case TripEnded(:final forced):
         AppSnack.success(
             context, forced ? l10n.tripEndedForced : l10n.tripEndedOk);
-        context.go(AppRoutes.home);
+        await _goAfterEnd();
       case UnsyncedUpdates(:final count):
         AppSnack.error(context, l10n.tripPendingSync(count));
       case EndTripFailed(:final error):
@@ -152,6 +153,16 @@ class _TripScreenState extends ConsumerState<TripScreen> {
             break;
         }
     }
+  }
+
+  /// Gives the driver a chance to rate the parent(s) on this trip before
+  /// heading home. Best-effort — if the check fails, just go home.
+  Future<void> _goAfterEnd() async {
+    final tripId = widget.tripId;
+    ref.invalidate(pendingRateesProvider(tripId));
+    final pending = await ref.read(pendingRateesProvider(tripId).future);
+    if (!mounted) return;
+    context.go(pending.isEmpty ? AppRoutes.home : AppRoutes.rateTripOf(tripId));
   }
 
   Future<void> _openScanner() async {

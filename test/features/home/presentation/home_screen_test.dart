@@ -9,6 +9,8 @@ import 'package:smartvan_driver/features/checklist/data/models/today_checklist.d
 import 'package:smartvan_driver/features/home/presentation/screens/home_screen.dart';
 import 'package:smartvan_driver/features/profile/data/models/driver_profile.dart';
 import 'package:smartvan_driver/features/profile/data/profile_repository.dart';
+import 'package:smartvan_driver/features/rating/data/models/rating_summary.dart';
+import 'package:smartvan_driver/features/rating/data/rating_repository.dart';
 import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
 import 'package:smartvan_driver/features/home/presentation/widgets/home_header.dart';
 import 'package:smartvan_driver/features/trip/data/models/assigned_route.dart';
@@ -29,12 +31,15 @@ class _ProfileRepo extends Mock implements ProfileRepository {}
 
 class _ChatRepo extends Mock implements ChatRepository {}
 
+class _RatingRepo extends Mock implements RatingRepository {}
+
 class _ChecklistRepo extends Mock implements ChecklistRepository {}
 
 void main() {
   late _TripRepo trips;
   late _ProfileRepo profile;
   late _ChatRepo chat;
+  late _RatingRepo rating;
   late _ChecklistRepo checklist;
   late TrackingProbe probe;
 
@@ -60,6 +65,9 @@ void main() {
     trips = _TripRepo();
     profile = _ProfileRepo();
     chat = _ChatRepo();
+    rating = _RatingRepo();
+    when(() => rating.mySummary()).thenAnswer((_) async => const RatingSummary(
+        avgRating: 4.6, ratingCount: 12, completedTripCount: 87));
     checklist = _ChecklistRepo();
     probe = TrackingProbe();
     when(() => trips.assignedRoutes())
@@ -102,6 +110,7 @@ void main() {
           tripRepositoryProvider.overrideWithValue(trips),
           profileRepositoryProvider.overrideWithValue(profile),
           chatRepositoryProvider.overrideWithValue(chat),
+          ratingRepositoryProvider.overrideWithValue(rating),
           checklistRepositoryProvider.overrideWithValue(checklist),
           syncQueueProvider.overrideWithValue(FakeSyncQueue()),
           clockProvider.overrideWithValue(() => now),
@@ -127,6 +136,39 @@ void main() {
     expect(find.text('Grade 3'), findsOneWidget);
     expect(find.text('2 trips'), findsOneWidget);
     expect(find.text('Completed'), findsWidgets);
+  });
+
+  testWidgets('the rating card shows the average, review count and trips',
+      (tester) async {
+    useTallView(tester);
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    expect(find.text('4.6'), findsOneWidget);
+    expect(find.text('Your rating · 12 reviews'), findsOneWidget);
+    expect(find.text('87'), findsOneWidget);
+    expect(find.text('trips completed'), findsOneWidget);
+  });
+
+  testWidgets('one review is singular', (tester) async {
+    useTallView(tester);
+    when(() => rating.mySummary()).thenAnswer((_) async => const RatingSummary(
+        avgRating: 5, ratingCount: 1, completedTripCount: 1));
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    expect(find.text('Your rating · 1 review'), findsOneWidget);
+  });
+
+  testWidgets('no ratings yet, and a failed load looks the same',
+      (tester) async {
+    useTallView(tester);
+    when(() => rating.mySummary())
+        .thenAnswer((_) async => throw const NetworkException());
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    expect(find.text('No ratings yet'), findsOneWidget);
+    expect(find.text('—'), findsWidgets);
+    expect(find.text('0'), findsWidgets);
+    expect(find.text('2 trips'), findsOneWidget); // the rest of Home is fine
   });
 
   testWidgets(

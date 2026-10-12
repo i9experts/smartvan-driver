@@ -29,6 +29,11 @@ class AppRoutes {
   static const trip = '/trip/:tripId';
   static String tripOf(String tripId) => '/trip/${Uri.encodeComponent(tripId)}';
 
+  /// Rate the parents of the just-ended trip.
+  static const rateTrip = '/rate-trip/:tripId';
+  static String rateTripOf(String tripId) =>
+      '/rate-trip/${Uri.encodeComponent(tripId)}';
+
   static const passengers = '/passengers/:tripId';
   static String passengersOf(String tripId) =>
       '/passengers/${Uri.encodeComponent(tripId)}';

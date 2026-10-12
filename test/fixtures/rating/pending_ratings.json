@@ -1,0 +1,7 @@
+{
+  "data": [
+    { "tripId": "trip-001", "type": "pick", "endedAt": "2026-10-06T07:40:00.000Z", "parentId": "p-1", "parentName": "Test Parent One", "parentImage": "https://img.test/p1.jpg" },
+    { "tripId": "trip-001", "type": "pick", "endedAt": "2026-10-06T07:40:00.000Z", "parentId": "p-2", "parentName": null, "parentImage": null },
+    { "tripId": "trip-000", "type": "drop", "endedAt": "2026-10-05T12:10:00.000Z", "parentId": "p-1", "parentName": "Test Parent One", "parentImage": null }
+  ]
+}

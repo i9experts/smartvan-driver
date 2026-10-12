@@ -861,5 +861,47 @@
   "homeViewTrip": "View Trip",
   "homeStartFailed": "Failed to start trip. Please try again.",
   "homeChecklistFirst": "Please complete today's van check first.",
-  "homeTripResumed": "Your ongoing trip was resumed — location sharing is on."
+  "homeTripResumed": "Your ongoing trip was resumed — location sharing is on.",
+  "ratingNoRatingsYet": "No ratings yet",
+  "ratingYourRating": "Your rating · {count, plural, =1{1 review} other{{count} reviews}}",
+  "@ratingYourRating": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingTripsCompleted": "trips completed",
+  "ratingTitle": "Rate parent ({current}/{total})",
+  "@ratingTitle": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingSkip": "Skip",
+  "ratingThisParent": "this parent",
+  "ratingQuestion": "How was your trip with {name}?",
+  "@ratingQuestion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ratingCommentHint": "Add a comment (optional)",
+  "ratingSubmit": "Submit Rating",
+  "ratingThanks": "Thanks for rating!",
+  "ratingSubmitFailed": "Failed to submit rating: {error}",
+  "@ratingSubmitFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -10,6 +10,8 @@ import 'package:smartvan_driver/features/passengers/data/models/passenger.dart';
 import 'package:smartvan_driver/features/passengers/data/passengers_repository.dart';
 import 'package:smartvan_driver/features/profile/data/models/driver_profile.dart';
 import 'package:smartvan_driver/features/profile/data/profile_repository.dart';
+import 'package:smartvan_driver/features/rating/data/models/pending_ratee.dart';
+import 'package:smartvan_driver/features/rating/data/rating_repository.dart';
 import 'package:smartvan_driver/features/trip/application/active_trip_provider.dart';
 import 'package:smartvan_driver/features/trip/application/end_trip_controller.dart';
 import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
@@ -29,11 +31,14 @@ class _FakePassengersRepo extends Mock implements PassengersRepository {}
 
 class _FakeProfileRepo extends Mock implements ProfileRepository {}
 
+class _FakeRatingRepo extends Mock implements RatingRepository {}
+
 void main() {
   late TrackingProbe probe;
   Set<Marker> mapMarkers = {};
   late _FakePassengersRepo passengersRepo;
   late _FakeProfileRepo profileRepo;
+  late _FakeRatingRepo ratingRepo;
   late FakeSyncQueue queue;
   late MemoryActiveTripStore store;
   late List<Passenger> kids;
@@ -49,6 +54,8 @@ void main() {
     probe = TrackingProbe();
     passengersRepo = _FakePassengersRepo();
     profileRepo = _FakeProfileRepo();
+    ratingRepo = _FakeRatingRepo();
+    when(() => ratingRepo.pendingForTrip(any())).thenAnswer((_) async => []);
     queue = FakeSyncQueue();
     store = MemoryActiveTripStore();
     kids = [
@@ -73,6 +80,7 @@ void main() {
       [
         passengersRepositoryProvider.overrideWithValue(passengersRepo),
         profileRepositoryProvider.overrideWithValue(profileRepo),
+        ratingRepositoryProvider.overrideWithValue(ratingRepo),
         syncQueueProvider.overrideWithValue(queue),
         activeTripStoreProvider.overrideWithValue(store),
         tripTrackingProvider.overrideWith(() => FakeTracking(
@@ -162,6 +170,8 @@ void main() {
           '/trip/:tripId': (s) =>
               TripScreen(tripId: s.pathParameters['tripId']!, trip: extra),
           '/home': (_) => const Text('home-stub'),
+          '/rate-trip/:tripId': (s) =>
+              Text('rate-stub ${s.pathParameters['tripId']}'),
           '/passengers/:tripId': (_) => const Text('passengers-stub'),
           '/scan': (_) => const Text('scan-stub'),
         },
@@ -227,9 +237,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Re-center'), findsNothing);
       // A bare spot of map: top middle, clear of the SOS button and the pill.
-      await tester.tapAt(
-          tester.getTopLeft(find.byKey(const Key('fake-map'))) +
-              const Offset(400, 20));
+      await tester.tapAt(tester.getTopLeft(find.byKey(const Key('fake-map'))) +
+          const Offset(400, 20));
       await tester.pump();
       expect(find.text('Re-center'), findsOneWidget);
       await tester.tap(find.text('Re-center'));
@@ -318,6 +327,34 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('End Trip').last);
       await tester.pumpAndSettle();
+      expect(probe.ends, 1);
+      expect(find.text('home-stub'), findsOneWidget);
+    });
+
+    Future<void> endTrip(WidgetTester tester) async {
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('End Trip'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('End Trip').last);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('parents still to rate: ending goes to rating, not home',
+        (tester) async {
+      when(() => ratingRepo.pendingForTrip('trip-001')).thenAnswer((_) async =>
+          [const PendingRatee(tripId: 'trip-001', parentId: 'p-1')]);
+      await endTrip(tester);
+      expect(probe.ends, 1);
+      expect(find.text('rate-stub trip-001'), findsOneWidget);
+      expect(find.text('home-stub'), findsNothing);
+    });
+
+    testWidgets('a failed pending-ratings check still goes home',
+        (tester) async {
+      when(() => ratingRepo.pendingForTrip(any()))
+          .thenAnswer((_) async => throw const NetworkException());
+      await endTrip(tester);
       expect(probe.ends, 1);
       expect(find.text('home-stub'), findsOneWidget);
     });

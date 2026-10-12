@@ -17,6 +17,7 @@ import '../features/profile/presentation/screens/documents_screen.dart';
 import '../features/profile/presentation/screens/change_password_screen.dart';
 import '../features/profile/presentation/screens/report_issue_screen.dart';
 import '../features/fees/presentation/screens/fee_collection_screen.dart';
+import '../features/rating/presentation/screens/rate_trip_screen.dart';
 import '../features/scan/presentation/screens/scan_screen.dart';
 import '../features/checklist/presentation/screens/checklist_screen.dart';
 import '../features/stats/presentation/screens/driver_stats_screen.dart';
@@ -119,6 +120,11 @@ GoRouter buildRouter() => GoRouter(
         GoRoute(
           path: AppRoutes.feeCollection,
           builder: (context, state) => const FeeCollectionScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.rateTrip,
+          builder: (context, state) =>
+              RateTripScreen(tripId: state.pathParameters['tripId']!),
         ),
       ],
     );

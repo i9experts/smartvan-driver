@@ -2595,6 +2595,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your ongoing trip was resumed — location sharing is on.'**
   String get homeTripResumed;
+
+  /// No description provided for @ratingNoRatingsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No ratings yet'**
+  String get ratingNoRatingsYet;
+
+  /// No description provided for @ratingYourRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating · {count, plural, =1{1 review} other{{count} reviews}}'**
+  String ratingYourRating(int count);
+
+  /// No description provided for @ratingTripsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'trips completed'**
+  String get ratingTripsCompleted;
+
+  /// No description provided for @ratingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate parent ({current}/{total})'**
+  String ratingTitle(int current, int total);
+
+  /// No description provided for @ratingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get ratingSkip;
+
+  /// No description provided for @ratingThisParent.
+  ///
+  /// In en, this message translates to:
+  /// **'this parent'**
+  String get ratingThisParent;
+
+  /// No description provided for @ratingQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How was your trip with {name}?'**
+  String ratingQuestion(String name);
+
+  /// No description provided for @ratingCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment (optional)'**
+  String get ratingCommentHint;
+
+  /// No description provided for @ratingSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Rating'**
+  String get ratingSubmit;
+
+  /// No description provided for @ratingThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for rating!'**
+  String get ratingThanks;
+
+  /// No description provided for @ratingSubmitFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit rating: {error}'**
+  String ratingSubmitFailed(String error);
 }
 
 class _AppLocalizationsDelegate

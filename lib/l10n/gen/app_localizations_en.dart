@@ -1469,4 +1469,51 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get homeTripResumed =>
       'Your ongoing trip was resumed — location sharing is on.';
+
+  @override
+  String get ratingNoRatingsYet => 'No ratings yet';
+
+  @override
+  String ratingYourRating(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reviews',
+      one: '1 review',
+    );
+    return 'Your rating · $_temp0';
+  }
+
+  @override
+  String get ratingTripsCompleted => 'trips completed';
+
+  @override
+  String ratingTitle(int current, int total) {
+    return 'Rate parent ($current/$total)';
+  }
+
+  @override
+  String get ratingSkip => 'Skip';
+
+  @override
+  String get ratingThisParent => 'this parent';
+
+  @override
+  String ratingQuestion(String name) {
+    return 'How was your trip with $name?';
+  }
+
+  @override
+  String get ratingCommentHint => 'Add a comment (optional)';
+
+  @override
+  String get ratingSubmit => 'Submit Rating';
+
+  @override
+  String get ratingThanks => 'Thanks for rating!';
+
+  @override
+  String ratingSubmitFailed(String error) {
+    return 'Failed to submit rating: $error';
+  }
 }
