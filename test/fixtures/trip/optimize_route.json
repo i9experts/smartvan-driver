@@ -1,0 +1,19 @@
+{
+  "message": "Route optimized",
+  "data": {
+    "stops": [
+      { "kidId": "k2", "kidName": "Test Kid Two", "lat": 24.9, "long": 67.1, "sequence": 1 },
+      { "kidId": "k1", "kidName": "Test Kid One", "lat": 24.91, "long": 67.12, "sequence": 2 },
+      { "kidId": "k3", "kidName": null, "lat": null, "long": null, "sequence": 3 }
+    ],
+    "optimizedDistanceMeters": 9200,
+    "optimizedDurationSeconds": 1500,
+    "baselineDistanceMeters": 11800,
+    "baselineDurationSeconds": 1980,
+    "distanceSavedMeters": 2600,
+    "durationSavedSeconds": 480,
+    "origin": { "lat": 24.8607, "lng": 67.0011 },
+    "destination": { "lat": 24.95, "lng": 67.2 },
+    "overviewPolyline": "abc"
+  }
+}

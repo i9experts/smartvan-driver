@@ -1516,4 +1516,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String ratingSubmitFailed(String error) {
     return 'Failed to submit rating: $error';
   }
+
+  @override
+  String get tripOptimize => 'Optimize';
+
+  @override
+  String get tripOptimizeTitle => 'Suggested Stop Order';
+
+  @override
+  String tripOptimizeSaves(int minutes, String km) {
+    return 'Following this order saves about $minutes min and $km km versus the planned order.';
+  }
+
+  @override
+  String get tripOptimizeAlreadyGood =>
+      'The planned order is already close to optimal for your current position.';
+
+  @override
+  String get tripOptimizeStudent => 'Student';
+
+  @override
+  String get tripOptimizeOpenMaps => 'Open in Google Maps';
+
+  @override
+  String get tripOptimizeOwnOrder => 'I\'ll use my own order';
+
+  @override
+  String get tripOptimizeFailed => 'Could not optimize this route right now.';
+
+  @override
+  String get tripOpenMapsFailed => 'Could not open Google Maps.';
 }

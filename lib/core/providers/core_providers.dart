@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:location/location.dart' as loc;
 import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:url_launcher/url_launcher.dart';
 import '../network/network_providers.dart';
 import '../sync/sync_queue.dart';
 
@@ -34,4 +35,12 @@ final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 /// screens can reload what the server now says.
 final syncQueueSyncedProvider = StreamProvider.autoDispose<void>(
   (ref) => ref.watch(syncQueueProvider).onSynced,
+);
+
+/// Opens [uri] in another app (browser, Maps, ...). False when nothing could
+/// handle it.
+typedef ExternalUrlLauncher = Future<bool> Function(Uri uri);
+
+final externalUrlLauncherProvider = Provider<ExternalUrlLauncher>(
+  (ref) => (uri) => launchUrl(uri, mode: LaunchMode.externalApplication),
 );

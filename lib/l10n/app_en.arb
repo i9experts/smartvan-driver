@@ -903,5 +903,24 @@
         "type": "String"
       }
     }
-  }
+  },
+  "tripOptimize": "Optimize",
+  "tripOptimizeTitle": "Suggested Stop Order",
+  "tripOptimizeSaves": "Following this order saves about {minutes} min and {km} km versus the planned order.",
+  "@tripOptimizeSaves": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "tripOptimizeAlreadyGood": "The planned order is already close to optimal for your current position.",
+  "tripOptimizeStudent": "Student",
+  "tripOptimizeOpenMaps": "Open in Google Maps",
+  "tripOptimizeOwnOrder": "I'll use my own order",
+  "tripOptimizeFailed": "Could not optimize this route right now.",
+  "tripOpenMapsFailed": "Could not open Google Maps."
 }

@@ -51,6 +51,34 @@ void main() {
     });
   });
 
+  group('optimizeRoute', () {
+    test('POSTs the trip and the position (long, not lng)', () async {
+      env.adapter.onPost(
+        '/trips/optimizeRoute',
+        (s) => s.reply(201, fixture('trip/optimize_route.json')),
+        data: {'tripId': 'trip-001', 'lat': 24.8607, 'long': 67.0011},
+      );
+      final r = await repo.optimizeRoute(tripId: 'trip-001', position: here);
+      expect(r.stops.map((s) => s.kidName),
+          ['Test Kid Two', 'Test Kid One', null]);
+      expect(r.durationSavedMinutes, 8);
+    });
+
+    test('an error from the server is thrown', () async {
+      env.adapter.onPost(
+          '/trips/optimizeRoute',
+          (s) => s.reply(400, {
+                'message': 'This route has no stops to optimize',
+                'statusCode': 400,
+              }),
+          data: Matchers.any);
+      await expectLater(
+          repo.optimizeRoute(tripId: 't', position: here),
+          throwsA(isA<ApiError>().having((e) => e.userMessage, 'message',
+              'This route has no stops to optimize')));
+    });
+  });
+
   test('driverTrips GETs /trips/getDriverTrips', () async {
     env.adapter.onGet('/trips/getDriverTrips',
         (s) => s.reply(200, fixture('trip/trips_list.json')));

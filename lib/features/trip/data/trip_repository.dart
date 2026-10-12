@@ -6,6 +6,7 @@ import '../../../core/providers/core_providers.dart';
 import '../../../core/sync/sync_queue.dart';
 import 'models/assigned_route.dart';
 import 'models/geo_point.dart';
+import 'models/optimized_route.dart';
 import 'models/trip.dart';
 import 'models/trip_type.dart';
 
@@ -69,6 +70,19 @@ class TripRepository {
           if (forceEnd) 'forceEnd': true,
           if (forceEnd) 'confirmationNote': confirmationNote ?? '',
         },
+      );
+
+  /// `POST /trips/optimizeRoute` — the trip's stops in the best order from
+  /// [position], and what that saves against the planned order. Advisory
+  /// only; nothing about the trip changes. The backend wants `long`.
+  Future<OptimizedRoute> optimizeRoute({
+    required String tripId,
+    required GeoPoint position,
+  }) =>
+      _api.post(
+        '/trips/optimizeRoute',
+        (json) => OptimizedRoute.fromJson(asJsonMap(json)),
+        body: {'tripId': tripId, 'lat': position.lat, 'long': position.lng},
       );
 
   /// `POST /trips/updateLocation/{tripId}` through the offline queue.

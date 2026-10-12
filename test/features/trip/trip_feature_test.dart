@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,13 +16,17 @@ import 'package:smartvan_driver/features/rating/data/models/pending_ratee.dart';
 import 'package:smartvan_driver/features/rating/data/rating_repository.dart';
 import 'package:smartvan_driver/features/trip/application/active_trip_provider.dart';
 import 'package:smartvan_driver/features/trip/application/end_trip_controller.dart';
+import 'package:smartvan_driver/features/trip/application/optimize_route_controller.dart';
 import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
 import 'package:smartvan_driver/features/trip/data/active_trip_store.dart';
 import 'package:smartvan_driver/features/trip/data/models/active_trip.dart';
 import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
+import 'package:smartvan_driver/features/trip/data/models/optimized_route.dart';
+import 'package:smartvan_driver/features/trip/data/trip_repository.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip_type.dart';
 import 'package:smartvan_driver/features/trip/presentation/screens/trip_screen.dart';
 import 'package:smartvan_driver/features/trip/presentation/widgets/trip_map.dart';
+import 'package:smartvan_driver/features/trip/presentation/widgets/trip_map_button.dart';
 
 import '../../support/fake_sync_queue.dart';
 import '../../support/fake_tracking.dart';
@@ -33,12 +39,19 @@ class _FakeProfileRepo extends Mock implements ProfileRepository {}
 
 class _FakeRatingRepo extends Mock implements RatingRepository {}
 
+class _FakeTripRepo extends Mock implements TripRepository {}
+
 void main() {
+  setUpAll(() => registerFallbackValue(const GeoPoint(lat: 0, lng: 0)));
+
   late TrackingProbe probe;
   Set<Marker> mapMarkers = {};
   late _FakePassengersRepo passengersRepo;
   late _FakeProfileRepo profileRepo;
   late _FakeRatingRepo ratingRepo;
+  late _FakeTripRepo tripRepo;
+  late List<Uri> launched;
+  late bool launchFails;
   late FakeSyncQueue queue;
   late MemoryActiveTripStore store;
   late List<Passenger> kids;
@@ -55,6 +68,9 @@ void main() {
     passengersRepo = _FakePassengersRepo();
     profileRepo = _FakeProfileRepo();
     ratingRepo = _FakeRatingRepo();
+    tripRepo = _FakeTripRepo();
+    launched = [];
+    launchFails = false;
     when(() => ratingRepo.pendingForTrip(any())).thenAnswer((_) async => []);
     queue = FakeSyncQueue();
     store = MemoryActiveTripStore();
@@ -81,6 +97,12 @@ void main() {
         passengersRepositoryProvider.overrideWithValue(passengersRepo),
         profileRepositoryProvider.overrideWithValue(profileRepo),
         ratingRepositoryProvider.overrideWithValue(ratingRepo),
+        tripRepositoryProvider.overrideWithValue(tripRepo),
+        externalUrlLauncherProvider.overrideWithValue((uri) async {
+          if (launchFails) throw Exception('no handler');
+          launched.add(uri);
+          return true;
+        }),
         syncQueueProvider.overrideWithValue(queue),
         activeTripStoreProvider.overrideWithValue(store),
         tripTrackingProvider.overrideWith(() => FakeTracking(
@@ -474,6 +496,162 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Fresh from Home'), findsOneWidget);
       expect(probe.started.single.name, 'Fresh from Home');
+    });
+  });
+
+  group('Optimize route', () {
+    const origin = GeoPoint(lat: 24.8607, lng: 67.0011);
+    const route = OptimizedRoute(
+      origin: origin,
+      destination: GeoPoint(lat: 24.95, lng: 67.2),
+      stops: [
+        OptimizedStop(
+            sequence: 1, kidName: 'Test Kid Two', lat: 24.9, lng: 67.1),
+        OptimizedStop(sequence: 2, lat: 24.91, lng: 67.12),
+      ],
+      distanceSavedMeters: 2600,
+      durationSavedSeconds: 480,
+    );
+
+    setUp(() {
+      when(() => tripRepo.optimizeRoute(
+          tripId: any(named: 'tripId'),
+          position: any(named: 'position'))).thenAnswer((_) async => route);
+    });
+
+    Future<void> tapOptimize(WidgetTester tester) async {
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Optimize'));
+      await tester.pumpAndSettle();
+    }
+
+    test('controller: sends the trip and position, one request at a time',
+        () async {
+      final c = ProviderContainer(overrides: overrides());
+      addTearDown(c.dispose);
+      c.listen(optimizeRouteControllerProvider, (_, __) {});
+      final r = await c
+          .read(optimizeRouteControllerProvider.notifier)
+          .optimize(tripId: 'trip-001', position: origin);
+      expect((r as RouteOptimized).route, route);
+      verify(() => tripRepo.optimizeRoute(tripId: 'trip-001', position: origin))
+          .called(1);
+      expect(c.read(optimizeRouteControllerProvider), isFalse);
+    });
+
+    test('controller: a failure is a result, and a second tap is ignored',
+        () async {
+      final gate = Completer<OptimizedRoute>();
+      when(() => tripRepo.optimizeRoute(
+          tripId: any(named: 'tripId'),
+          position: any(named: 'position'))).thenAnswer((_) => gate.future);
+      final c = ProviderContainer(overrides: overrides());
+      addTearDown(c.dispose);
+      c.listen(optimizeRouteControllerProvider, (_, __) {});
+      final notifier = c.read(optimizeRouteControllerProvider.notifier);
+      final first = notifier.optimize(tripId: 'trip-001', position: origin);
+      expect(c.read(optimizeRouteControllerProvider), isTrue);
+      expect(await notifier.optimize(tripId: 'trip-001', position: origin),
+          isNull);
+      gate.completeError(const NetworkException());
+      expect(await first, isA<OptimizeRouteFailed>());
+      expect(c.read(optimizeRouteControllerProvider), isFalse);
+    });
+
+    testWidgets('the button asks from the van position and shows the sheet',
+        (tester) async {
+      await tapOptimize(tester);
+      verify(() => tripRepo.optimizeRoute(tripId: 'trip-001', position: origin))
+          .called(1);
+      expect(find.text('Suggested Stop Order'), findsOneWidget);
+      expect(
+          find.text(
+              'Following this order saves about 8 min and 2.6 km versus the planned order.'),
+          findsOneWidget);
+      expect(find.text('Test Kid Two'), findsOneWidget);
+      expect(find.text('Student'), findsOneWidget); // a stop without a name
+      expect(find.text('1'), findsWidgets);
+      expect(find.text('Open in Google Maps'), findsOneWidget);
+    });
+
+    testWidgets('no savings: says the planned order is already good',
+        (tester) async {
+      when(() => tripRepo.optimizeRoute(
+              tripId: any(named: 'tripId'), position: any(named: 'position')))
+          .thenAnswer((_) async =>
+              route.copyWith(distanceSavedMeters: 0, durationSavedSeconds: 0));
+      await tapOptimize(tester);
+      expect(
+          find.text(
+              'The planned order is already close to optimal for your current position.'),
+          findsOneWidget);
+    });
+
+    testWidgets('Open in Google Maps hands the directions link over',
+        (tester) async {
+      await tapOptimize(tester);
+      await tester.tap(find.text('Open in Google Maps'));
+      await tester.pumpAndSettle();
+      expect(launched.single.queryParameters, {
+        'api': '1',
+        'origin': '24.8607,67.0011',
+        'destination': '24.95,67.2',
+        'waypoints': '24.9,67.1|24.91,67.12',
+        'travelmode': 'driving',
+      });
+    });
+
+    testWidgets('a launcher that throws shows the message', (tester) async {
+      launchFails = true;
+      await tapOptimize(tester);
+      await tester.tap(find.text('Open in Google Maps'));
+      await tester.pumpAndSettle();
+      expect(find.text('Could not open Google Maps.'), findsOneWidget);
+    });
+
+    testWidgets('"I\'ll use my own order" just closes the sheet',
+        (tester) async {
+      await tapOptimize(tester);
+      await tester.tap(find.text("I'll use my own order"));
+      await tester.pumpAndSettle();
+      expect(find.text('Suggested Stop Order'), findsNothing);
+      expect(launched, isEmpty);
+      expect(find.text('Optimize'), findsOneWidget);
+    });
+
+    testWidgets('a failure shows the message and no sheet', (tester) async {
+      when(() => tripRepo.optimizeRoute(
+              tripId: any(named: 'tripId'), position: any(named: 'position')))
+          .thenAnswer((_) async => throw const NetworkException());
+      await tapOptimize(tester);
+      expect(find.text('Could not optimize this route right now.'),
+          findsOneWidget);
+      expect(find.text('Suggested Stop Order'), findsNothing);
+    });
+
+    testWidgets('while it loads the button shows a spinner', (tester) async {
+      final gate = Completer<OptimizedRoute>();
+      when(() => tripRepo.optimizeRoute(
+          tripId: any(named: 'tripId'),
+          position: any(named: 'position'))).thenAnswer((_) => gate.future);
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Optimize'));
+      await tester.pump();
+      expect(
+          find.descendant(
+              of: find.ancestor(
+                  of: find.text('Optimize'),
+                  matching: find.byType(TripMapButton)),
+              matching: find.byType(CircularProgressIndicator)),
+          findsOneWidget);
+      await tester.tap(find.text('Optimize'), warnIfMissed: false);
+      verify(() => tripRepo.optimizeRoute(
+          tripId: any(named: 'tripId'),
+          position: any(named: 'position'))).called(1);
+      gate.complete(route);
+      await tester.pumpAndSettle();
     });
   });
 }

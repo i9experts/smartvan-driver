@@ -2661,6 +2661,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to submit rating: {error}'**
   String ratingSubmitFailed(String error);
+
+  /// No description provided for @tripOptimize.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimize'**
+  String get tripOptimize;
+
+  /// No description provided for @tripOptimizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested Stop Order'**
+  String get tripOptimizeTitle;
+
+  /// No description provided for @tripOptimizeSaves.
+  ///
+  /// In en, this message translates to:
+  /// **'Following this order saves about {minutes} min and {km} km versus the planned order.'**
+  String tripOptimizeSaves(int minutes, String km);
+
+  /// No description provided for @tripOptimizeAlreadyGood.
+  ///
+  /// In en, this message translates to:
+  /// **'The planned order is already close to optimal for your current position.'**
+  String get tripOptimizeAlreadyGood;
+
+  /// No description provided for @tripOptimizeStudent.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get tripOptimizeStudent;
+
+  /// No description provided for @tripOptimizeOpenMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Google Maps'**
+  String get tripOptimizeOpenMaps;
+
+  /// No description provided for @tripOptimizeOwnOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ll use my own order'**
+  String get tripOptimizeOwnOrder;
+
+  /// No description provided for @tripOptimizeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not optimize this route right now.'**
+  String get tripOptimizeFailed;
+
+  /// No description provided for @tripOpenMapsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open Google Maps.'**
+  String get tripOpenMapsFailed;
 }
 
 class _AppLocalizationsDelegate

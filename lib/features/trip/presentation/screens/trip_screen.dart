@@ -17,14 +17,18 @@ import '../../../rating/application/rating_providers.dart';
 import '../../../safety/presentation/widgets/sos_button.dart';
 import '../../application/active_trip_provider.dart';
 import '../../application/end_trip_controller.dart';
+import '../../application/optimize_route_controller.dart';
 import '../../application/trip_tracking.dart';
 import '../../data/models/active_trip.dart';
+import '../../data/models/geo_point.dart';
 import '../../data/models/trip_type.dart';
 import '../widgets/kids_not_dropped_sheet.dart';
+import '../widgets/optimized_route_sheet.dart';
 import '../widgets/recenter_button.dart';
 import '../widgets/trip_banners.dart';
 import '../widgets/trip_bottom_card.dart';
 import '../widgets/trip_header.dart';
+import '../widgets/trip_map_button.dart';
 import '../widgets/trip_map.dart';
 
 /// The running trip: live map, passengers, scan, SOS and End Trip.
@@ -165,6 +169,31 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     context.go(pending.isEmpty ? AppRoutes.home : AppRoutes.rateTripOf(tripId));
   }
 
+  /// Advisory only — never blocks the driver's own judgment. Asks the backend
+  /// for the stops' best order from the van's position and shows it as a
+  /// suggestion to take or leave.
+  Future<void> _optimizeRoute() async {
+    final l10n = context.l10n;
+    final last = ref.read(tripTrackingProvider).lastPosition;
+    final result =
+        await ref.read(optimizeRouteControllerProvider.notifier).optimize(
+              tripId: widget.tripId,
+              position: last ??
+                  GeoPoint(
+                      lat: _fallbackCenter.latitude,
+                      lng: _fallbackCenter.longitude),
+            );
+    if (!mounted) return;
+    switch (result) {
+      case RouteOptimized(:final route):
+        await OptimizedRouteSheet.show(context, route);
+      case OptimizeRouteFailed():
+        AppSnack.error(context, l10n.tripOptimizeFailed);
+      case null:
+        break;
+    }
+  }
+
   Future<void> _openScanner() async {
     await context.push(AppRoutes.scan);
     if (mounted) {
@@ -180,6 +209,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     final passengers = ref.watch(passengersControllerProvider(widget.tripId));
     final profile = ref.watch(driverProfileProvider).valueOrNull;
     final ending = ref.watch(endTripControllerProvider);
+    final optimizing = ref.watch(optimizeRouteControllerProvider);
     final pending = ref.watch(syncQueueProvider).pending;
 
     ref.listen(passengersControllerProvider(widget.tripId), (_, next) {
@@ -267,52 +297,38 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                 Positioned(
                   top: 16,
                   right: 16,
-                  child: GestureDetector(
-                    onTap: () async {
-                      await context.push(AppRoutes.passengersOf(widget.tripId));
-                      // Refresh counts after picks/drops on that screen.
-                      if (mounted) {
-                        ref
-                            .read(passengersControllerProvider(widget.tripId)
-                                .notifier)
-                            .refresh();
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 8,
-                          ),
-                        ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      TripMapButton(
+                        icon: Icons.people,
+                        label: l10n.tripPassengersCount(total),
+                        onTap: () async {
+                          await context
+                              .push(AppRoutes.passengersOf(widget.tripId));
+                          // Refresh counts after picks/drops on that screen.
+                          if (mounted) {
+                            ref
+                                .read(
+                                    passengersControllerProvider(widget.tripId)
+                                        .notifier)
+                                .refresh();
+                          }
+                        },
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.people,
-                              color: Color(0xFF1B3B69), size: 18),
-                          const SizedBox(width: 6),
-                          Text(
-                            l10n.tripPassengersCount(total),
-                            style: const TextStyle(
-                              color: Color(0xFF1B3B69),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
-                        ],
+                      const SizedBox(height: 8),
+                      TripMapButton(
+                        icon: Icons.alt_route,
+                        label: l10n.tripOptimize,
+                        busy: optimizing,
+                        onTap: optimizing ? null : _optimizeRoute,
                       ),
-                    ),
+                    ],
                   ),
                 ),
                 const Positioned(top: 12, left: 16, child: SosButton()),
                 Positioned(
-                  top: 84,
+                  top: 116,
                   left: 16,
                   right: 16,
                   child: ValueListenableBuilder<int>(
