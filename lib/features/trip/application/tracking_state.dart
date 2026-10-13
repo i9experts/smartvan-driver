@@ -19,6 +19,14 @@ abstract class TripTrackingState with _$TripTrackingState {
     /// Metres per second from the GPS fix (null if the device doesn't report
     /// it). Kept for upcoming overspeed monitoring.
     double? lastSpeed,
+
+    /// The GPS signal looks weak (see `isGpsWeak`): the screen warns the
+    /// driver that the van's position may be late.
+    @Default(false) bool gpsWeak,
+
+    /// iOS only: location is not set to "Always", so tracking may stop when
+    /// the app goes to the background.
+    @Default(false) bool backgroundLocationLimited,
   }) = _TripTrackingState;
 
   String? get tripId => trip?.id;

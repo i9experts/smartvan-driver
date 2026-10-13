@@ -6,6 +6,7 @@ import 'package:smartvan_driver/core/config/app_config.dart';
 import 'package:smartvan_driver/core/network/app_exception.dart';
 import 'package:smartvan_driver/core/providers/core_providers.dart';
 import 'package:smartvan_driver/core/storage/token_store.dart';
+import 'package:smartvan_driver/features/trip/application/always_location.dart';
 import 'package:smartvan_driver/features/trip/application/kid_absence_events.dart';
 import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
 import 'package:smartvan_driver/features/trip/application/tracking_backend.dart';
@@ -26,9 +27,27 @@ class _FakeTripRepo extends Mock implements TripRepository {}
 
 class _FakeTokens extends Mock implements TokenStore {}
 
+class _FakeAlways implements AlwaysLocation {
+  @override
+  bool applies = false;
+  bool granted = false;
+  bool grantedWhenAsked = false;
+  int asked = 0;
+
+  @override
+  Future<bool> isGranted() async => granted;
+
+  @override
+  Future<bool> askOnce() async {
+    asked++;
+    return grantedWhenAsked;
+  }
+}
+
 void main() {
   late FakeLocation location;
   late FakeTrackingBackend backend;
+  late _FakeAlways always;
   late FakeSocket socket;
   late FakeSyncQueue queue;
   late _FakeTripRepo repo;
@@ -49,6 +68,7 @@ void main() {
   setUp(() {
     location = FakeLocation();
     backend = FakeTrackingBackend();
+    always = _FakeAlways();
     socket = FakeSocket();
     queue = FakeSyncQueue();
     repo = _FakeTripRepo();
@@ -67,6 +87,7 @@ void main() {
     container = ProviderContainer(overrides: [
       locationServiceProvider.overrideWithValue(location),
       trackingBackendProvider.overrideWithValue(backend),
+      alwaysLocationProvider.overrideWithValue(always),
       socketFactoryProvider.overrideWithValue((url, options) {
         socketsCreated.add((url, options));
         return socket;
@@ -224,6 +245,99 @@ void main() {
       backend.emit(1, 2);
       await pumpEventQueue();
       expect(state().lastPosition, isNull);
+    });
+  });
+
+  group('GPS signal', () {
+    test('a fresh accurate fix: not weak', () async {
+      await tracking().start(trip);
+      backend.emit(1, 2, speed: 8);
+      await pumpEventQueue();
+      expect(state().gpsWeak, isFalse);
+    });
+
+    test('a bad accuracy makes it weak, a good one clears it', () async {
+      await tracking().start(trip);
+      backend.emit(1, 2, speed: 8, accuracy: 80);
+      await pumpEventQueue();
+      expect(state().gpsWeak, isTrue);
+      backend.emit(1, 2, speed: 8, accuracy: 6);
+      await pumpEventQueue();
+      expect(state().gpsWeak, isFalse);
+    });
+
+    test('a moving van with no reading for 20 s is weak', () async {
+      await tracking().start(trip);
+      backend.emit(1, 2, speed: 8);
+      await pumpEventQueue();
+      now = now.add(const Duration(seconds: 25));
+      tracking().checkGpsSignal();
+      expect(state().gpsWeak, isTrue);
+    });
+
+    test('heartbeats are not readings: a moving van with only repeats is weak',
+        () async {
+      await tracking().start(trip);
+      backend.emit(1, 2, speed: 8);
+      await pumpEventQueue();
+      now = now.add(const Duration(seconds: 25));
+      backend.emit(1, 2, speed: 0, synthetic: true);
+      await pumpEventQueue();
+      expect(state().gpsWeak, isFalse,
+          reason: 'its speed is now 0 (the repeat says standing still)');
+    });
+
+    test('a van standing still is not weak', () async {
+      await tracking().start(trip);
+      backend.emit(1, 2, speed: 0);
+      await pumpEventQueue();
+      now = now.add(const Duration(minutes: 10));
+      tracking().checkGpsSignal();
+      expect(state().gpsWeak, isFalse);
+    });
+
+    test('no reading at all since tracking began: weak after 20 s', () async {
+      await tracking().start(trip);
+      now = now.add(const Duration(seconds: 21));
+      tracking().checkGpsSignal();
+      expect(state().gpsWeak, isTrue);
+    });
+
+    test('not tracking: never weak', () async {
+      tracking().checkGpsSignal();
+      expect(state().gpsWeak, isFalse);
+    });
+  });
+
+  group('iOS "Always" location', () {
+    test('not iOS: nothing to ask, nothing limited', () async {
+      await tracking().start(trip);
+      expect(always.asked, 0);
+      expect(state().backgroundLocationLimited, isFalse);
+    });
+
+    test('iOS with Always: not limited, not asked', () async {
+      always.applies = true;
+      always.granted = true;
+      await tracking().start(trip);
+      expect(always.asked, 0);
+      expect(state().backgroundLocationLimited, isFalse);
+    });
+
+    test('iOS without Always: asks once; if still no, the screen says so',
+        () async {
+      always.applies = true;
+      await tracking().start(trip);
+      expect(always.asked, 1);
+      expect(state().backgroundLocationLimited, isTrue);
+      expect(state().isTracking, isTrue, reason: 'tracking goes on anyway');
+    });
+
+    test('iOS: allowed when asked', () async {
+      always.applies = true;
+      always.grantedWhenAsked = true;
+      await tracking().start(trip);
+      expect(state().backgroundLocationLimited, isFalse);
     });
   });
 

@@ -24,6 +24,14 @@ mixin _$TripTrackingState {
   /// it). Kept for upcoming overspeed monitoring.
   double? get lastSpeed;
 
+  /// The GPS signal looks weak (see `isGpsWeak`): the screen warns the
+  /// driver that the van's position may be late.
+  bool get gpsWeak;
+
+  /// iOS only: location is not set to "Always", so tracking may stop when
+  /// the app goes to the background.
+  bool get backgroundLocationLimited;
+
   /// Create a copy of TripTrackingState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,16 +53,27 @@ mixin _$TripTrackingState {
             (identical(other.lastPosition, lastPosition) ||
                 other.lastPosition == lastPosition) &&
             (identical(other.lastSpeed, lastSpeed) ||
-                other.lastSpeed == lastSpeed));
+                other.lastSpeed == lastSpeed) &&
+            (identical(other.gpsWeak, gpsWeak) || other.gpsWeak == gpsWeak) &&
+            (identical(other.backgroundLocationLimited,
+                    backgroundLocationLimited) ||
+                other.backgroundLocationLimited == backgroundLocationLimited));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, trip, isTracking, socketConnected, lastPosition, lastSpeed);
+      runtimeType,
+      trip,
+      isTracking,
+      socketConnected,
+      lastPosition,
+      lastSpeed,
+      gpsWeak,
+      backgroundLocationLimited);
 
   @override
   String toString() {
-    return 'TripTrackingState(trip: $trip, isTracking: $isTracking, socketConnected: $socketConnected, lastPosition: $lastPosition, lastSpeed: $lastSpeed)';
+    return 'TripTrackingState(trip: $trip, isTracking: $isTracking, socketConnected: $socketConnected, lastPosition: $lastPosition, lastSpeed: $lastSpeed, gpsWeak: $gpsWeak, backgroundLocationLimited: $backgroundLocationLimited)';
   }
 }
 
@@ -69,7 +88,9 @@ abstract mixin class $TripTrackingStateCopyWith<$Res> {
       bool isTracking,
       bool socketConnected,
       GeoPoint? lastPosition,
-      double? lastSpeed});
+      double? lastSpeed,
+      bool gpsWeak,
+      bool backgroundLocationLimited});
 
   $ActiveTripCopyWith<$Res>? get trip;
   $GeoPointCopyWith<$Res>? get lastPosition;
@@ -93,6 +114,8 @@ class _$TripTrackingStateCopyWithImpl<$Res>
     Object? socketConnected = null,
     Object? lastPosition = freezed,
     Object? lastSpeed = freezed,
+    Object? gpsWeak = null,
+    Object? backgroundLocationLimited = null,
   }) {
     return _then(_self.copyWith(
       trip: freezed == trip
@@ -115,6 +138,14 @@ class _$TripTrackingStateCopyWithImpl<$Res>
           ? _self.lastSpeed
           : lastSpeed // ignore: cast_nullable_to_non_nullable
               as double?,
+      gpsWeak: null == gpsWeak
+          ? _self.gpsWeak
+          : gpsWeak // ignore: cast_nullable_to_non_nullable
+              as bool,
+      backgroundLocationLimited: null == backgroundLocationLimited
+          ? _self.backgroundLocationLimited
+          : backgroundLocationLimited // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 
@@ -240,16 +271,28 @@ extension TripTrackingStatePatterns on TripTrackingState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(ActiveTrip? trip, bool isTracking, bool socketConnected,
-            GeoPoint? lastPosition, double? lastSpeed)?
+    TResult Function(
+            ActiveTrip? trip,
+            bool isTracking,
+            bool socketConnected,
+            GeoPoint? lastPosition,
+            double? lastSpeed,
+            bool gpsWeak,
+            bool backgroundLocationLimited)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _TripTrackingState() when $default != null:
-        return $default(_that.trip, _that.isTracking, _that.socketConnected,
-            _that.lastPosition, _that.lastSpeed);
+        return $default(
+            _that.trip,
+            _that.isTracking,
+            _that.socketConnected,
+            _that.lastPosition,
+            _that.lastSpeed,
+            _that.gpsWeak,
+            _that.backgroundLocationLimited);
       case _:
         return orElse();
     }
@@ -270,15 +313,27 @@ extension TripTrackingStatePatterns on TripTrackingState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(ActiveTrip? trip, bool isTracking, bool socketConnected,
-            GeoPoint? lastPosition, double? lastSpeed)
+    TResult Function(
+            ActiveTrip? trip,
+            bool isTracking,
+            bool socketConnected,
+            GeoPoint? lastPosition,
+            double? lastSpeed,
+            bool gpsWeak,
+            bool backgroundLocationLimited)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _TripTrackingState():
-        return $default(_that.trip, _that.isTracking, _that.socketConnected,
-            _that.lastPosition, _that.lastSpeed);
+        return $default(
+            _that.trip,
+            _that.isTracking,
+            _that.socketConnected,
+            _that.lastPosition,
+            _that.lastSpeed,
+            _that.gpsWeak,
+            _that.backgroundLocationLimited);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -298,15 +353,27 @@ extension TripTrackingStatePatterns on TripTrackingState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(ActiveTrip? trip, bool isTracking, bool socketConnected,
-            GeoPoint? lastPosition, double? lastSpeed)?
+    TResult? Function(
+            ActiveTrip? trip,
+            bool isTracking,
+            bool socketConnected,
+            GeoPoint? lastPosition,
+            double? lastSpeed,
+            bool gpsWeak,
+            bool backgroundLocationLimited)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _TripTrackingState() when $default != null:
-        return $default(_that.trip, _that.isTracking, _that.socketConnected,
-            _that.lastPosition, _that.lastSpeed);
+        return $default(
+            _that.trip,
+            _that.isTracking,
+            _that.socketConnected,
+            _that.lastPosition,
+            _that.lastSpeed,
+            _that.gpsWeak,
+            _that.backgroundLocationLimited);
       case _:
         return null;
     }
@@ -321,7 +388,9 @@ class _TripTrackingState extends TripTrackingState {
       this.isTracking = false,
       this.socketConnected = false,
       this.lastPosition,
-      this.lastSpeed})
+      this.lastSpeed,
+      this.gpsWeak = false,
+      this.backgroundLocationLimited = false})
       : super._();
 
   /// The trip on this phone (tracked or not).
@@ -340,6 +409,18 @@ class _TripTrackingState extends TripTrackingState {
   /// it). Kept for upcoming overspeed monitoring.
   @override
   final double? lastSpeed;
+
+  /// The GPS signal looks weak (see `isGpsWeak`): the screen warns the
+  /// driver that the van's position may be late.
+  @override
+  @JsonKey()
+  final bool gpsWeak;
+
+  /// iOS only: location is not set to "Always", so tracking may stop when
+  /// the app goes to the background.
+  @override
+  @JsonKey()
+  final bool backgroundLocationLimited;
 
   /// Create a copy of TripTrackingState
   /// with the given fields replaced by the non-null parameter values.
@@ -362,16 +443,27 @@ class _TripTrackingState extends TripTrackingState {
             (identical(other.lastPosition, lastPosition) ||
                 other.lastPosition == lastPosition) &&
             (identical(other.lastSpeed, lastSpeed) ||
-                other.lastSpeed == lastSpeed));
+                other.lastSpeed == lastSpeed) &&
+            (identical(other.gpsWeak, gpsWeak) || other.gpsWeak == gpsWeak) &&
+            (identical(other.backgroundLocationLimited,
+                    backgroundLocationLimited) ||
+                other.backgroundLocationLimited == backgroundLocationLimited));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, trip, isTracking, socketConnected, lastPosition, lastSpeed);
+      runtimeType,
+      trip,
+      isTracking,
+      socketConnected,
+      lastPosition,
+      lastSpeed,
+      gpsWeak,
+      backgroundLocationLimited);
 
   @override
   String toString() {
-    return 'TripTrackingState(trip: $trip, isTracking: $isTracking, socketConnected: $socketConnected, lastPosition: $lastPosition, lastSpeed: $lastSpeed)';
+    return 'TripTrackingState(trip: $trip, isTracking: $isTracking, socketConnected: $socketConnected, lastPosition: $lastPosition, lastSpeed: $lastSpeed, gpsWeak: $gpsWeak, backgroundLocationLimited: $backgroundLocationLimited)';
   }
 }
 
@@ -388,7 +480,9 @@ abstract mixin class _$TripTrackingStateCopyWith<$Res>
       bool isTracking,
       bool socketConnected,
       GeoPoint? lastPosition,
-      double? lastSpeed});
+      double? lastSpeed,
+      bool gpsWeak,
+      bool backgroundLocationLimited});
 
   @override
   $ActiveTripCopyWith<$Res>? get trip;
@@ -414,6 +508,8 @@ class __$TripTrackingStateCopyWithImpl<$Res>
     Object? socketConnected = null,
     Object? lastPosition = freezed,
     Object? lastSpeed = freezed,
+    Object? gpsWeak = null,
+    Object? backgroundLocationLimited = null,
   }) {
     return _then(_TripTrackingState(
       trip: freezed == trip
@@ -436,6 +532,14 @@ class __$TripTrackingStateCopyWithImpl<$Res>
           ? _self.lastSpeed
           : lastSpeed // ignore: cast_nullable_to_non_nullable
               as double?,
+      gpsWeak: null == gpsWeak
+          ? _self.gpsWeak
+          : gpsWeak // ignore: cast_nullable_to_non_nullable
+              as bool,
+      backgroundLocationLimited: null == backgroundLocationLimited
+          ? _self.backgroundLocationLimited
+          : backgroundLocationLimited // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 

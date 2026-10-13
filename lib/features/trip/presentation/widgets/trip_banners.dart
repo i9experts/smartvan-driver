@@ -8,11 +8,21 @@ class TripBanners extends StatelessWidget {
     required this.isTracking,
     required this.pending,
     required this.onTurnOn,
+    this.gpsWeak = false,
+    this.needsAlwaysLocation = false,
+    this.onOpenSettings,
   });
 
   final bool isTracking;
   final int pending;
   final VoidCallback onTurnOn;
+
+  /// A light warning: the GPS signal is weak, the van's position may be late.
+  final bool gpsWeak;
+
+  /// iOS: location is not "Always" — tracking may stop in the background.
+  final bool needsAlwaysLocation;
+  final VoidCallback? onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +39,26 @@ class TripBanners extends StatelessWidget {
                 style: const TextStyle(
                     color: Colors.white, fontFamily: 'Poppins')),
           ),
+        ),
+      if (gpsWeak && isTracking)
+        _Banner(
+          icon: Icons.gps_not_fixed,
+          text: l10n.tripGpsWeak,
+          color: const Color(0xFFF2994A),
+        ),
+      if (needsAlwaysLocation && isTracking)
+        _Banner(
+          icon: Icons.location_searching,
+          text: l10n.tripLocationAlwaysHint,
+          color: const Color(0xFF2D4099),
+          action: onOpenSettings == null
+              ? null
+              : TextButton(
+                  onPressed: onOpenSettings,
+                  child: Text(l10n.tripOpenSettings,
+                      style: const TextStyle(
+                          color: Colors.white, fontFamily: 'Poppins')),
+                ),
         ),
       if (pending > 0)
         _Banner(

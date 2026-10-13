@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/formatting/date_formats.dart';
 import '../../../../core/map/animated_van_marker.dart';
@@ -101,7 +102,8 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     final guard = ref.read(batteryGuardProvider);
     final guide = await guard.run();
     if (guide == null || !mounted) return;
-    await OemGuideSheet.show(context, guide, () => guard.openSettingsFor(guide));
+    await OemGuideSheet.show(
+        context, guide, () => guard.openSettingsFor(guide));
   }
 
   Future<void> _endTrip() async {
@@ -372,6 +374,9 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                     valueListenable: pending,
                     builder: (context, count, _) => TripBanners(
                       isTracking: tracking.isTracking,
+                      gpsWeak: tracking.gpsWeak,
+                      needsAlwaysLocation: tracking.backgroundLocationLimited,
+                      onOpenSettings: openAppSettings,
                       pending: count,
                       onTurnOn: _startTracking,
                     ),

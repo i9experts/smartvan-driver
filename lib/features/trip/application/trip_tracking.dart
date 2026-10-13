@@ -6,12 +6,14 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../../../core/config/app_config.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../core/storage/token_store.dart';
+import '../../../core/tracking/gps_signal.dart';
 import '../../../core/tracking/tracked_point.dart';
 import '../../passengers/data/models/kid_absence_event.dart';
 import '../data/active_trip_store.dart';
 import '../data/models/active_trip.dart';
 import '../data/models/geo_point.dart';
 import '../data/trip_repository.dart';
+import 'always_location.dart';
 import 'kid_absence_events.dart';
 import 'tracking_backend.dart';
 import 'tracking_state.dart';
@@ -42,6 +44,14 @@ class TripTracking extends _$TripTracking {
   io.Socket? _socket;
   StreamSubscription<TrackedPoint>? _fixSub;
   StreamSubscription<void>? _overSub;
+  Timer? _signalTimer;
+  DateTime? _trackingStartedAt;
+  DateTime? _lastRealFixAt;
+  double? _lastAccuracy;
+
+  /// How often the GPS signal is re-judged (a dead GPS sends no fixes to
+  /// trigger it).
+  static const signalCheckEvery = Duration(seconds: 5);
 
   /// Captured in [build] so teardown never has to read a provider.
   late loc.Location _location;
@@ -76,7 +86,10 @@ class TripTracking extends _$TripTracking {
       return permission;
     }
 
-    state = TripTrackingState(trip: trip, isTracking: true);
+    state = TripTrackingState(
+        trip: trip,
+        isTracking: true,
+        backgroundLocationLimited: !await _hasAlwaysLocation());
     await ref.read(activeTripStoreProvider).save(trip);
     await _connectSocket(id);
 
@@ -93,6 +106,11 @@ class TripTracking extends _$TripTracking {
       stop();
     });
     await _backend.start(id);
+    _trackingStartedAt = ref.read(clockProvider)();
+    _lastRealFixAt = null;
+    _lastAccuracy = null;
+    _signalTimer?.cancel();
+    _signalTimer = Timer.periodic(signalCheckEvery, (_) => checkGpsSignal());
     return TrackingStartResult.started;
   }
 
@@ -164,7 +182,12 @@ class TripTracking extends _$TripTracking {
     final id = state.tripId;
     if (id == null) return;
     final position = GeoPoint(lat: point.lat, lng: point.lng);
+    if (!point.synthetic) {
+      _lastRealFixAt = ref.read(clockProvider)();
+      _lastAccuracy = point.accuracy;
+    }
     state = state.copyWith(lastPosition: position, lastSpeed: point.speed);
+    checkGpsSignal();
     if (_socket?.connected == true) {
       _socket!.emit(
           'updateLocation',
@@ -248,7 +271,36 @@ class TripTracking extends _$TripTracking {
         );
   }
 
+  /// iOS: is location "Always"? Asks once; false means tracking may end
+  /// early in the background (the screen says so). Always true elsewhere.
+  Future<bool> _hasAlwaysLocation() async {
+    try {
+      final always = ref.read(alwaysLocationProvider);
+      if (!always.applies) return true;
+      return await always.isGranted() || await always.askOnce();
+    } catch (e) {
+      debugPrint('[Tracking] always-location check failed: $e');
+      return true;
+    }
+  }
+
+  /// Judges the GPS signal now and updates [TripTrackingState.gpsWeak].
+  @visibleForTesting
+  void checkGpsSignal() {
+    if (!state.isTracking) return;
+    final weak = isGpsWeak(
+      now: ref.read(clockProvider)(),
+      lastRealFixAt: _lastRealFixAt,
+      trackingStartedAt: _trackingStartedAt,
+      accuracy: _lastAccuracy,
+      lastSpeed: state.lastSpeed,
+    );
+    if (weak != state.gpsWeak) state = state.copyWith(gpsWeak: weak);
+  }
+
   Future<void> _teardown() async {
+    _signalTimer?.cancel();
+    _signalTimer = null;
     await _fixSub?.cancel();
     _fixSub = null;
     await _overSub?.cancel();

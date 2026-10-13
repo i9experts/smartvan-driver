@@ -20,13 +20,17 @@ class FakeTrackingBackend implements TrackingBackend {
 
   /// A point as the backend would report it (speed in m/s).
   void emit(double lat, double lng,
-          {double? speed, double? heading, bool synthetic = false}) =>
+          {double? speed,
+          double? heading,
+          double? accuracy,
+          bool synthetic = false}) =>
       _fixes.add(TrackedPoint(
         lat: lat,
         lng: lng,
         time: DateTime.utc(2026, 10, 6, 8),
         speed: speed,
         heading: heading,
+        accuracy: accuracy,
         synthetic: synthetic,
       ));
 
