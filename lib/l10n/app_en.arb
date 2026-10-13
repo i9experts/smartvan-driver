@@ -674,6 +674,8 @@
   "tripMapYourLocation": "Your Location",
   "tripMapSchool": "School",
   "tripRecenter": "Re-center",
+  "tripCompassNorth": "Point map north",
+  "tripCompassHeadingUp": "Rotate map with van",
   "tripEndTrip": "End Trip",
   "tripEndConfirm": "Are you sure you want to end this trip?",
   "tripEndedForced": "Trip ended. The school has been alerted.",

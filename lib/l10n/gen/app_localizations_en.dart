@@ -1117,6 +1117,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripRecenter => 'Re-center';
 
   @override
+  String get tripCompassNorth => 'Point map north';
+
+  @override
+  String get tripCompassHeadingUp => 'Rotate map with van';
+
+  @override
   String get tripEndTrip => 'End Trip';
 
   @override

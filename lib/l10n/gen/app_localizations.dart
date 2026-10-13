@@ -2032,6 +2032,18 @@ abstract class AppLocalizations {
   /// **'Re-center'**
   String get tripRecenter;
 
+  /// No description provided for @tripCompassNorth.
+  ///
+  /// In en, this message translates to:
+  /// **'Point map north'**
+  String get tripCompassNorth;
+
+  /// No description provided for @tripCompassHeadingUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate map with van'**
+  String get tripCompassHeadingUp;
+
   /// No description provided for @tripEndTrip.
   ///
   /// In en, this message translates to:

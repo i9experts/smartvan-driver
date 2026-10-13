@@ -6,6 +6,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/formatting/date_formats.dart';
 import '../../../../core/map/animated_van_marker.dart';
 import '../../../../core/map/follow_camera.dart';
+import '../../../../core/map/map_compass.dart';
+import '../../../../core/map/map_compass_button.dart';
 import '../../../../core/map/stop_marker_icon.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/router/app_routes.dart';
@@ -61,6 +63,10 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   /// Keeps the camera on the van until the driver moves the map.
   final FollowCameraController _follow = FollowCameraController();
 
+  /// The compass button: north up / heading up, and the needle's bearing.
+  late final MapCompassController _compass =
+      MapCompassController(follow: _follow);
+
   @override
   void initState() {
     super.initState();
@@ -71,6 +77,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
   void dispose() {
     // Tracking intentionally keeps running — it belongs to the trip, not to
     // this screen. It stops only when the trip is ended.
+    _compass.dispose();
     _follow.dispose();
     _mapController?.dispose();
     super.dispose();
@@ -316,7 +323,9 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                   position: last == null ? null : LatLng(last.lat, last.lng),
                   speedMetersPerSecond: tracking.lastSpeed,
                   title: l10n.tripMapYourLocation,
-                  onPose: _follow.onPose,
+                  onPose: (pose) => _follow.onPose(pose,
+                      speedMetersPerSecond:
+                          ref.read(tripTrackingProvider).lastSpeed),
                   builder: (context, markers) => Listener(
                     // Touching the map means the driver is looking around.
                     behavior: HitTestBehavior.translucent,
@@ -326,9 +335,11 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                       target: driverPosition,
                       markers: {...planMarkerSet, ...markers},
                       polylines: lines,
+                      onCameraMove: _compass.onCameraMove,
                       onCreated: (c) {
                         _mapController = c;
-                        _follow.attachMap(c);
+                        _follow.attachMap(c, zoom: () => _compass.zoom);
+                        _compass.attachMap(c);
                       },
                     ),
                   ),
@@ -390,19 +401,38 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      ListenableBuilder(
-                        listenable: _follow,
-                        builder: (context, _) => _follow.following
-                            ? const SizedBox.shrink()
-                            : Align(
-                                alignment: AlignmentDirectional.centerEnd,
-                                child: Padding(
-                                  padding: const EdgeInsetsDirectional.only(
-                                      end: 16, bottom: 12),
-                                  child: RecenterButton(
-                                      onPressed: _follow.recenter),
+                      // Always there, just above the bottom card: the compass,
+                      // and Re-center once the driver moved the map away.
+                      Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                              end: 16, bottom: 12),
+                          child: ListenableBuilder(
+                            listenable: Listenable.merge([_follow, _compass]),
+                            builder: (context, _) => Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                MapCompassButton(
+                                  bearing: _compass.bearing,
+                                  headingUp: _compass.headingUp,
+                                  semanticLabel: switch (_compass.nextAction) {
+                                    CompassTapAction.pointNorth =>
+                                      l10n.tripCompassNorth,
+                                    CompassTapAction.headingUp =>
+                                      l10n.tripCompassHeadingUp,
+                                  },
+                                  onPressed: _compass.onPressed,
                                 ),
-                              ),
+                                if (!_follow.following) ...[
+                                  const SizedBox(height: 8),
+                                  RecenterButton(onPressed: _follow.recenter),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                       TripBottomCard(
                         driverName: driverName,

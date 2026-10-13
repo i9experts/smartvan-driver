@@ -10,6 +10,7 @@ typedef TripMapBuilder = Widget Function(
   required Set<Marker> markers,
   required Set<Polyline> polylines,
   required void Function(GoogleMapController controller) onCreated,
+  required void Function(CameraPosition position) onCameraMove,
 });
 
 final tripMapBuilderProvider = Provider<TripMapBuilder>(
@@ -17,15 +18,22 @@ final tripMapBuilderProvider = Provider<TripMapBuilder>(
           {required target,
           required markers,
           required polylines,
-          required onCreated}) =>
+          required onCreated,
+          required onCameraMove}) =>
       GoogleMap(
         initialCameraPosition: CameraPosition(target: target, zoom: 14),
         onMapCreated: onCreated,
+        onCameraMove: onCameraMove,
         markers: markers,
         polylines: polylines,
         myLocationEnabled: true,
         myLocationButtonEnabled: false,
         zoomControlsEnabled: false,
         mapToolbarEnabled: false,
+        // Our own compass button replaces Google's; the driver can turn the
+        // map with two fingers, but it never tilts.
+        compassEnabled: false,
+        rotateGesturesEnabled: true,
+        tiltGesturesEnabled: false,
       ),
 );

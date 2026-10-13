@@ -14,6 +14,7 @@ import 'package:smartvan_driver/features/profile/data/models/driver_profile.dart
 import 'package:smartvan_driver/features/profile/data/profile_repository.dart';
 import 'package:smartvan_driver/features/rating/data/models/pending_ratee.dart';
 import 'package:smartvan_driver/features/rating/data/rating_repository.dart';
+import 'package:smartvan_driver/core/map/map_compass_button.dart';
 import 'package:smartvan_driver/features/trip/application/active_trip_provider.dart';
 import 'package:smartvan_driver/features/trip/application/end_trip_controller.dart';
 import 'package:smartvan_driver/features/trip/application/optimize_route_controller.dart';
@@ -51,6 +52,7 @@ void main() {
   late TrackingProbe probe;
   Set<Marker> mapMarkers = {};
   Set<Polyline> mapPolylines = {};
+  void Function(CameraPosition)? cameraMoved;
   late _FakePassengersRepo passengersRepo;
   late _FakeProfileRepo profileRepo;
   late _FakeRatingRepo ratingRepo;
@@ -148,9 +150,11 @@ void main() {
             {required target,
             required markers,
             required polylines,
-            required onCreated}) {
+            required onCreated,
+            required onCameraMove}) {
           mapMarkers = markers;
           mapPolylines = polylines;
+          cameraMoved = onCameraMove;
           return Container(key: const Key('fake-map'), color: Colors.black12);
         }),
       ];
@@ -328,6 +332,95 @@ void main() {
       await tester.tap(find.text('Re-center'));
       await tester.pump();
       expect(find.text('Re-center'), findsNothing);
+    });
+
+    group('compass', () {
+      Finder north() => find.bySemanticsLabel('Point map north');
+      Finder rotate() => find.bySemanticsLabel('Rotate map with van');
+
+      Future<void> touchMap(WidgetTester tester) async {
+        await tester.tapAt(
+            tester.getTopLeft(find.byKey(const Key('fake-map'))) +
+                const Offset(400, 20));
+        await tester.pump();
+      }
+
+      void cameraAt(double bearing) => cameraMoved!(CameraPosition(
+          target: const LatLng(24.86, 67.0), zoom: 15, bearing: bearing));
+
+      testWidgets('is always on the map, even while following', (tester) async {
+        await tester.pumpWidget(app());
+        await tester.pumpAndSettle();
+        expect(find.byType(MapCompassButton), findsOneWidget);
+        expect(find.text('Re-center'), findsNothing);
+      });
+
+      testWidgets('the needle follows the camera bearing', (tester) async {
+        await tester.pumpWidget(app());
+        await tester.pumpAndSettle();
+        cameraAt(90);
+        await tester.pump();
+        final turns = tester
+            .widget<AnimatedRotation>(find.byKey(const Key('compass-needle')))
+            .turns;
+        expect(turns, closeTo(-0.25, 1e-9));
+      });
+
+      testWidgets('its label says what a tap does', (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(app());
+        await tester.pumpAndSettle();
+        cameraAt(0);
+        await tester.pump();
+        expect(rotate(), findsOneWidget, reason: 'north + following');
+        cameraAt(60);
+        await tester.pump();
+        expect(north(), findsOneWidget, reason: 'turned: first back to north');
+        handle.dispose();
+      });
+
+      testWidgets('tap on a north map: heading-up arrow; tap again: needle',
+          (tester) async {
+        await tester.pumpWidget(app());
+        await tester.pumpAndSettle();
+        cameraAt(0);
+        await tester.pump();
+        await tester.tap(find.byType(MapCompassButton));
+        await tester.pump();
+        expect(find.byKey(const Key('compass-heading-up')), findsOneWidget);
+        expect(find.byKey(const Key('compass-needle')), findsNothing);
+
+        await tester.tap(find.byType(MapCompassButton));
+        await tester.pump();
+        expect(find.byKey(const Key('compass-needle')), findsOneWidget);
+      });
+
+      testWidgets('touching the map ends heading-up and shows Re-center',
+          (tester) async {
+        await tester.pumpWidget(app());
+        await tester.pumpAndSettle();
+        cameraAt(0);
+        await tester.pump();
+        await tester.tap(find.byType(MapCompassButton));
+        await tester.pump();
+        await touchMap(tester);
+        expect(find.byKey(const Key('compass-needle')), findsOneWidget);
+        expect(find.text('Re-center'), findsOneWidget);
+        expect(find.byType(MapCompassButton), findsOneWidget,
+            reason: 'the compass stays next to Re-center');
+      });
+
+      testWidgets('when not following a tap only points north (no heading-up)',
+          (tester) async {
+        await tester.pumpWidget(app());
+        await tester.pumpAndSettle();
+        await touchMap(tester);
+        cameraAt(0);
+        await tester.pump();
+        await tester.tap(find.byType(MapCompassButton));
+        await tester.pump();
+        expect(find.byKey(const Key('compass-heading-up')), findsNothing);
+      });
     });
 
     testWidgets('offline pill, and defaults when nothing else is known',
