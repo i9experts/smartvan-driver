@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:smartvan_driver/core/network/app_exception.dart';
-import 'package:smartvan_driver/core/sync/sync_queue.dart';
 import 'package:smartvan_driver/features/trip/data/kids_not_dropped_error.dart';
 import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip_status.dart';
@@ -9,19 +8,16 @@ import 'package:smartvan_driver/features/trip/data/models/trip_type.dart';
 import 'package:smartvan_driver/features/trip/data/trip_repository.dart';
 
 import '../../../support/api_env.dart';
-import '../../../support/fake_sync_queue.dart';
 import '../../../support/fixture.dart';
 
 void main() {
   late ApiTestEnv env;
-  late FakeSyncQueue queue;
   late TripRepository repo;
   const here = GeoPoint(lat: 24.8607, lng: 67.0011);
 
   setUp(() {
     env = ApiTestEnv();
-    queue = FakeSyncQueue();
-    repo = TripRepository(env.client, queue);
+    repo = TripRepository(env.client);
   });
 
   group('assignedRoutes', () {
@@ -221,54 +217,6 @@ void main() {
           data: Matchers.any);
       await expectLater(
           repo.endTrip(tripId: 't'),
-          throwsA(isA<ApiError>()
-              .having((e) => e.code, 'code', TripErrorCodes.tripNotOngoing)));
-    });
-  });
-
-  group('sendLocation (offline queue)', () {
-    test('goes through the queue as kind location with `lng` and speed',
-        () async {
-      queue.outcome = SubmitOutcome.sent;
-      final outcome = await repo.sendLocation(
-          tripId: 'trip-001', position: here, speedMetersPerSecond: 9.5);
-      expect(outcome, SubmitOutcome.sent);
-      final call = queue.calls.single;
-      expect(call.kind, SyncKind.location);
-      expect(call.path, '/trips/updateLocation/trip-001');
-      expect(call.body, {'lat': 24.8607, 'lng': 67.0011, 'speed': 9.5});
-      expect(call.body.containsKey('long'), isFalse);
-      expect(call.tripId, 'trip-001');
-      expect(call.kidId, isNull);
-    });
-
-    test('speed is left out when unknown or negative', () async {
-      await repo.sendLocation(tripId: 't', position: here);
-      await repo.sendLocation(
-          tripId: 't', position: here, speedMetersPerSecond: -1);
-      expect(queue.calls[0].body, {'lat': 24.8607, 'lng': 67.0011});
-      expect(queue.calls[1].body, {'lat': 24.8607, 'lng': 67.0011});
-    });
-
-    test('zero speed is sent (the van is standing still)', () async {
-      await repo.sendLocation(
-          tripId: 't', position: here, speedMetersPerSecond: 0);
-      expect(queue.calls.single.body['speed'], 0.0);
-    });
-
-    test('queued outcome is passed on', () async {
-      queue.outcome = SubmitOutcome.queued;
-      expect(await repo.sendLocation(tripId: 't', position: here),
-          SubmitOutcome.queued);
-    });
-
-    test('TRIP_NOT_ONGOING from the server is an ApiError code', () async {
-      queue.error = const ApiError(
-          status: 400,
-          message: 'Trip is not ongoing',
-          code: 'TRIP_NOT_ONGOING');
-      await expectLater(
-          repo.sendLocation(tripId: 't', position: here),
           throwsA(isA<ApiError>()
               .having((e) => e.code, 'code', TripErrorCodes.tripNotOngoing)));
     });

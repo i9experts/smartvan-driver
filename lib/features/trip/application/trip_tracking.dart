@@ -4,16 +4,16 @@ import 'package:location/location.dart' as loc;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../../../core/config/app_config.dart';
-import '../../../core/network/app_exception.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../core/storage/token_store.dart';
+import '../../../core/tracking/tracked_point.dart';
 import '../../passengers/data/models/kid_absence_event.dart';
 import '../data/active_trip_store.dart';
 import '../data/models/active_trip.dart';
-import '../data/kids_not_dropped_error.dart';
 import '../data/models/geo_point.dart';
 import '../data/trip_repository.dart';
 import 'kid_absence_events.dart';
+import 'tracking_backend.dart';
 import 'tracking_state.dart';
 
 part 'trip_tracking.g.dart';
@@ -40,27 +40,17 @@ class PendingSyncException implements Exception {
 @Riverpod(keepAlive: true)
 class TripTracking extends _$TripTracking {
   io.Socket? _socket;
-  StreamSubscription<loc.LocationData>? _positionSub;
-  DateTime? _lastHttpUpdate;
-  DateTime? _lastFixAt;
-  Timer? _heartbeat;
-
-  /// The HTTP endpoint drives geofence push alerts; the socket drives the
-  /// live map. The socket gets every fix, HTTP at most this often.
-  static const httpInterval = Duration(seconds: 5);
-  static const heartbeatQuiet = Duration(seconds: 4);
-
-  /// GPS settings: a fix about every 2 s once the van moved 3 m, so the
-  /// parents' map follows smoothly.
-  static const gpsIntervalMs = 2000;
-  static const gpsDistanceFilterMeters = 3.0;
+  StreamSubscription<TrackedPoint>? _fixSub;
+  StreamSubscription<void>? _overSub;
 
   /// Captured in [build] so teardown never has to read a provider.
   late loc.Location _location;
+  late TrackingBackend _backend;
 
   @override
   TripTrackingState build() {
     _location = ref.read(locationServiceProvider);
+    _backend = ref.read(trackingBackendProvider);
     ref.onDispose(_teardown);
     return const TripTrackingState();
   }
@@ -89,21 +79,20 @@ class TripTracking extends _$TripTracking {
     state = TripTrackingState(trip: trip, isTracking: true);
     await ref.read(activeTripStoreProvider).save(trip);
     await _connectSocket(id);
-    await _enableBackgroundMode();
 
-    await _location.changeSettings(
-      accuracy: loc.LocationAccuracy.high,
-      interval: gpsIntervalMs,
-      distanceFilter: gpsDistanceFilterMeters, // quiet while stationary
-    );
-    await _positionSub?.cancel();
-    _positionSub = _location.onLocationChanged.listen(
-      _onLocation,
-      onError: (Object e) => debugPrint('[Tracking] location stream error: $e'),
-    );
-    _heartbeat?.cancel();
-    _heartbeat = Timer.periodic(httpInterval, (_) => heartbeat());
-    unawaited(_seedPosition());
+    // The backend finds the van, uploads (live, and later from its buffer)
+    // and repeats the last position while it stands still. Here the points
+    // only go to the screen and the live socket relay.
+    await _fixSub?.cancel();
+    await _overSub?.cancel();
+    _fixSub = _backend.fixes.listen(_onFix);
+    _overSub = _backend.tripOver.listen((_) {
+      // The trip was ended elsewhere (admin panel / another device): stop GPS
+      // instead of tracking forever.
+      debugPrint('[Tracking] server says trip is over — stopping');
+      stop();
+    });
+    await _backend.start(id);
     return TrackingStartResult.started;
   }
 
@@ -169,84 +158,22 @@ class TripTracking extends _$TripTracking {
     return null;
   }
 
-  /// A van that is standing still when tracking (re)starts — the app was
-  /// reopened mid-trip, say — gets no fix from the GPS stream (distance
-  /// filter), so ask once for where it is. Without it nothing is sent and
-  /// there is no heartbeat until the van moves.
-  Future<void> _seedPosition() async {
-    try {
-      final fix =
-          await _location.getLocation().timeout(const Duration(seconds: 8));
-      if (state.isTracking && state.lastPosition == null) _onLocation(fix);
-    } catch (e) {
-      debugPrint('[Tracking] first position unavailable: $e');
-    }
-  }
-
-  void _onLocation(loc.LocationData fix) {
-    final lat = fix.latitude;
-    final lng = fix.longitude;
+  /// A point from the backend: the screen and the live socket relay (every
+  /// 2 s while moving; uploads to the server are the backend's business).
+  void _onFix(TrackedPoint point) {
     final id = state.tripId;
-    if (lat == null || lng == null || id == null) return;
-
-    final point = GeoPoint(lat: lat, lng: lng);
-    _lastFixAt = ref.read(clockProvider)();
-    state = state.copyWith(lastPosition: point, lastSpeed: fix.speed);
-    _publish(id, point, speed: fix.speed, heading: fix.heading);
-  }
-
-  /// The GPS stays quiet while the van stands still (distance filter), but
-  /// the server works out "stopped for N minutes" from the updates it gets.
-  /// So when no fix came for [heartbeatQuiet], the last position is sent again
-  /// with speed 0 — over the socket and, every beat, by HTTP too.
-  @visibleForTesting
-  void heartbeat() {
-    final id = state.tripId;
-    final point = state.lastPosition;
-    final lastFix = _lastFixAt;
-    if (id == null || point == null || lastFix == null) return;
-    // A little under the timer period, so timer jitter never skips a beat.
-    if (ref.read(clockProvider)().difference(lastFix) < heartbeatQuiet) return;
-    _publish(id, point, speed: 0, forceHttp: true);
-  }
-
-  void _publish(String id, GeoPoint point,
-      {double? speed, double? heading, bool forceHttp = false}) {
+    if (id == null) return;
+    final position = GeoPoint(lat: point.lat, lng: point.lng);
+    state = state.copyWith(lastPosition: position, lastSpeed: point.speed);
     if (_socket?.connected == true) {
       _socket!.emit(
           'updateLocation',
           TripRepository.socketLocationPayload(
             id,
-            point,
-            speedMetersPerSecond: speed,
-            heading: heading,
+            position,
+            speedMetersPerSecond: point.speed,
+            heading: point.heading,
           ));
-    }
-
-    final now = ref.read(clockProvider)();
-    if (forceHttp ||
-        _lastHttpUpdate == null ||
-        now.difference(_lastHttpUpdate!) >= httpInterval) {
-      _lastHttpUpdate = now;
-      ref
-          .read(tripRepositoryProvider)
-          .sendLocation(
-            tripId: id,
-            position: point,
-            // m/s — the server records overspeed events from it.
-            speedMetersPerSecond: speed,
-          )
-          .then((_) {}, onError: (Object e) {
-        // The trip was ended elsewhere (admin panel / another device):
-        // stop GPS + foreground service instead of tracking forever.
-        if (e is ApiError && e.code == TripErrorCodes.tripNotOngoing) {
-          debugPrint('[Tracking] server says trip is over — stopping');
-          stop();
-          return;
-        }
-        // Otherwise non-fatal — live map still works via the socket.
-        debugPrint('[Tracking] updateLocation rejected: $e');
-      });
     }
   }
 
@@ -272,23 +199,6 @@ class TripTracking extends _$TripTracking {
     } catch (e) {
       debugPrint('[Tracking] permission check failed: $e');
       return TrackingStartResult.permissionDenied;
-    }
-  }
-
-  /// Android foreground service with a persistent notification, so the
-  /// GPS stream survives screen lock / switching apps during the trip.
-  Future<void> _enableBackgroundMode() async {
-    try {
-      await _location.changeNotificationOptions(
-        title: 'SmartVan — Trip in progress',
-        subtitle: 'Sharing your location with parents and school',
-        onTapBringToFront: true,
-      );
-      await _location.enableBackgroundMode(enable: true);
-    } catch (e) {
-      // Some OEM builds refuse this even with permission; foreground
-      // tracking still works.
-      debugPrint('[Tracking] enableBackgroundMode failed: $e');
     }
   }
 
@@ -339,17 +249,13 @@ class TripTracking extends _$TripTracking {
   }
 
   Future<void> _teardown() async {
-    await _positionSub?.cancel();
-    _positionSub = null;
-    _lastHttpUpdate = null;
-    _lastFixAt = null;
-    _heartbeat?.cancel();
-    _heartbeat = null;
+    await _fixSub?.cancel();
+    _fixSub = null;
+    await _overSub?.cancel();
+    _overSub = null;
+    await _backend.stop();
     _socket?.disconnect();
     _socket?.dispose();
     _socket = null;
-    try {
-      await _location.enableBackgroundMode(enable: false);
-    } catch (_) {}
   }
 }

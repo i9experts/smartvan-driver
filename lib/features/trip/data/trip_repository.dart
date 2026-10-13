@@ -2,8 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/json_helpers.dart';
 import '../../../core/network/network_providers.dart';
-import '../../../core/providers/core_providers.dart';
-import '../../../core/sync/sync_queue.dart';
 import 'models/assigned_route.dart';
 import 'models/geo_point.dart';
 import 'models/optimized_route.dart';
@@ -16,12 +14,11 @@ import 'models/trip_type.dart';
 ///
 /// Errors: see `TripErrorCodes` (`CHECKLIST_REQUIRED` from [startTrip],
 /// `KIDS_NOT_DROPPED` from [endTrip] — read the kids with
-/// `ApiError.kidsNotDropped`, `TRIP_NOT_ONGOING` from [sendLocation]).
+/// `ApiError.kidsNotDropped`).
 class TripRepository {
-  const TripRepository(this._api, this._queue);
+  const TripRepository(this._api);
 
   final ApiClient _api;
-  final SyncQueue _queue;
 
   /// `GET /Route/getAssignedTripByDriver` (capital `R`, like every other
   /// route call; the server's case-insensitive matching used to hide the
@@ -102,28 +99,6 @@ class TripRepository {
         body: {'tripId': tripId, 'lat': position.lat, 'long': position.lng},
       );
 
-  /// `POST /trips/updateLocation/{tripId}` through the offline queue.
-  /// REST spells longitude `lng`; [speedMetersPerSecond] is only sent when it
-  /// is known and not negative (the server records overspeed from it). The
-  /// queue keeps only the newest queued point per trip and drops stale ones.
-  Future<SubmitOutcome> sendLocation({
-    required String tripId,
-    required GeoPoint position,
-    double? speedMetersPerSecond,
-  }) {
-    final speed = speedMetersPerSecond;
-    return _queue.submit(
-      kind: SyncKind.location,
-      path: '/trips/updateLocation/$tripId',
-      body: {
-        'lat': position.lat,
-        'lng': position.lng,
-        if (speed != null && speed >= 0) 'speed': speed,
-      },
-      tripId: tripId,
-    );
-  }
-
   /// Payload of the Socket.IO `updateLocation` event:
   /// `{tripId, location: {lat, lng}, speed?, heading?}` — speed in m/s,
   /// heading in degrees. Unknown (null) or negative values (the GPS's "no
@@ -144,8 +119,5 @@ class TripRepository {
 }
 
 final tripRepositoryProvider = Provider<TripRepository>(
-  (ref) => TripRepository(
-    ref.watch(apiClientProvider),
-    ref.watch(syncQueueProvider),
-  ),
+  (ref) => TripRepository(ref.watch(apiClientProvider)),
 );

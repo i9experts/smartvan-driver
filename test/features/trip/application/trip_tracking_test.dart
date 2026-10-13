@@ -6,9 +6,9 @@ import 'package:smartvan_driver/core/config/app_config.dart';
 import 'package:smartvan_driver/core/network/app_exception.dart';
 import 'package:smartvan_driver/core/providers/core_providers.dart';
 import 'package:smartvan_driver/core/storage/token_store.dart';
-import 'package:smartvan_driver/core/sync/sync_queue.dart';
 import 'package:smartvan_driver/features/trip/application/kid_absence_events.dart';
 import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
+import 'package:smartvan_driver/features/trip/application/tracking_backend.dart';
 import 'package:smartvan_driver/features/trip/data/active_trip_store.dart';
 import 'package:smartvan_driver/features/trip/data/kids_not_dropped_error.dart';
 import 'package:smartvan_driver/features/trip/data/models/active_trip.dart';
@@ -19,6 +19,7 @@ import 'package:smartvan_driver/features/trip/data/trip_repository.dart';
 import '../../../support/fake_location.dart';
 import '../../../support/fake_socket.dart';
 import '../../../support/fake_sync_queue.dart';
+import '../../../support/fake_tracking_backend.dart';
 import '../../../support/memory_active_trip_store.dart';
 
 class _FakeTripRepo extends Mock implements TripRepository {}
@@ -27,6 +28,7 @@ class _FakeTokens extends Mock implements TokenStore {}
 
 void main() {
   late FakeLocation location;
+  late FakeTrackingBackend backend;
   late FakeSocket socket;
   late FakeSyncQueue queue;
   late _FakeTripRepo repo;
@@ -46,6 +48,7 @@ void main() {
 
   setUp(() {
     location = FakeLocation();
+    backend = FakeTrackingBackend();
     socket = FakeSocket();
     queue = FakeSyncQueue();
     repo = _FakeTripRepo();
@@ -54,11 +57,6 @@ void main() {
     now = DateTime(2026, 10, 6, 8, 0);
     socketsCreated = [];
     when(() => tokens.read()).thenAnswer((_) async => 'fake-jwt');
-    when(() => repo.sendLocation(
-          tripId: any(named: 'tripId'),
-          position: any(named: 'position'),
-          speedMetersPerSecond: any(named: 'speedMetersPerSecond'),
-        )).thenAnswer((_) async => SubmitOutcome.sent);
     when(() => repo.endTrip(
           tripId: any(named: 'tripId'),
           position: any(named: 'position'),
@@ -68,6 +66,7 @@ void main() {
 
     container = ProviderContainer(overrides: [
       locationServiceProvider.overrideWithValue(location),
+      trackingBackendProvider.overrideWithValue(backend),
       socketFactoryProvider.overrideWithValue((url, options) {
         socketsCreated.add((url, options));
         return socket;
@@ -82,6 +81,7 @@ void main() {
     ]);
     addTearDown(container.dispose);
     addTearDown(location.close);
+    addTearDown(backend.dispose);
   });
 
   TripTracking tracking() => container.read(tripTrackingProvider.notifier);
@@ -116,18 +116,13 @@ void main() {
           TrackingStartResult.permissionDenied);
     });
 
-    test(
-        'starts: tracking on, trip saved, GPS configured, socket joined, background mode on',
+    test('starts: tracking on, trip saved, backend started, socket joined',
         () async {
       expect(await tracking().start(trip), TrackingStartResult.started);
       expect(state().isTracking, isTrue);
       expect(state().tripId, 'trip-001');
       expect(store.saved, trip);
-      verify(() => location.changeSettings(
-          accuracy: loc.LocationAccuracy.high,
-          interval: 2000,
-          distanceFilter: 3)).called(1);
-      verify(() => location.enableBackgroundMode(enable: true)).called(1);
+      expect(backend.started, ['trip-001']);
       expect(socketsCreated.single.$1, 'http://socket.test');
       expect(socketsCreated.single.$2['transports'], ['websocket']);
       expect(socketsCreated.single.$2['autoConnect'], isFalse);
@@ -174,13 +169,13 @@ void main() {
     });
   });
 
-  group('location fixes', () {
+  group('points from the backend', () {
     test(
         'update the state and go over the socket with speed and heading once connected',
         () async {
       await tracking().start(trip);
       socket.serverConnects();
-      location.emit(24.8607, 67.0011, speed: 8.0, heading: 90);
+      backend.emit(24.8607, 67.0011, speed: 8.0, heading: 90);
       await pumpEventQueue();
       expect(state().lastPosition, const GeoPoint(lat: 24.8607, lng: 67.0011));
       expect(state().lastSpeed, 8.0);
@@ -194,124 +189,41 @@ void main() {
 
     test('nothing is emitted while the socket is down', () async {
       await tracking().start(trip);
-      location.emit(1, 2);
+      backend.emit(1, 2);
       await pumpEventQueue();
       verifyNever(() => socket.emit('updateLocation', any()));
+      expect(state().lastPosition, const GeoPoint(lat: 1, lng: 2));
     });
 
-    test('HTTP updates (with speed) are throttled to one per 5 seconds',
-        () async {
-      await tracking().start(trip);
-      location.emit(1, 2, speed: 5);
-      await pumpEventQueue();
-      verify(() => repo.sendLocation(
-          tripId: 'trip-001',
-          position: const GeoPoint(lat: 1, lng: 2),
-          speedMetersPerSecond: 5)).called(1);
-
-      now = now.add(const Duration(seconds: 3));
-      location.emit(3, 4);
-      await pumpEventQueue();
-      verifyNever(() => repo.sendLocation(
-          tripId: 'trip-001',
-          position: const GeoPoint(lat: 3, lng: 4),
-          speedMetersPerSecond: any(named: 'speedMetersPerSecond')));
-
-      now = now.add(const Duration(seconds: 3));
-      location.emit(5, 6);
-      await pumpEventQueue();
-      verify(() => repo.sendLocation(
-          tripId: 'trip-001',
-          position: const GeoPoint(lat: 5, lng: 6),
-          speedMetersPerSecond: any(named: 'speedMetersPerSecond'))).called(1);
-    });
-
-    test('a van standing still repeats its last position with speed 0',
+    test('a repeat while standing still reaches the relay with speed 0',
         () async {
       await tracking().start(trip);
       socket.serverConnects();
-      location.emit(1, 2, speed: 6);
+      backend.emit(1, 2, speed: 0, synthetic: true);
       await pumpEventQueue();
-
-      tracking().heartbeat(); // a fix was just seen: nothing to repeat
-      verifyNever(() => repo.sendLocation(
-          tripId: any(named: 'tripId'),
-          position: any(named: 'position'),
-          speedMetersPerSecond: 0));
-
-      void expectBeat() {
-        verify(() => repo.sendLocation(
-            tripId: 'trip-001',
-            position: const GeoPoint(lat: 1, lng: 2),
-            speedMetersPerSecond: 0)).called(1);
-        verify(() => socket.emit('updateLocation', {
-              'tripId': 'trip-001',
-              'location': {'lat': 1.0, 'lng': 2.0},
-              'speed': 0.0,
-            })).called(1);
-      }
-
-      now = now.add(const Duration(seconds: 6));
-      tracking().heartbeat();
-      await pumpEventQueue();
-      expectBeat();
-
-      // The next beat 5 s later goes by HTTP as well (not throttled away).
-      now = now.add(const Duration(seconds: 5));
-      tracking().heartbeat();
-      await pumpEventQueue();
-      expectBeat();
+      verify(() => socket.emit('updateLocation', {
+            'tripId': 'trip-001',
+            'location': {'lat': 1.0, 'lng': 2.0},
+            'speed': 0.0,
+          })).called(1);
     });
 
-    test('a van that stands still from the start is located once at start-up',
-        () async {
-      when(() => location.getLocation()).thenAnswer((_) async =>
-          loc.LocationData.fromMap({'latitude': 9.0, 'longitude': 8.0}));
+    test('the server ending the trip stops tracking', () async {
       await tracking().start(trip);
-      await pumpEventQueue();
-      expect(state().lastPosition, const GeoPoint(lat: 9, lng: 8));
-      verify(() => repo.sendLocation(
-          tripId: 'trip-001',
-          position: const GeoPoint(lat: 9, lng: 8),
-          speedMetersPerSecond: any(named: 'speedMetersPerSecond'))).called(1);
-    });
-
-    test('no heartbeat before the first fix', () async {
-      await tracking().start(trip);
-      now = now.add(const Duration(seconds: 30));
-      tracking().heartbeat();
-      verifyNever(() => repo.sendLocation(
-          tripId: any(named: 'tripId'),
-          position: any(named: 'position'),
-          speedMetersPerSecond: any(named: 'speedMetersPerSecond')));
-    });
-
-    test('TRIP_NOT_ONGOING from the server stops tracking', () async {
-      when(() => repo.sendLocation(
-              tripId: any(named: 'tripId'),
-              position: any(named: 'position'),
-              speedMetersPerSecond: any(named: 'speedMetersPerSecond')))
-          .thenAnswer((_) async => throw const ApiError(
-              code: 'TRIP_NOT_ONGOING', status: 400, message: 'over'));
-      await tracking().start(trip);
-      location.emit(1, 2);
+      backend.serverEndsTrip();
       await pumpEventQueue();
       expect(state().isTracking, isFalse);
       expect(state().trip, isNull);
       expect(store.saved, isNull);
+      expect(backend.stops, greaterThanOrEqualTo(1));
     });
 
-    test('any other send failure is ignored', () async {
-      when(() => repo.sendLocation(
-              tripId: any(named: 'tripId'),
-              position: any(named: 'position'),
-              speedMetersPerSecond: any(named: 'speedMetersPerSecond')))
-          .thenAnswer(
-              (_) async => throw const ApiError(status: 400, message: 'nope'));
+    test('points after stop are ignored', () async {
       await tracking().start(trip);
-      location.emit(1, 2);
+      await tracking().stop();
+      backend.emit(1, 2);
       await pumpEventQueue();
-      expect(state().isTracking, isTrue);
+      expect(state().lastPosition, isNull);
     });
   });
 
@@ -322,9 +234,9 @@ void main() {
       expect(state().isTracking, isFalse);
       expect(state().trip, isNull);
       expect(store.saved, isNull);
-      expect(location.hasListener, isFalse);
+      expect(backend.hasListeners, isFalse);
+      expect(backend.stops, 1);
       verify(() => socket.disconnect()).called(1);
-      verify(() => location.enableBackgroundMode(enable: false)).called(1);
     });
   });
 
@@ -352,7 +264,7 @@ void main() {
     test('flushes, ends on the server with the last position, then stops',
         () async {
       await tracking().start(trip);
-      location.emit(24.0, 67.0);
+      backend.emit(24.0, 67.0);
       await pumpEventQueue();
       await tracking().endTrip();
       expect(queue.flushes, greaterThanOrEqualTo(1));
@@ -407,9 +319,7 @@ void main() {
   group('currentPosition', () {
     test('uses the last streamed fix', () async {
       await tracking().start(trip);
-      await pumpEventQueue(); // the start-up read finds no GPS (unstubbed)
-      clearInteractions(location);
-      location.emit(1, 2);
+      backend.emit(1, 2);
       await pumpEventQueue();
       expect(
           await tracking().currentPosition(), const GeoPoint(lat: 1, lng: 2));

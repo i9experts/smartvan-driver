@@ -19,7 +19,6 @@ import 'package:smartvan_driver/features/trip/data/trip_repository.dart';
 import 'package:smartvan_driver/features/trip/presentation/widgets/trip_map_layers.dart';
 
 import '../../support/api_env.dart';
-import '../../support/fake_sync_queue.dart';
 
 class _TripRepo extends Mock implements TripRepository {}
 
@@ -149,7 +148,7 @@ void main() {
 
     setUp(() {
       env = ApiTestEnv();
-      repo = TripRepository(env.client, FakeSyncQueue());
+      repo = TripRepository(env.client);
     });
 
     test('routePlan GETs /trips/:id/route-plan and unwraps data', () async {
