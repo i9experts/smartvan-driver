@@ -89,6 +89,7 @@ override it:
 | `tokenStorageProvider` | static `TokenStorage` |
 | `syncQueueProvider` | `SyncQueue.instance` |
 | `locationServiceProvider` | `Location()` created inside `TripTrackingNotifier` |
+| `trackingBackendProvider` | who finds the van and uploads its points: the Android foreground service, or the app itself (iOS, tests) — §14 |
 | `socketFactoryProvider` | `io.io(...)` created inline |
 | `routerProvider` (core, overridden in `app/app_container.dart`) | global `appRouter` |
 | `sessionProvider` (`SessionController`) | static `AppSession` |
@@ -251,3 +252,48 @@ Parent app follows the same steps after the driver app (R.7 is driver-only).
   Don't speak while a phone call is active (audio focus); duck other audio.
 - Tests: VoiceService fake records prompts; controller tests assert which
   prompts fire for given state transitions.
+
+## 14. Reliable tracking (driver app)
+
+Goal: the parents' map keeps moving when the app is swiped away, the screen
+is off or the network drops. Contract: `smartvan/docs/PHASE4_API.md` §6.
+
+- **Layers.** `core/tracking/` (no feature imports): `TrackedPoint`,
+  `LocationBuffer` (Hive, one isolate only), `TrackingUploader` (the *only*
+  place that calls `POST /trips/updateLocation/:id` and the batch endpoint),
+  `TrackingEngine` (GPS stream → uploader, 5 s stand-still heartbeat, first
+  position seed), `gps_signal.dart`. `features/trip/application/`:
+  `TrackingBackend` (interface), `InAppTrackingBackend` (location plugin, in
+  the app's isolate: iOS and tests), `ServiceTrackingBackend` (Android).
+  `TripTracking` only starts/stops the backend and relays its points to the
+  screen and the live socket (2 s). Exactly one backend runs, so HTTP is never
+  duplicated.
+- **Android.** `flutter_background_service` (chosen over a native Kotlin
+  service because the engine, uploader and buffer are plain Dart that is
+  unit-tested; over `flutter_foreground_task` because its service API is the
+  simplest to run an independent isolate with `stopWithTask=false`, a
+  `location` foreground type and no UI engine; `geolocator` supplies GPS in
+  that isolate). The service reads the trip id (`tracking_trip_id`) and the
+  token from secure storage, so it works when Android restarts it without the
+  app. Started with a trip, stopped when the trip ends.
+- **Offline.** A POST that cannot reach the server puts the uploader
+  offline: every point (lat, lng, time, speed) goes to the Hive buffer; one
+  POST per 5 s probes; when one succeeds the buffer goes up oldest-first in
+  batches of 2000 and is deleted only after the server accepted a batch.
+- **Battery.** First trip on a phone: `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`
+  dialog, then on Xiaomi/Oppo/Realme/Vivo/Huawei/Honor a one-time sheet that
+  opens the vendor's autostart screen (`battery_guard.dart`). Remembered in
+  SharedPreferences.
+- **Weak GPS.** Warning when accuracy > 50 m, or a *moving* van got no real
+  reading for 20 s. A van standing still sends no readings (3 m distance
+  filter), which is not a weak signal.
+- **iOS limits.** No separate service exists on iOS: tracking runs in the app
+  with the `location` background mode, so it survives the screen turning off
+  and the app going to the background, but **not** a force-quit (swipe-up in
+  the app switcher) — iOS ends the app. "Always" location is requested once;
+  without it iOS may end background tracking sooner, and the trip screen says
+  so. Significant-location-change relaunch is not implemented.
+- Tests: `test/core/tracking/`, `in_app_tracking_backend_test`,
+  `battery_guard_test`. The Android service itself (`trackingServiceMain`) is
+  platform glue and is verified on a phone: see
+  `docs/ANDROID_TRACKING_CHECKLIST.md`.
