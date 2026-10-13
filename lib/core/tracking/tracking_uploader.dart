@@ -4,6 +4,12 @@ import '../network/app_exception.dart';
 import 'location_buffer.dart';
 import 'tracked_point.dart';
 
+/// Where the engine hands its points.
+abstract interface class PointSink {
+  Future<void> submit(TrackedPoint point, {bool force = false});
+  Future<void> flush();
+}
+
 /// Gets the van's points to the server, with the one `POST
 /// /trips/:id/updateLocation` for live tracking and the offline buffer.
 ///
@@ -18,7 +24,7 @@ import 'tracked_point.dart';
 ///
 /// All HTTP for tracking goes through here, and only one place (the app or
 /// the Android service, never both) owns an instance.
-class TrackingUploader {
+class TrackingUploader implements PointSink {
   TrackingUploader({
     required this.tripId,
     required ApiClient api,
@@ -52,6 +58,7 @@ class TrackingUploader {
 
   /// Hands over a point. [force] posts it even if one went a moment ago (the
   /// stand-still heartbeat, which has its own 5 s rhythm).
+  @override
   Future<void> submit(TrackedPoint point, {bool force = false}) async {
     final now = _clock();
     final due = force ||
@@ -87,6 +94,7 @@ class TrackingUploader {
   /// Uploads what is buffered, oldest first. Safe to call any time (also when
   /// the connection is reported back); stops at the first failure and keeps
   /// the rest.
+  @override
   Future<void> flush() async {
     if (_flushing) return;
     _flushing = true;
