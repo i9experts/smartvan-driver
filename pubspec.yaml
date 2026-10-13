@@ -36,6 +36,10 @@ dependencies:
   json_annotation: ^4.9.0
   flutter_localizations:
     sdk: flutter
+  flutter_background_service: ^5.1.0
+  geolocator: ^14.0.2
+  device_info_plus: ^12.4.0
+  android_intent_plus: ^6.1.0
 
 dev_dependencies:
   flutter_test:
