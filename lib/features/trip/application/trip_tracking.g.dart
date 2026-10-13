@@ -6,7 +6,7 @@ part of 'trip_tracking.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tripTrackingHash() => r'6339989986fdd27251027cceb7dd3e7f40651d73';
+String _$tripTrackingHash() => r'8a19b420c8ac338e9e24dbe6b07a93a49f9bc1d4';
 
 /// Owns everything that must keep running for the whole trip — GPS stream,
 /// Android foreground service, Socket.IO connection — independent of which

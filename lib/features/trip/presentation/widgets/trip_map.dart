@@ -8,15 +8,21 @@ typedef TripMapBuilder = Widget Function(
   BuildContext context, {
   required LatLng target,
   required Set<Marker> markers,
+  required Set<Polyline> polylines,
   required void Function(GoogleMapController controller) onCreated,
 });
 
 final tripMapBuilderProvider = Provider<TripMapBuilder>(
-  (ref) => (context, {required target, required markers, required onCreated}) =>
+  (ref) => (context,
+          {required target,
+          required markers,
+          required polylines,
+          required onCreated}) =>
       GoogleMap(
         initialCameraPosition: CameraPosition(target: target, zoom: 14),
         onMapCreated: onCreated,
         markers: markers,
+        polylines: polylines,
         myLocationEnabled: true,
         myLocationButtonEnabled: false,
         zoomControlsEnabled: false,

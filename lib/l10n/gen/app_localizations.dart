@@ -2020,6 +2020,12 @@ abstract class AppLocalizations {
   /// **'Your Location'**
   String get tripMapYourLocation;
 
+  /// No description provided for @tripMapSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get tripMapSchool;
+
   /// No description provided for @tripRecenter.
   ///
   /// In en, this message translates to:

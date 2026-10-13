@@ -23,7 +23,11 @@ import 'package:smartvan_driver/features/trip/data/models/active_trip.dart';
 import 'package:smartvan_driver/features/trip/data/models/geo_point.dart';
 import 'package:smartvan_driver/features/trip/data/models/optimized_route.dart';
 import 'package:smartvan_driver/features/trip/data/trip_repository.dart';
+import 'package:smartvan_driver/features/trip/data/models/route_plan.dart';
+import 'package:smartvan_driver/features/trip/data/models/stop_status.dart';
+import 'package:smartvan_driver/features/trip/data/models/trip_trail.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip_type.dart';
+import 'package:smartvan_driver/features/trip/application/stop_icons.dart';
 import 'package:smartvan_driver/features/trip/presentation/screens/trip_screen.dart';
 import 'package:smartvan_driver/features/trip/presentation/widgets/trip_map.dart';
 import 'package:smartvan_driver/features/trip/presentation/widgets/trip_map_button.dart';
@@ -46,6 +50,7 @@ void main() {
 
   late TrackingProbe probe;
   Set<Marker> mapMarkers = {};
+  Set<Polyline> mapPolylines = {};
   late _FakePassengersRepo passengersRepo;
   late _FakeProfileRepo profileRepo;
   late _FakeRatingRepo ratingRepo;
@@ -55,6 +60,7 @@ void main() {
   late FakeSyncQueue queue;
   late MemoryActiveTripStore store;
   late List<Passenger> kids;
+  late RoutePlan plan;
 
   final trip = ActiveTrip(
       id: 'trip-001',
@@ -64,6 +70,27 @@ void main() {
       startTime: DateTime(2026, 10, 6, 12));
 
   setUp(() {
+    plan = const RoutePlan(
+      nextStopOrder: 2,
+      school: RoutePlanSchool(name: 'Test School', lat: 24.9, lng: 67.1),
+      stops: [
+        RoutePlanStop(
+            order: 1,
+            kidId: 'k1',
+            fullname: 'One',
+            lat: 24.81,
+            lng: 67.01,
+            status: StopStatus.picked),
+        RoutePlanStop(
+            order: 2,
+            kidId: 'k2',
+            fullname: 'Two',
+            lat: 24.82,
+            lng: 67.02,
+            status: StopStatus.waiting),
+      ],
+      plannedPath: PlannedPath(polyline: '_p~iF~ps|U_ulLnnqC_mqNvxq`@'),
+    );
     probe = TrackingProbe();
     passengersRepo = _FakePassengersRepo();
     profileRepo = _FakeProfileRepo();
@@ -72,6 +99,9 @@ void main() {
     launched = [];
     launchFails = false;
     when(() => ratingRepo.pendingForTrip(any())).thenAnswer((_) async => []);
+    when(() => tripRepo.routePlan(any())).thenAnswer((_) async => plan);
+    when(() => tripRepo.trail(any())).thenAnswer(
+        (_) async => const TripTrail(polyline: '_p~iF~ps|U_ulLnnqC'));
     queue = FakeSyncQueue();
     store = MemoryActiveTripStore();
     kids = [
@@ -111,9 +141,16 @@ void main() {
             socketConnected: connected,
             isTracking: tracking,
             probe: probe)),
+        stopIconFactoryProvider.overrideWithValue((style,
+                {required devicePixelRatio}) async =>
+            BitmapDescriptor.defaultMarker),
         tripMapBuilderProvider.overrideWithValue((context,
-            {required target, required markers, required onCreated}) {
+            {required target,
+            required markers,
+            required polylines,
+            required onCreated}) {
           mapMarkers = markers;
+          mapPolylines = polylines;
           return Container(key: const Key('fake-map'), color: Colors.black12);
         }),
       ];
@@ -240,7 +277,7 @@ void main() {
     testWidgets('the van is a flat marker at the GPS position', (tester) async {
       await tester.pumpWidget(app());
       await tester.pumpAndSettle();
-      final van = mapMarkers.single;
+      final van = mapMarkers.singleWhere((m) => m.markerId.value == 'van');
       expect(van.position, const LatLng(24.8607, 67.0011));
       expect(van.flat, isTrue);
       expect(van.anchor, const Offset(0.5, 0.5));
@@ -250,7 +287,32 @@ void main() {
     testWidgets('no marker until there is a GPS fix', (tester) async {
       await tester.pumpWidget(app(o: overrides(position: null)));
       await tester.pumpAndSettle();
-      expect(mapMarkers, isEmpty);
+      expect(mapMarkers.where((m) => m.markerId.value == 'van'), isEmpty);
+    });
+
+    testWidgets('numbered stops, the school and both lines are on the map',
+        (tester) async {
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      final ids = mapMarkers.map((m) => m.markerId.value).toSet();
+      expect(ids, containsAll(['van', 'school', 'stop-1-k1', 'stop-2-k2']));
+      expect(
+          mapMarkers
+              .singleWhere((m) => m.markerId.value == 'school')
+              .infoWindow
+              .title,
+          'Test School');
+      expect(mapPolylines.map((l) => l.polylineId.value),
+          unorderedEquals(['planned', 'trail']));
+      verify(() => tripRepo.routePlan('trip-001')).called(1);
+      verify(() => tripRepo.trail('trip-001')).called(1);
+    });
+
+    testWidgets('a failing plan still shows the van', (tester) async {
+      when(() => tripRepo.routePlan(any())).thenThrow(Exception('boom'));
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      expect(mapMarkers.map((m) => m.markerId.value), ['van']);
     });
 
     testWidgets('touching the map stops following; Re-center resumes',

@@ -1111,6 +1111,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tripMapYourLocation => 'Your Location';
 
   @override
+  String get tripMapSchool => 'School';
+
+  @override
   String get tripRecenter => 'Re-center';
 
   @override

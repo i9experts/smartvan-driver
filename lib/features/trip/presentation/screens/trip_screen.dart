@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/formatting/date_formats.dart';
 import '../../../../core/map/animated_van_marker.dart';
 import '../../../../core/map/follow_camera.dart';
+import '../../../../core/map/stop_marker_icon.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/app_snack.dart';
@@ -18,6 +19,8 @@ import '../../../safety/presentation/widgets/sos_button.dart';
 import '../../application/active_trip_provider.dart';
 import '../../application/end_trip_controller.dart';
 import '../../application/optimize_route_controller.dart';
+import '../../application/stop_icons.dart';
+import '../../application/trip_map_controller.dart';
 import '../../application/trip_tracking.dart';
 import '../../data/models/active_trip.dart';
 import '../../data/models/geo_point.dart';
@@ -29,6 +32,7 @@ import '../widgets/trip_banners.dart';
 import '../widgets/trip_bottom_card.dart';
 import '../widgets/trip_header.dart';
 import '../widgets/trip_map_button.dart';
+import '../widgets/trip_map_layers.dart';
 import '../widgets/trip_map.dart';
 
 /// The running trip: live map, passengers, scan, SOS and End Trip.
@@ -211,6 +215,25 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     final ending = ref.watch(endTripControllerProvider);
     final optimizing = ref.watch(optimizeRouteControllerProvider);
     final pending = ref.watch(syncQueueProvider).pending;
+    final plan =
+        ref.watch(routePlanControllerProvider(widget.tripId)).valueOrNull;
+    final trail =
+        ref.watch(tripTrailControllerProvider(widget.tripId)).valueOrNull ??
+            const <LatLng>[];
+    final ratio = MediaQuery.devicePixelRatioOf(context);
+    final stopIcons = <StopMarkerStyle, BitmapDescriptor>{
+      if (plan != null)
+        for (final style in stopStylesOf(plan))
+          if (ref
+                  .watch(stopIconProvider((style: style, ratio: ratio)))
+                  .valueOrNull
+              case final icon?)
+            style: icon,
+    };
+    final planMarkerSet = plan == null
+        ? const <Marker>{}
+        : planMarkers(plan, icons: stopIcons, schoolTitle: l10n.tripMapSchool);
+    final lines = mapLines(plan: plan, trail: trail);
 
     ref.listen(passengersControllerProvider(widget.tripId), (_, next) {
       if (next.hasError && !next.hasValue) {
@@ -286,7 +309,8 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                     child: ref.watch(tripMapBuilderProvider)(
                       context,
                       target: driverPosition,
-                      markers: markers,
+                      markers: {...planMarkerSet, ...markers},
+                      polylines: lines,
                       onCreated: (c) {
                         _mapController = c;
                         _follow.attachMap(c);
