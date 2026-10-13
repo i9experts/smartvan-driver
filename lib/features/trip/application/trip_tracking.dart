@@ -48,6 +48,7 @@ class TripTracking extends _$TripTracking {
   /// The HTTP endpoint drives geofence push alerts; the socket drives the
   /// live map. The socket gets every fix, HTTP at most this often.
   static const httpInterval = Duration(seconds: 5);
+  static const heartbeatQuiet = Duration(seconds: 4);
 
   /// GPS settings: a fix about every 2 s once the van moved 3 m, so the
   /// parents' map follows smoothly.
@@ -181,19 +182,21 @@ class TripTracking extends _$TripTracking {
 
   /// The GPS stays quiet while the van stands still (distance filter), but
   /// the server works out "stopped for N minutes" from the updates it gets.
-  /// So when no fix came for [httpInterval], the last position is sent again
-  /// with speed 0.
+  /// So when no fix came for [heartbeatQuiet], the last position is sent again
+  /// with speed 0 — over the socket and, every beat, by HTTP too.
   @visibleForTesting
   void heartbeat() {
     final id = state.tripId;
     final point = state.lastPosition;
     final lastFix = _lastFixAt;
     if (id == null || point == null || lastFix == null) return;
-    if (ref.read(clockProvider)().difference(lastFix) < httpInterval) return;
-    _publish(id, point, speed: 0);
+    // A little under the timer period, so timer jitter never skips a beat.
+    if (ref.read(clockProvider)().difference(lastFix) < heartbeatQuiet) return;
+    _publish(id, point, speed: 0, forceHttp: true);
   }
 
-  void _publish(String id, GeoPoint point, {double? speed, double? heading}) {
+  void _publish(String id, GeoPoint point,
+      {double? speed, double? heading, bool forceHttp = false}) {
     if (_socket?.connected == true) {
       _socket!.emit(
           'updateLocation',
@@ -206,7 +209,8 @@ class TripTracking extends _$TripTracking {
     }
 
     final now = ref.read(clockProvider)();
-    if (_lastHttpUpdate == null ||
+    if (forceHttp ||
+        _lastHttpUpdate == null ||
         now.difference(_lastHttpUpdate!) >= httpInterval) {
       _lastHttpUpdate = now;
       ref

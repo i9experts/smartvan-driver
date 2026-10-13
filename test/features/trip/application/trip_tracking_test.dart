@@ -239,18 +239,28 @@ void main() {
           position: any(named: 'position'),
           speedMetersPerSecond: 0));
 
+      void expectBeat() {
+        verify(() => repo.sendLocation(
+            tripId: 'trip-001',
+            position: const GeoPoint(lat: 1, lng: 2),
+            speedMetersPerSecond: 0)).called(1);
+        verify(() => socket.emit('updateLocation', {
+              'tripId': 'trip-001',
+              'location': {'lat': 1.0, 'lng': 2.0},
+              'speed': 0.0,
+            })).called(1);
+      }
+
       now = now.add(const Duration(seconds: 6));
       tracking().heartbeat();
       await pumpEventQueue();
-      verify(() => repo.sendLocation(
-          tripId: 'trip-001',
-          position: const GeoPoint(lat: 1, lng: 2),
-          speedMetersPerSecond: 0)).called(1);
-      verify(() => socket.emit('updateLocation', {
-            'tripId': 'trip-001',
-            'location': {'lat': 1.0, 'lng': 2.0},
-            'speed': 0.0,
-          })).called(1);
+      expectBeat();
+
+      // The next beat 5 s later goes by HTTP as well (not throttled away).
+      now = now.add(const Duration(seconds: 5));
+      tracking().heartbeat();
+      await pumpEventQueue();
+      expectBeat();
     });
 
     test('no heartbeat before the first fix', () async {
