@@ -165,6 +165,8 @@ class OptimizedRouteSheet extends ConsumerWidget {
                           style: const TextStyle(fontFamily: 'Poppins')),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1B3B69),
+                        // The app theme's text colour is this same navy.
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
