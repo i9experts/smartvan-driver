@@ -263,6 +263,19 @@ void main() {
       expectBeat();
     });
 
+    test('a van that stands still from the start is located once at start-up',
+        () async {
+      when(() => location.getLocation()).thenAnswer((_) async =>
+          loc.LocationData.fromMap({'latitude': 9.0, 'longitude': 8.0}));
+      await tracking().start(trip);
+      await pumpEventQueue();
+      expect(state().lastPosition, const GeoPoint(lat: 9, lng: 8));
+      verify(() => repo.sendLocation(
+          tripId: 'trip-001',
+          position: const GeoPoint(lat: 9, lng: 8),
+          speedMetersPerSecond: any(named: 'speedMetersPerSecond'))).called(1);
+    });
+
     test('no heartbeat before the first fix', () async {
       await tracking().start(trip);
       now = now.add(const Duration(seconds: 30));
@@ -394,6 +407,8 @@ void main() {
   group('currentPosition', () {
     test('uses the last streamed fix', () async {
       await tracking().start(trip);
+      await pumpEventQueue(); // the start-up read finds no GPS (unstubbed)
+      clearInteractions(location);
       location.emit(1, 2);
       await pumpEventQueue();
       expect(

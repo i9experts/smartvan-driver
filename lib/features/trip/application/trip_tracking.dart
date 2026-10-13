@@ -103,6 +103,7 @@ class TripTracking extends _$TripTracking {
     );
     _heartbeat?.cancel();
     _heartbeat = Timer.periodic(httpInterval, (_) => heartbeat());
+    unawaited(_seedPosition());
     return TrackingStartResult.started;
   }
 
@@ -166,6 +167,20 @@ class TripTracking extends _$TripTracking {
       debugPrint('[Tracking] one-shot location failed: $e');
     }
     return null;
+  }
+
+  /// A van that is standing still when tracking (re)starts — the app was
+  /// reopened mid-trip, say — gets no fix from the GPS stream (distance
+  /// filter), so ask once for where it is. Without it nothing is sent and
+  /// there is no heartbeat until the van moves.
+  Future<void> _seedPosition() async {
+    try {
+      final fix =
+          await _location.getLocation().timeout(const Duration(seconds: 8));
+      if (state.isTracking && state.lastPosition == null) _onLocation(fix);
+    } catch (e) {
+      debugPrint('[Tracking] first position unavailable: $e');
+    }
   }
 
   void _onLocation(loc.LocationData fix) {
