@@ -21,9 +21,10 @@ abstract class RoutePlan with _$RoutePlan {
   factory RoutePlan.fromJson(Map<String, dynamic> json) =>
       _$RoutePlanFromJson(json);
 
-  /// Stops that can be drawn (the server skips none, but be safe).
+  /// Stops with a real position. A kid whose home was never set comes as
+  /// 0, 0 (the Gulf of Guinea) — that is not a place to draw.
   List<RoutePlanStop> get drawableStops =>
-      stops.where((s) => s.lat != null && s.lng != null).toList();
+      stops.where((s) => hasPosition(s.lat, s.lng)).toList();
 }
 
 @freezed
@@ -68,3 +69,7 @@ abstract class PlannedPath with _$PlannedPath {
 }
 
 int _order(Object? v) => looseInt(v) ?? 0;
+
+/// True when both numbers are there and are not the 0, 0 "unset" placeholder.
+bool hasPosition(double? lat, double? lng) =>
+    lat != null && lng != null && !(lat == 0 && lng == 0);

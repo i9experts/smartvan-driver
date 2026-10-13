@@ -122,6 +122,21 @@ void main() {
       expect(plan.drawableStops, hasLength(1));
     });
 
+    test('stops and school at 0, 0 (home never set) are not drawn', () {
+      final plan = RoutePlan.fromJson({
+        'school': {'name': 'S', 'lat': 0, 'lng': 0},
+        'stops': [
+          {'order': 1, 'lat': 0, 'lng': 0, 'status': 'waiting'},
+          {'order': 2, 'lat': 24.8, 'lng': 67.0, 'status': 'waiting'},
+        ],
+      });
+      expect(plan.drawableStops.map((s) => s.order), [2]);
+      expect(
+          planMarkers(plan, icons: const {}, schoolTitle: 'School')
+              .map((m) => m.markerId.value),
+          ['stop-2-']);
+    });
+
     test('TripTrail reads the polyline', () {
       expect(
           TripTrail.fromJson({'polyline': 'abc', 'points': 3}).polyline, 'abc');

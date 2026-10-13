@@ -53,10 +53,10 @@ Set<Marker> planMarkers(
     ));
   }
   final school = plan.school;
-  if (school?.lat != null && school?.lng != null) {
+  if (school != null && hasPosition(school.lat, school.lng)) {
     markers.add(Marker(
       markerId: const MarkerId('school'),
-      position: LatLng(school!.lat!, school.lng!),
+      position: LatLng(school.lat!, school.lng!),
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
       zIndex: 0.6,
       infoWindow: InfoWindow(title: school.name ?? schoolTitle),
