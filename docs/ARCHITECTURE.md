@@ -268,12 +268,13 @@ is off or the network drops. Contract: `smartvan/docs/PHASE4_API.md` §6.
   `TripTracking` only starts/stops the backend and relays its points to the
   screen and the live socket (2 s). Exactly one backend runs, so HTTP is never
   duplicated.
-- **Android.** `flutter_background_service` (chosen over a native Kotlin
-  service because the engine, uploader and buffer are plain Dart that is
-  unit-tested; over `flutter_foreground_task` because its service API is the
-  simplest to run an independent isolate with `stopWithTask=false`, a
-  `location` foreground type and no UI engine; `geolocator` supplies GPS in
-  that isolate). The service reads the trip id (`tracking_trip_id`) and the
+- **Android.** `flutter_background_service`: an independent foreground
+  service with its own Dart isolate, `stopWithTask=false`, the `location`
+  foreground type and no UI engine, so the engine/uploader/buffer stay plain,
+  unit-tested Dart. A native Kotlin service would give more control (and
+  survive more edge cases) but means writing the uploader, buffer and
+  heartbeat a second time in Kotlin. `geolocator` supplies GPS inside the
+  service isolate. The service reads the trip id (`tracking_trip_id`) and the
   token from secure storage, so it works when Android restarts it without the
   app. Started with a trip, stopped when the trip ends.
 - **Offline.** A POST that cannot reach the server puts the uploader
