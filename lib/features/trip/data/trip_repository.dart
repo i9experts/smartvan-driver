@@ -7,7 +7,9 @@ import '../../../core/sync/sync_queue.dart';
 import 'models/assigned_route.dart';
 import 'models/geo_point.dart';
 import 'models/optimized_route.dart';
+import 'models/route_plan.dart';
 import 'models/trip.dart';
+import 'models/trip_trail.dart';
 import 'models/trip_type.dart';
 
 /// Routes, starting / ending a trip and sending the van's location.
@@ -34,6 +36,19 @@ class TripRepository {
   Future<List<Trip>> driverTrips() => _api.get(
         '/trips/getDriverTrips',
         (json) => asJsonList(json).map(Trip.fromJson).toList(),
+      );
+
+  /// `GET /trips/:tripId/route-plan` — stops in visiting order with their
+  /// state, the school and the planned road path ahead.
+  Future<RoutePlan> routePlan(String tripId) => _api.get(
+        '/trips/$tripId/route-plan',
+        (json) => RoutePlan.fromJson(asJsonMap(json)),
+      );
+
+  /// `GET /trips/:tripId/trail` — the path the van has driven so far.
+  Future<TripTrail> trail(String tripId) => _api.get(
+        '/trips/$tripId/trail',
+        (json) => TripTrail.fromJson(asJsonMap(json)),
       );
 
   /// `POST /trips/startTrip`. [TripType.unknown] is sent as `pick`, which is
