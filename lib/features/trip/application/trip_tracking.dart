@@ -42,6 +42,8 @@ class TripTracking extends _$TripTracking {
   io.Socket? _socket;
   StreamSubscription<loc.LocationData>? _positionSub;
   DateTime? _lastHttpUpdate;
+  DateTime? _lastFixAt;
+  Timer? _heartbeat;
 
   /// The HTTP endpoint drives geofence push alerts; the socket drives the
   /// live map. The socket gets every fix, HTTP at most this often.
@@ -98,6 +100,8 @@ class TripTracking extends _$TripTracking {
       _onLocation,
       onError: (Object e) => debugPrint('[Tracking] location stream error: $e'),
     );
+    _heartbeat?.cancel();
+    _heartbeat = Timer.periodic(httpInterval, (_) => heartbeat());
     return TrackingStartResult.started;
   }
 
@@ -170,16 +174,34 @@ class TripTracking extends _$TripTracking {
     if (lat == null || lng == null || id == null) return;
 
     final point = GeoPoint(lat: lat, lng: lng);
+    _lastFixAt = ref.read(clockProvider)();
     state = state.copyWith(lastPosition: point, lastSpeed: fix.speed);
+    _publish(id, point, speed: fix.speed, heading: fix.heading);
+  }
 
+  /// The GPS stays quiet while the van stands still (distance filter), but
+  /// the server works out "stopped for N minutes" from the updates it gets.
+  /// So when no fix came for [httpInterval], the last position is sent again
+  /// with speed 0.
+  @visibleForTesting
+  void heartbeat() {
+    final id = state.tripId;
+    final point = state.lastPosition;
+    final lastFix = _lastFixAt;
+    if (id == null || point == null || lastFix == null) return;
+    if (ref.read(clockProvider)().difference(lastFix) < httpInterval) return;
+    _publish(id, point, speed: 0);
+  }
+
+  void _publish(String id, GeoPoint point, {double? speed, double? heading}) {
     if (_socket?.connected == true) {
       _socket!.emit(
           'updateLocation',
           TripRepository.socketLocationPayload(
             id,
             point,
-            speedMetersPerSecond: fix.speed,
-            heading: fix.heading,
+            speedMetersPerSecond: speed,
+            heading: heading,
           ));
     }
 
@@ -193,7 +215,7 @@ class TripTracking extends _$TripTracking {
             tripId: id,
             position: point,
             // m/s — the server records overspeed events from it.
-            speedMetersPerSecond: fix.speed,
+            speedMetersPerSecond: speed,
           )
           .then((_) {}, onError: (Object e) {
         // The trip was ended elsewhere (admin panel / another device):
@@ -301,6 +323,9 @@ class TripTracking extends _$TripTracking {
     await _positionSub?.cancel();
     _positionSub = null;
     _lastHttpUpdate = null;
+    _lastFixAt = null;
+    _heartbeat?.cancel();
+    _heartbeat = null;
     _socket?.disconnect();
     _socket?.dispose();
     _socket = null;

@@ -226,6 +226,43 @@ void main() {
           speedMetersPerSecond: any(named: 'speedMetersPerSecond'))).called(1);
     });
 
+    test('a van standing still repeats its last position with speed 0',
+        () async {
+      await tracking().start(trip);
+      socket.serverConnects();
+      location.emit(1, 2, speed: 6);
+      await pumpEventQueue();
+
+      tracking().heartbeat(); // a fix was just seen: nothing to repeat
+      verifyNever(() => repo.sendLocation(
+          tripId: any(named: 'tripId'),
+          position: any(named: 'position'),
+          speedMetersPerSecond: 0));
+
+      now = now.add(const Duration(seconds: 6));
+      tracking().heartbeat();
+      await pumpEventQueue();
+      verify(() => repo.sendLocation(
+          tripId: 'trip-001',
+          position: const GeoPoint(lat: 1, lng: 2),
+          speedMetersPerSecond: 0)).called(1);
+      verify(() => socket.emit('updateLocation', {
+            'tripId': 'trip-001',
+            'location': {'lat': 1.0, 'lng': 2.0},
+            'speed': 0.0,
+          })).called(1);
+    });
+
+    test('no heartbeat before the first fix', () async {
+      await tracking().start(trip);
+      now = now.add(const Duration(seconds: 30));
+      tracking().heartbeat();
+      verifyNever(() => repo.sendLocation(
+          tripId: any(named: 'tripId'),
+          position: any(named: 'position'),
+          speedMetersPerSecond: any(named: 'speedMetersPerSecond')));
+    });
+
     test('TRIP_NOT_ONGOING from the server stops tracking', () async {
       when(() => repo.sendLocation(
               tripId: any(named: 'tripId'),
