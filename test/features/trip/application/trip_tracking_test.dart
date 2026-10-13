@@ -125,8 +125,8 @@ void main() {
       expect(store.saved, trip);
       verify(() => location.changeSettings(
           accuracy: loc.LocationAccuracy.high,
-          interval: 5000,
-          distanceFilter: 10)).called(1);
+          interval: 2000,
+          distanceFilter: 3)).called(1);
       verify(() => location.enableBackgroundMode(enable: true)).called(1);
       expect(socketsCreated.single.$1, 'http://socket.test');
       expect(socketsCreated.single.$2['transports'], ['websocket']);
@@ -175,17 +175,20 @@ void main() {
   });
 
   group('location fixes', () {
-    test('update the state and go over the socket with `long` once connected',
+    test(
+        'update the state and go over the socket with speed and heading once connected',
         () async {
       await tracking().start(trip);
       socket.serverConnects();
-      location.emit(24.8607, 67.0011, speed: 8.0);
+      location.emit(24.8607, 67.0011, speed: 8.0, heading: 90);
       await pumpEventQueue();
       expect(state().lastPosition, const GeoPoint(lat: 24.8607, lng: 67.0011));
       expect(state().lastSpeed, 8.0);
       verify(() => socket.emit('updateLocation', {
             'tripId': 'trip-001',
-            'location': {'lat': 24.8607, 'long': 67.0011},
+            'location': {'lat': 24.8607, 'lng': 67.0011},
+            'speed': 8.0,
+            'heading': 90.0,
           })).called(1);
     });
 

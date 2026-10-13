@@ -109,13 +109,22 @@ class TripRepository {
     );
   }
 
-  /// Payload of the Socket.IO `updateLocation` event (the socket spells
-  /// longitude `long`, nested under `location`).
+  /// Payload of the Socket.IO `updateLocation` event:
+  /// `{tripId, location: {lat, lng}, speed?, heading?}` — speed in m/s,
+  /// heading in degrees. Unknown (null) or negative values (the GPS's "no
+  /// value") are left out.
   static Map<String, dynamic> socketLocationPayload(
-          String tripId, GeoPoint position) =>
+    String tripId,
+    GeoPoint position, {
+    double? speedMetersPerSecond,
+    double? heading,
+  }) =>
       {
         'tripId': tripId,
-        'location': {'lat': position.lat, 'long': position.lng},
+        'location': {'lat': position.lat, 'lng': position.lng},
+        if (speedMetersPerSecond != null && speedMetersPerSecond >= 0)
+          'speed': speedMetersPerSecond,
+        if (heading != null && heading >= 0) 'heading': heading,
       };
 }
 

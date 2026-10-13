@@ -47,6 +47,11 @@ class TripTracking extends _$TripTracking {
   /// live map. The socket gets every fix, HTTP at most this often.
   static const httpInterval = Duration(seconds: 5);
 
+  /// GPS settings: a fix about every 2 s once the van moved 3 m, so the
+  /// parents' map follows smoothly.
+  static const gpsIntervalMs = 2000;
+  static const gpsDistanceFilterMeters = 3.0;
+
   /// Captured in [build] so teardown never has to read a provider.
   late loc.Location _location;
 
@@ -85,8 +90,8 @@ class TripTracking extends _$TripTracking {
 
     await _location.changeSettings(
       accuracy: loc.LocationAccuracy.high,
-      interval: 5000,
-      distanceFilter: 10, // metres — avoids flooding updates while stationary
+      interval: gpsIntervalMs,
+      distanceFilter: gpsDistanceFilterMeters, // quiet while stationary
     );
     await _positionSub?.cancel();
     _positionSub = _location.onLocationChanged.listen(
@@ -169,7 +174,13 @@ class TripTracking extends _$TripTracking {
 
     if (_socket?.connected == true) {
       _socket!.emit(
-          'updateLocation', TripRepository.socketLocationPayload(id, point));
+          'updateLocation',
+          TripRepository.socketLocationPayload(
+            id,
+            point,
+            speedMetersPerSecond: fix.speed,
+            heading: fix.heading,
+          ));
     }
 
     final now = ref.read(clockProvider)();
@@ -269,6 +280,9 @@ class TripTracking extends _$TripTracking {
         'kidAbsenceCancelled', (data) => _onAbsence(data, cancelled: true));
     socket.onConnectError(
         (e) => debugPrint('[Tracking] socket connect error: $e'));
+    // socket_io_client 2.x reports a rejected handshake (bad token) as
+    // `error`, not `connect_error`.
+    socket.on('error', (e) => debugPrint('[Tracking] socket error: $e'));
     socket.connect();
     _socket = socket;
   }

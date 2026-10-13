@@ -274,10 +274,29 @@ void main() {
     });
   });
 
-  test('socketLocationPayload nests lat/long under location', () {
-    expect(TripRepository.socketLocationPayload('trip-001', here), {
-      'tripId': 'trip-001',
-      'location': {'lat': 24.8607, 'long': 67.0011},
+  group('socketLocationPayload', () {
+    test('nests lat/lng under location, with speed and heading', () {
+      expect(
+          TripRepository.socketLocationPayload('trip-001', here,
+              speedMetersPerSecond: 8.5, heading: 270),
+          {
+            'tripId': 'trip-001',
+            'location': {'lat': 24.8607, 'lng': 67.0011},
+            'speed': 8.5,
+            'heading': 270,
+          });
+    });
+
+    test('leaves out unknown or negative speed / heading', () {
+      expect(
+          TripRepository.socketLocationPayload('trip-001', here,
+              speedMetersPerSecond: -1, heading: -1),
+          {
+            'tripId': 'trip-001',
+            'location': {'lat': 24.8607, 'lng': 67.0011},
+          });
+      expect(TripRepository.socketLocationPayload('trip-001', here),
+          isNot(contains('speed')));
     });
   });
 }

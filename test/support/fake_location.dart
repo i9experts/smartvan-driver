@@ -36,12 +36,13 @@ class FakeLocation extends Mock implements loc.Location {
   loc.PermissionStatus permissionAfterRequest;
   final _fixes = StreamController<loc.LocationData>.broadcast();
 
-  /// Pushes a GPS fix (speed in m/s).
-  void emit(double lat, double lng, {double? speed}) =>
+  /// Pushes a GPS fix (speed in m/s, heading in degrees).
+  void emit(double lat, double lng, {double? speed, double? heading}) =>
       _fixes.add(loc.LocationData.fromMap({
         'latitude': lat,
         'longitude': lng,
         if (speed != null) 'speed': speed,
+        if (heading != null) 'heading': heading,
       }));
 
   bool get hasListener => _fixes.hasListener;
