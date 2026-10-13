@@ -1145,6 +1145,33 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String tripBatteryGuideTitle(String brand) {
+    return 'Keep tracking alive on $brand';
+  }
+
+  @override
+  String tripBatteryGuideBody(String brand) {
+    return '$brand phones can stop apps that run in the background. Allow SmartVan to start automatically and run in the background, so parents keep seeing the van even when the screen is off or the app is closed.';
+  }
+
+  @override
+  String get tripBatteryGuideOpen => 'Open settings';
+
+  @override
+  String get tripBatteryGuideLater => 'Not now';
+
+  @override
+  String get tripGpsWeak =>
+      'GPS signal is weak — the van\'s position may be late.';
+
+  @override
+  String get tripLocationAlwaysHint =>
+      'Set location to \"Always\" so tracking continues while the app is in the background.';
+
+  @override
+  String get tripOpenSettings => 'Settings';
+
+  @override
   String get tripLocationOff =>
       'Location sharing is off — parents can\'t see the van.';
 

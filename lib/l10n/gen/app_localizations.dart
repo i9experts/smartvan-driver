@@ -2068,6 +2068,48 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 pickup/drop update not synced yet. Connect to the internet, wait for sync, then end the trip.} other{{count} pickup/drop updates not synced yet. Connect to the internet, wait for sync, then end the trip.}}'**
   String tripPendingSync(int count);
 
+  /// No description provided for @tripBatteryGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep tracking alive on {brand}'**
+  String tripBatteryGuideTitle(String brand);
+
+  /// No description provided for @tripBatteryGuideBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{brand} phones can stop apps that run in the background. Allow SmartVan to start automatically and run in the background, so parents keep seeing the van even when the screen is off or the app is closed.'**
+  String tripBatteryGuideBody(String brand);
+
+  /// No description provided for @tripBatteryGuideOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get tripBatteryGuideOpen;
+
+  /// No description provided for @tripBatteryGuideLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get tripBatteryGuideLater;
+
+  /// No description provided for @tripGpsWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS signal is weak — the van\'s position may be late.'**
+  String get tripGpsWeak;
+
+  /// No description provided for @tripLocationAlwaysHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set location to \"Always\" so tracking continues while the app is in the background.'**
+  String get tripLocationAlwaysHint;
+
+  /// No description provided for @tripOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get tripOpenSettings;
+
   /// No description provided for @tripLocationOff.
   ///
   /// In en, this message translates to:

@@ -17,6 +17,7 @@ import '../../../profile/application/driver_profile_provider.dart';
 import '../../../rating/application/rating_providers.dart';
 import '../../../safety/presentation/widgets/sos_button.dart';
 import '../../application/active_trip_provider.dart';
+import '../../application/battery_guard.dart';
 import '../../application/end_trip_controller.dart';
 import '../../application/optimize_route_controller.dart';
 import '../../application/stop_icons.dart';
@@ -26,6 +27,7 @@ import '../../data/models/active_trip.dart';
 import '../../data/models/geo_point.dart';
 import '../../data/models/trip_type.dart';
 import '../widgets/kids_not_dropped_sheet.dart';
+import '../widgets/oem_guide_sheet.dart';
 import '../widgets/optimized_route_sheet.dart';
 import '../widgets/recenter_button.dart';
 import '../widgets/trip_banners.dart';
@@ -89,6 +91,17 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       _ => null,
     };
     if (message != null) AppSnack.error(context, message);
+    if (result == TrackingStartResult.started) await _batterySetup();
+  }
+
+  /// First trip on this phone: ask to be exempt from battery optimization,
+  /// and on phones that stop background apps explain the one setting to
+  /// change. Remembered, so it is not asked again.
+  Future<void> _batterySetup() async {
+    final guard = ref.read(batteryGuardProvider);
+    final guide = await guard.run();
+    if (guide == null || !mounted) return;
+    await OemGuideSheet.show(context, guide, () => guard.openSettingsFor(guide));
   }
 
   Future<void> _endTrip() async {
