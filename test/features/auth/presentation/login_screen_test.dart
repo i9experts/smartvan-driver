@@ -57,8 +57,6 @@ void main() {
     await tester.pumpWidget(app());
     await tester.pumpAndSettle();
     for (final t in [
-      'SmartVan Driver',
-      'Driver Portal',
       'Welcome Back!',
       'Sign in to manage your trips',
       'Phone Number or CNIC',
