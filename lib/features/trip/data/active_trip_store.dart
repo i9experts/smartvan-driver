@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../../../core/storage/hive_boxes.dart';
 import 'models/active_trip.dart';
 
 /// Remembers the trip that is currently being tracked, so tracking can be
@@ -14,7 +15,7 @@ abstract interface class ActiveTripStore {
 
 /// [ActiveTripStore] on a Hive box. Call [init] once at start-up.
 class HiveActiveTripStore implements ActiveTripStore {
-  HiveActiveTripStore({String boxName = 'session'}) : _boxName = boxName;
+  HiveActiveTripStore({String boxName = HiveBoxes.session}) : _boxName = boxName;
 
   static const _key = 'active_trip';
   final String _boxName;

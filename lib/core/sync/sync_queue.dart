@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../network/api_client.dart';
 import '../network/app_exception.dart';
+import '../storage/hive_boxes.dart';
 
 /// What kind of driver action a queued request represents.
 class SyncKind {
@@ -41,7 +42,7 @@ class SyncQueue {
     Stream<bool> Function()? onlineChanges,
     DateTime Function()? clock,
     Duration retryEvery = const Duration(seconds: 30),
-    String boxName = 'sync_queue',
+    String boxName = HiveBoxes.syncQueue,
   })  : _onlineChanges = onlineChanges ?? _connectivityStream,
         _clock = clock ?? DateTime.now,
         _retryEvery = retryEvery,

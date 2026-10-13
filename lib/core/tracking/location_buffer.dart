@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import '../storage/hive_boxes.dart';
 import 'tracked_point.dart';
 
 /// A point waiting to be uploaded, with the key to delete it by.
@@ -34,7 +35,7 @@ class HiveLocationBuffer implements LocationBuffer {
 
   /// Opens (or reuses) the box. Call after `Hive.init...`.
   static Future<HiveLocationBuffer> open(
-      {String name = 'location_buffer'}) async {
+      {String name = HiveBoxes.locationBuffer}) async {
     final box = Hive.isBoxOpen(name)
         ? Hive.box<Map<dynamic, dynamic>>(name)
         : await Hive.openBox<Map<dynamic, dynamic>>(name);
