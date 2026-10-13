@@ -11,6 +11,9 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!-- Lets the trip ask the driver to exempt SmartVan from battery optimization. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
     <application
         android:label="SmartVan Driver"
@@ -39,6 +42,15 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}"/>
+        <!-- The trip-tracking foreground service (flutter_background_service).
+             It runs in its own isolate and is not stopped when the app is
+             swiped out of the recent apps. Merged with the plugin's entry:
+             adds the location type, which Android 14+ requires. -->
+        <service
+            android:name="id.flutter.flutter_background_service.BackgroundService"
+            android:foregroundServiceType="location"
+            android:stopWithTask="false"
+            android:exported="true"/>
         <service
             android:name="com.google.firebase.messaging.FirebaseMessagingService"
             android:exported="false">

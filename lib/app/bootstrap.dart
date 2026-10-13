@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../core/providers/core_providers.dart';
 import '../features/auth/data/fcm_service.dart';
+import '../features/trip/background/tracking_service.dart';
 import '../features/trip/data/active_trip_store.dart';
 import 'app.dart';
 import 'app_container.dart';
@@ -25,6 +27,10 @@ Future<void> bootstrap() async {
   await Hive.initFlutter();
   await appContainer.read(syncQueueProvider).init();
   await HiveActiveTripStore().init();
+  if (!kIsWeb && Platform.isAndroid) {
+    // Channel + entry point of the Android tracking service (starts with a trip).
+    await TrackingService.configure();
+  }
   if (!kIsWeb) {
     try {
       await Firebase.initializeApp();
