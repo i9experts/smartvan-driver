@@ -154,13 +154,81 @@ void main() {
     });
   });
 
+  group('the camera stands still while a compass animation runs', () {
+    late DateTime now;
+    late FollowCameraController follow;
+    late MapCompassController compass;
+    late List<LatLng> moved;
+    late List<CameraPosition> animated;
+
+    setUp(() {
+      now = DateTime(2026, 10, 14, 10);
+      moved = [];
+      animated = [];
+      follow = FollowCameraController(clock: () => now)
+        ..attach(move: (p) async => moved.add(p), animate: (_) async {});
+      compass = MapCompassController(follow: follow)
+        ..attach(animateTo: (p) async => animated.add(p));
+      compass.onCameraMove(const CameraPosition(
+          target: LatLng(24.9, 67.0), zoom: 15, bearing: 80));
+    });
+
+    test('north tap while following: no per-frame moves for 700 ms', () {
+      follow.onPose(const VanPose(LatLng(1, 1), 0));
+      expect(moved, hasLength(1));
+      compass.onPressed();
+      expect(animated.single.bearing, 0);
+
+      now = now.add(const Duration(milliseconds: 300));
+      follow.onPose(const VanPose(LatLng(1, 2), 0));
+      expect(moved, hasLength(1), reason: 'would cancel the animation');
+
+      now = now.add(const Duration(milliseconds: 500));
+      follow.onPose(const VanPose(LatLng(1, 3), 0));
+      expect(moved, hasLength(2), reason: 'following resumes after it');
+    });
+
+    test('heading-up entry holds the camera the same way', () {
+      compass.onCameraMove(const CameraPosition(
+          target: LatLng(24.9, 67.0), zoom: 15, bearing: 0));
+      follow.attach(
+        move: (p) async => moved.add(p),
+        animate: (_) async {},
+        moveHeading: (p, b) async => moved.add(p),
+        animateHeading: (p, b) async {},
+      );
+      compass.onPressed();
+      expect(compass.headingUp, isTrue);
+      follow.onPose(const VanPose(LatLng(1, 2), 90));
+      expect(moved, isEmpty);
+      now = now.add(const Duration(seconds: 1));
+      follow.onPose(const VanPose(LatLng(1, 3), 90));
+      expect(moved, hasLength(1));
+    });
+
+    test('not following: the animation just runs', () {
+      follow.userMoved();
+      compass.onPressed();
+      expect(animated.single.bearing, 0);
+    });
+  });
+
   group('FollowCameraController heading-up', () {
     late FollowCameraController follow;
     late List<(LatLng, double)> headed;
     late List<LatLng> moved;
+    late DateTime now;
+
+    /// Entering holds the camera for the glide; tests that look at the frames
+    /// after it let that time pass.
+    void enter() {
+      follow.enterHeadingUp();
+      now = now.add(const Duration(seconds: 1));
+    }
 
     setUp(() {
-      follow = FollowCameraController();
+      now = DateTime(2026, 10, 14, 10);
+      follow = FollowCameraController(clock: () => now);
       headed = [];
       moved = [];
       follow.attach(
@@ -180,7 +248,7 @@ void main() {
 
     test('on: every frame moves the camera with the van\'s heading', () {
       follow.onPose(const VanPose(LatLng(1, 1), 90));
-      follow.enterHeadingUp();
+      enter();
       follow.onPose(const VanPose(LatLng(1, 2), 100), speedMetersPerSecond: 8);
       follow.onPose(const VanPose(LatLng(1, 3), 110), speedMetersPerSecond: 8);
       expect(headed.map((h) => h.$2), [90.0, 100.0, 110.0]);
@@ -188,7 +256,7 @@ void main() {
     });
 
     test('a van barely moving keeps the old bearing', () {
-      follow.enterHeadingUp();
+      enter();
       follow.onPose(const VanPose(LatLng(1, 1), 100), speedMetersPerSecond: 9);
       follow.onPose(const VanPose(LatLng(1, 1), 200),
           speedMetersPerSecond: 0.3);
@@ -200,7 +268,7 @@ void main() {
     });
 
     test('unknown speed counts as moving', () {
-      follow.enterHeadingUp();
+      enter();
       follow.onPose(const VanPose(LatLng(1, 1), 40));
       follow.onPose(const VanPose(LatLng(1, 1), 70));
       expect(headed.map((h) => h.$2), [40.0, 70.0]);
@@ -219,7 +287,7 @@ void main() {
     });
 
     test('a touch on the map ends it', () {
-      follow.enterHeadingUp();
+      enter();
       follow.userMoved();
       expect(follow.headingUp, isFalse);
       follow.onPose(const VanPose(LatLng(1, 1), 90));
@@ -227,7 +295,7 @@ void main() {
     });
 
     test('Re-center after a touch follows north-up again', () {
-      follow.enterHeadingUp();
+      enter();
       follow.userMoved();
       follow.recenter();
       expect(follow.following, isTrue);
@@ -235,7 +303,7 @@ void main() {
     });
 
     test('exitHeadingUp is back to plain following', () {
-      follow.enterHeadingUp();
+      enter();
       follow.exitHeadingUp();
       follow.onPose(const VanPose(LatLng(1, 1), 90));
       expect(moved, [const LatLng(1, 1)]);
@@ -253,9 +321,10 @@ void main() {
     });
 
     test('without heading hooks it falls back to plain following', () {
-      final plain = FollowCameraController()
+      final plain = FollowCameraController(clock: () => now)
         ..attach(move: (p) async => moved.add(p), animate: (_) async {});
       plain.enterHeadingUp();
+      now = now.add(const Duration(seconds: 1));
       plain.onPose(const VanPose(LatLng(5, 5), 10));
       expect(moved, [const LatLng(5, 5)]);
     });

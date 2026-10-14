@@ -7,8 +7,15 @@ import 'van_pose_animator.dart';
 /// over: [userMoved] (a touch on the map) stops following, [recenter] resumes.
 /// Listen to it to show or hide a "Re-center" button.
 class FollowCameraController extends ChangeNotifier implements CompassFollow {
+  FollowCameraController({DateTime Function()? clock})
+      : _now = clock ?? DateTime.now;
+
   bool _following = true;
   bool _headingUp = false;
+
+  /// While a camera animation runs (compass tap), the camera is not moved.
+  DateTime? _holdUntil;
+  final DateTime Function() _now;
 
   /// The bearing held while the van is too slow for its heading to mean
   /// anything.
@@ -72,7 +79,7 @@ class FollowCameraController extends ChangeNotifier implements CompassFollow {
   /// van is slower than [minHeadingSpeed], then the bearing is held).
   void onPose(VanPose pose, {double? speedMetersPerSecond}) {
     _last = pose;
-    if (!_following) return;
+    if (!_following || _held) return;
     if (_headingUp && _moveHeading != null) {
       _runHeading(
           _moveHeading, pose.position, _bearingFor(pose, speedMetersPerSecond));
@@ -81,6 +88,11 @@ class FollowCameraController extends ChangeNotifier implements CompassFollow {
     }
   }
 
+  bool get _held => _holdUntil != null && _now().isBefore(_holdUntil!);
+
+  @override
+  void holdCamera(Duration duration) => _holdUntil = _now().add(duration);
+
   /// Heading-up: glide the camera to the van's heading from now on. Does
   /// nothing unless following.
   @override
@@ -88,6 +100,7 @@ class FollowCameraController extends ChangeNotifier implements CompassFollow {
     if (!_following || _headingUp) return;
     _headingUp = true;
     _holdBearing = null;
+    holdCamera(compassAnimation);
     final last = _last;
     if (last != null && _animateHeading != null) {
       _runHeading(_animateHeading, last.position, _bearingFor(last, null));
