@@ -103,7 +103,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                 Positioned(
                   left: 16,
                   right: 16,
-                  bottom: 24 + MediaQuery.viewPaddingOf(context).bottom,
+                  bottom: 24 + MediaQuery.paddingOf(context).bottom,
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: outcome == null
