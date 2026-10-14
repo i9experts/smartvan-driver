@@ -77,9 +77,9 @@ void main() {
   group('showAppBottomSheet', () {
     testWidgets('last line and button sit above the nav bar', (tester) async {
       await tester.pumpWidget(_app(
-        home: _opener((_) => Column(
+        home: _opener((_) => const Column(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 SizedBox(height: 100),
                 ElevatedButton(onPressed: null, child: Text('Confirm')),
               ],
