@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../l10n/l10n.dart';
 import '../../data/models/kid_not_dropped.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 
 /// What the driver chose when ending a drop trip with kids still on board.
 sealed class KidsNotDroppedChoice {
@@ -26,7 +27,7 @@ class KidsNotDroppedSheet extends StatefulWidget {
 
   static Future<KidsNotDroppedChoice?> show(
       BuildContext context, List<KidNotDropped> kids) {
-    return showModalBottomSheet<KidsNotDroppedChoice>(
+    return showAppBottomSheet<KidsNotDroppedChoice>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

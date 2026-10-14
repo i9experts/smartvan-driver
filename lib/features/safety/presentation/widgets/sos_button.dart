@@ -5,6 +5,7 @@ import '../../../../l10n/error_text.dart';
 import '../../../../l10n/l10n.dart';
 import '../../application/sos_controller.dart';
 import '../../data/emergency_numbers.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 
 /// Red SOS button. Must be held for [holdDuration] to fire, so it can't be
 /// triggered by an accidental tap while driving.
@@ -64,7 +65,7 @@ class _SosButtonState extends ConsumerState<SosButton>
 
   void _showResult(bool ok, String title, String body) {
     final l10n = context.l10n;
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
@@ -172,7 +173,8 @@ class _SosButtonState extends ConsumerState<SosButton>
                   color: _red,
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: _red.withValues(alpha: 0.4), blurRadius: 12),
+                    BoxShadow(
+                        color: _red.withValues(alpha: 0.4), blurRadius: 12),
                   ],
                 ),
                 alignment: Alignment.center,

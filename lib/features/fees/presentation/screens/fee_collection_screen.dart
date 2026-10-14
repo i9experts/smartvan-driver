@@ -10,6 +10,7 @@ import '../../data/models/fee_student.dart';
 import '../widgets/fee_student_card.dart';
 import '../widgets/fee_summary_card.dart';
 import '../widgets/receipt_sheet.dart';
+import '../../../../core/widgets/bottom_inset.dart';
 
 class FeeCollectionScreen extends ConsumerWidget {
   const FeeCollectionScreen({super.key});
@@ -73,7 +74,7 @@ class FeeCollectionScreen extends ConsumerWidget {
     if (studentsAsync.hasValue && studentsAsync.requireValue.isNotEmpty) {
       final students = studentsAsync.requireValue;
       body = ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: withBottomInset(context, const EdgeInsets.all(16)),
         itemCount: students.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {

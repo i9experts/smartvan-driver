@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import '../../../../l10n/l10n.dart';
 import '../../data/models/issue_type.dart';
 import 'issue_type_label.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 
 /// Bottom sheet that lets the driver pick an [IssueType].
 Future<IssueType?> showIssueTypeSheet(
   BuildContext context, {
   required IssueType selected,
 }) {
-  return showModalBottomSheet<IssueType>(
+  return showAppBottomSheet<IssueType>(
     context: context,
-    backgroundColor: Colors.transparent,
     builder: (sheetContext) => _IssueTypeSheet(selected: selected),
   );
 }
@@ -23,14 +23,7 @@ class _IssueTypeSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-      ),
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -22,6 +23,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 /// App start-up, in order. `main()` only calls this.
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Same edge-to-edge window on every Android version (15+ forces it).
+  unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
   // Local storage (Hive): offline queue + active trip. Must be ready before
   // any screen can record a pickup/drop or resume a trip.
   await Hive.initFlutter();

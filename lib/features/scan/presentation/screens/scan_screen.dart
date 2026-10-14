@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import '../../../../core/theme/system_ui.dart';
 import '../../../../l10n/l10n.dart';
 import '../../application/scan_controller.dart';
 import '../../application/scan_state.dart';
@@ -67,50 +68,53 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     });
 
     final outcome = scan.outcome;
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: _navy,
-        foregroundColor: Colors.white,
-        title: Text(l10n.scanTitle,
-            style: const TextStyle(fontFamily: 'Poppins', fontSize: 18)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () => context.pop(scan.session.isNotEmpty),
-        ),
-        actions: [
-          IconButton(
-            tooltip: l10n.scanTorch,
-            icon: const Icon(Icons.flashlight_on_outlined),
-            onPressed: () => _controller.toggleTorch(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: darkSurfaceNavBar,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: _navy,
+          foregroundColor: Colors.white,
+          title: Text(l10n.scanTitle,
+              style: const TextStyle(fontFamily: 'Poppins', fontSize: 18)),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () => context.pop(scan.session.isNotEmpty),
           ),
-        ],
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final area = ScanArea.square(constraints.biggest);
-          return Stack(
-            children: [
-              ref.watch(scannerViewBuilderProvider)(
-                  context, _controller, area, _onCode),
-              ScanOverlay(window: area.window, detections: _detections),
-              if (scan.busy)
-                const Center(
-                    child: CircularProgressIndicator(color: Colors.white)),
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 24,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: outcome == null
-                      ? ScanHintCard(scannedCount: scan.session.length)
-                      : ScanOutcomeCard(outcome: outcome),
+          actions: [
+            IconButton(
+              tooltip: l10n.scanTorch,
+              icon: const Icon(Icons.flashlight_on_outlined),
+              onPressed: () => _controller.toggleTorch(),
+            ),
+          ],
+        ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final area = ScanArea.square(constraints.biggest);
+            return Stack(
+              children: [
+                ref.watch(scannerViewBuilderProvider)(
+                    context, _controller, area, _onCode),
+                ScanOverlay(window: area.window, detections: _detections),
+                if (scan.busy)
+                  const Center(
+                      child: CircularProgressIndicator(color: Colors.white)),
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 24 + MediaQuery.viewPaddingOf(context).bottom,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: outcome == null
+                        ? ScanHintCard(scannedCount: scan.session.length)
+                        : ScanOutcomeCard(outcome: outcome),
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

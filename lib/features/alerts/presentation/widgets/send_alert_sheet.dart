@@ -4,13 +4,13 @@ import '../../../../core/widgets/app_snack.dart';
 import '../../../../l10n/error_text.dart';
 import '../../../../l10n/l10n.dart';
 import '../../application/send_alert_controller.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 
 /// Bottom sheet where the driver types a message for the school admin.
 Future<void> showSendAlertSheet(BuildContext context) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.transparent,
     builder: (_) => const _SendAlertSheet(),
   );
 }
@@ -68,17 +68,8 @@ class _SendAlertSheetState extends ConsumerState<_SendAlertSheet> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final sending = ref.watch(sendAlertControllerProvider).isLoading;
-    return Padding(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
-        ),
+    return SingleChildScrollView(
+      child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,

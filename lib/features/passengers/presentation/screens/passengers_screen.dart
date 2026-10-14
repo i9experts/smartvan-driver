@@ -16,6 +16,7 @@ import '../../data/models/passenger.dart';
 import '../widgets/no_show_dialog.dart';
 import '../widgets/passenger_card.dart';
 import '../widgets/passengers_header.dart';
+import '../../../../core/widgets/bottom_inset.dart';
 
 /// The kids of trip [tripId]: pick up, drop off, message the parent, tell the
 /// parent the van is at the stop.
@@ -38,8 +39,10 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   void initState() {
     super.initState();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      final s = ref.read(passengersControllerProvider(widget.tripId)).valueOrNull;
-      if (mounted && (s?.passengers.any((p) => p.waitingSince != null) ?? false)) {
+      final s =
+          ref.read(passengersControllerProvider(widget.tripId)).valueOrNull;
+      if (mounted &&
+          (s?.passengers.any((p) => p.waitingSince != null) ?? false)) {
         setState(() {});
       }
     });
@@ -57,7 +60,8 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
   Future<void> _pick(Passenger kid) async {
     final l10n = context.l10n;
     if (kid.absent &&
-        !await confirmPickUpAbsent(context, kid.fullname.isEmpty ? null : kid.fullname)) {
+        !await confirmPickUpAbsent(
+            context, kid.fullname.isEmpty ? null : kid.fullname)) {
       return;
     }
     if (!mounted) return;
@@ -72,7 +76,8 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
       }
     } catch (e) {
       if (mounted) {
-        AppSnack.error(context, errorText(l10n, e, fallback: l10n.passengersPickFailed));
+        AppSnack.error(
+            context, errorText(l10n, e, fallback: l10n.passengersPickFailed));
       }
     }
   }
@@ -96,7 +101,8 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
         AppSnack.error(
             context,
             errorText(l10n, e,
-                fallback: l10n.passengersDropFailed(kid.fullname.isEmpty ? 'kid' : kid.fullname)));
+                fallback: l10n.passengersDropFailed(
+                    kid.fullname.isEmpty ? 'kid' : kid.fullname)));
       }
     }
   }
@@ -108,21 +114,23 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
       if (mounted) AppSnack.success(context, l10n.passengersParentTold);
     } catch (e) {
       if (mounted) {
-        AppSnack.error(context, errorText(l10n, e, fallback: l10n.passengersTellFailed));
+        AppSnack.error(
+            context, errorText(l10n, e, fallback: l10n.passengersTellFailed));
       }
     }
   }
 
   Future<void> _noShow(Passenger kid) async {
     final l10n = context.l10n;
-    final note = await showNoShowDialog(
-        context, kid.fullname.isEmpty ? l10n.passengersStudentFallback : kid.fullname);
+    final note = await showNoShowDialog(context,
+        kid.fullname.isEmpty ? l10n.passengersStudentFallback : kid.fullname);
     if (note == null || !mounted) return;
     try {
       await _controller.markNoShow(kid, note: note);
     } catch (e) {
       if (mounted) {
-        AppSnack.error(context, errorText(l10n, e, fallback: l10n.passengersNoShowFailed));
+        AppSnack.error(
+            context, errorText(l10n, e, fallback: l10n.passengersNoShowFailed));
       }
     }
   }
@@ -132,11 +140,13 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
     try {
       final conversation = await _controller.messageParent(kid);
       if (mounted) {
-        await context.push(AppRoutes.chatOf(conversation.id), extra: conversation);
+        await context.push(AppRoutes.chatOf(conversation.id),
+            extra: conversation);
       }
     } catch (e) {
       if (mounted) {
-        AppSnack.error(context, errorText(l10n, e, fallback: l10n.passengersChatFailed));
+        AppSnack.error(
+            context, errorText(l10n, e, fallback: l10n.passengersChatFailed));
       }
     }
   }
@@ -158,7 +168,9 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
       final name = e.fullname.isEmpty ? l10n.passengersAStudent : e.fullname;
       AppSnack.show(
         context,
-        e.cancelled ? l10n.passengersRidesAfterAll(name) : l10n.passengersAbsentEvent(name),
+        e.cancelled
+            ? l10n.passengersRidesAfterAll(name)
+            : l10n.passengersAbsentEvent(name),
         _navy,
       );
     });
@@ -174,7 +186,8 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
               child: _PassengerList(
                 state: state,
                 now: ref.read(clockProvider)(),
-                onOpenProfile: (k) => context.push(AppRoutes.kidOf(k.id), extra: k),
+                onOpenProfile: (k) =>
+                    context.push(AppRoutes.kidOf(k.id), extra: k),
                 onMessage: _messageParent,
                 onPick: _pick,
                 onDrop: _drop,
@@ -187,7 +200,8 @@ class _PassengersScreenState extends ConsumerState<PassengersScreen> {
         title: l10n.passengersErrorTitle,
         message: l10n.passengersErrorBody,
         retryLabel: l10n.commonRetry,
-        onRetry: () => ref.invalidate(passengersControllerProvider(widget.tripId)),
+        onRetry: () =>
+            ref.invalidate(passengersControllerProvider(widget.tripId)),
       );
     } else {
       body = const AppLoading();
@@ -244,7 +258,7 @@ class _PassengerList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: withBottomInset(context, const EdgeInsets.all(16)),
       itemCount: state.passengers.length,
       itemBuilder: (context, index) {
         final kid = state.passengers[index];
@@ -283,7 +297,8 @@ class _EmptyPassengers extends StatelessWidget {
               color: const Color(0xFF1B3B69).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.people_outline, size: 40, color: Color(0xFF1B3B69)),
+            child: const Icon(Icons.people_outline,
+                size: 40, color: Color(0xFF1B3B69)),
           ),
           const SizedBox(height: 16),
           Text(

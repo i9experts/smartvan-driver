@@ -16,6 +16,7 @@ import '../../data/models/issue_type.dart';
 import '../widgets/issue_type_label.dart';
 import '../widgets/issue_type_sheet.dart';
 import '../widgets/report_success_overlay.dart';
+import '../../../../core/widgets/bottom_inset.dart';
 
 class ReportIssueScreen extends ConsumerStatefulWidget {
   const ReportIssueScreen({super.key});
@@ -99,7 +100,7 @@ class _ReportIssueScreenState extends ConsumerState<ReportIssueScreen> {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
+                  padding: withBottomInset(context, const EdgeInsets.all(20)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

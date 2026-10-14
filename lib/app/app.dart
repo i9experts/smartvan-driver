@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/router/router_provider.dart';
 import '../core/theme/app_theme.dart';
+import '../core/theme/system_ui.dart';
 import '../l10n/l10n.dart';
 
 class SmartVanDriverApp extends ConsumerWidget {
@@ -15,6 +17,10 @@ class SmartVanDriverApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       routerConfig: ref.watch(routerProvider),
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: lightSurfaceNavBar,
+        child: child!,
+      ),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

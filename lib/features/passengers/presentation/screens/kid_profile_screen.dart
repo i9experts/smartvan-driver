@@ -9,6 +9,7 @@ import '../../../trip/application/trip_tracking.dart';
 import '../../application/passengers_controller.dart';
 import '../../data/models/passenger.dart';
 import '../widgets/kid_profile_widgets.dart';
+import '../../../../core/widgets/bottom_inset.dart';
 
 /// One kid: school, grade, parent contact and address. [kidId] comes from
 /// the route; [kid] is an optional already-loaded copy (without it the kid is
@@ -161,7 +162,7 @@ class _KidProfileBody extends StatelessWidget {
     final altPhone = kid.parent.alternatePhoneNo ?? '—';
     final address = kid.parent.address ?? '—';
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: withBottomInset(context, const EdgeInsets.all(20)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../l10n/l10n.dart';
 import '../../application/battery_guard.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 
 /// One-time explanation for phones that stop background apps: what to allow,
 /// with a button straight to the right settings screen.
@@ -12,12 +13,8 @@ class OemGuideSheet extends StatelessWidget {
 
   static Future<void> show(
           BuildContext context, OemGuide guide, VoidCallback onOpen) =>
-      showModalBottomSheet<void>(
+      showAppBottomSheet<void>(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
         builder: (_) => OemGuideSheet(guide: guide, onOpen: onOpen),
       );
 

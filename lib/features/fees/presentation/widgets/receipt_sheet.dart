@@ -8,6 +8,7 @@ import '../../../../l10n/l10n.dart';
 import '../../application/fees_providers.dart';
 import '../../data/models/receipt.dart';
 import 'fee_labels.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 
 /// Loads one receipt and shows it, with WhatsApp sharing.
 class ReceiptSheet extends ConsumerWidget {
@@ -16,7 +17,7 @@ class ReceiptSheet extends ConsumerWidget {
   final String paymentId;
 
   static Future<void> show(BuildContext context, String paymentId) {
-    return showModalBottomSheet<void>(
+    return showAppBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

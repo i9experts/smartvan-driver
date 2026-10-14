@@ -17,6 +17,7 @@ import '../../application/edit_profile_controller.dart';
 import '../../data/models/driver_profile.dart';
 import '../widgets/edit_profile_avatar.dart';
 import '../widgets/edit_profile_load_error.dart';
+import '../../../../core/widgets/bottom_inset.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -113,7 +114,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       body = const AppLoading();
     } else {
       body = SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: withBottomInset(context, const EdgeInsets.all(20)),
         child: Column(
           children: [
             EditProfileAvatar(

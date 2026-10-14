@@ -10,6 +10,7 @@ import '../../../../l10n/l10n.dart';
 import '../../application/alerts_provider.dart';
 import '../../data/models/alert.dart';
 import '../widgets/alert_style.dart';
+import '../../../../core/widgets/bottom_inset.dart';
 
 /// One alert. [alertId] comes from the route; [alert] is an optional,
 /// already-loaded copy used to show it without waiting for the list.
@@ -73,7 +74,7 @@ class _AlertDetailBody extends StatelessWidget {
     final tripId = alert.tripId ?? '';
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: withBottomInset(context, const EdgeInsets.all(20)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -5,6 +5,7 @@ import '../../../../l10n/error_text.dart';
 import '../../../../l10n/l10n.dart';
 import '../../application/driver_stats_provider.dart';
 import '../widgets/stats_content.dart';
+import '../../../../core/widgets/bottom_inset.dart';
 
 /// Driver's own performance for the last 7 / 30 days.
 class DriverStatsScreen extends ConsumerStatefulWidget {
@@ -60,7 +61,7 @@ class _DriverStatsScreenState extends ConsumerState<DriverStatsScreen> {
           }
         },
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: withBottomInset(context, const EdgeInsets.all(16)),
           children: [
             SegmentedButton<int>(
               segments: [

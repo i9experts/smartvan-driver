@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../l10n/l10n.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 
 enum DocumentAction { view, change, remove }
 
@@ -8,7 +9,7 @@ enum DocumentAction { view, change, remove }
 Future<DocumentAction?> showDocumentActionsSheet(
     BuildContext context, String title) {
   final l10n = context.l10n;
-  return showModalBottomSheet<DocumentAction>(
+  return showAppBottomSheet<DocumentAction>(
     context: context,
     builder: (ctx) => SafeArea(
       child: Column(
@@ -40,7 +41,7 @@ Future<DocumentAction?> showDocumentActionsSheet(
 /// Camera or gallery.
 Future<ImageSource?> showImageSourceSheet(BuildContext context, String title) {
   final l10n = context.l10n;
-  return showModalBottomSheet<ImageSource>(
+  return showAppBottomSheet<ImageSource>(
     context: context,
     builder: (ctx) => SafeArea(
       child: Column(

@@ -394,7 +394,8 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                   ),
                 ),
                 Positioned(
-                  bottom: 0,
+                  // Above the system navigation bar / home indicator.
+                  bottom: MediaQuery.viewPaddingOf(context).bottom,
                   left: 0,
                   right: 0,
                   child: Column(

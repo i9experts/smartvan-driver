@@ -183,7 +183,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                             letterSpacing: 1,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           context.l10n.splashTagline,
                           style: const TextStyle(

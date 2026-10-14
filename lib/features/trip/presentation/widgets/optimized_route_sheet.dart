@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../l10n/l10n.dart';
 import '../../application/maps_directions.dart';
@@ -14,10 +15,11 @@ class OptimizedRouteSheet extends ConsumerWidget {
   final OptimizedRoute route;
 
   static Future<void> show(BuildContext context, OptimizedRoute route) =>
-      showModalBottomSheet<void>(
+      showAppBottomSheet<void>(
         context: context,
-        isScrollControlled: true,
         backgroundColor: Colors.transparent,
+        // The sheet is edge to edge; its own button row clears the nav bar.
+        padContent: false,
         builder: (_) => OptimizedRouteSheet(route: route),
       );
 
@@ -152,7 +154,8 @@ class OptimizedRouteSheet extends ConsumerWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              padding: EdgeInsets.fromLTRB(
+                  20, 8, 20, 20 + sheetBottomInsetOf(context)),
               child: Column(
                 children: [
                   SizedBox(

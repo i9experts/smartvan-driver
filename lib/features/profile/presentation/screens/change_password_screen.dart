@@ -8,6 +8,7 @@ import '../../../../core/widgets/screen_header.dart';
 import '../../../../l10n/error_text.dart';
 import '../../../../l10n/l10n.dart';
 import '../../application/change_password_controller.dart';
+import '../../../../core/widgets/bottom_inset.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -143,7 +144,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: withBottomInset(context, const EdgeInsets.all(20)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

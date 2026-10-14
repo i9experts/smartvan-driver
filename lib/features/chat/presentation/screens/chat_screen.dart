@@ -9,6 +9,7 @@ import '../../application/chat_thread.dart';
 import '../../data/models/conversation.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/chat_input.dart';
+import '../../../../core/widgets/bottom_inset.dart';
 
 /// One conversation. [conversationId] comes from the route; [conversation]
 /// is an optional already-loaded copy used for the header.
@@ -76,7 +77,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         },
         child: ListView.builder(
           reverse: true,
-          padding: const EdgeInsets.all(12),
+          padding: withBottomInset(context, const EdgeInsets.all(12)),
           itemCount: thread.messages.length + (thread.loadingMore ? 1 : 0),
           itemBuilder: (context, i) {
             if (i >= thread.messages.length) {

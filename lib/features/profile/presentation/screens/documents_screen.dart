@@ -16,6 +16,7 @@ import '../../data/models/driver_document_type.dart';
 import '../widgets/document_sheets.dart';
 import '../widgets/document_widgets.dart';
 import 'document_viewer_screen.dart';
+import '../../../../core/widgets/bottom_inset.dart';
 
 class DocumentsScreen extends ConsumerWidget {
   const DocumentsScreen({super.key});
@@ -131,7 +132,7 @@ class DocumentsScreen extends ConsumerWidget {
             child: profileAsync.isLoading && !profileAsync.hasValue
                 ? const AppLoading()
                 : SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
+                    padding: withBottomInset(context, const EdgeInsets.all(20)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
