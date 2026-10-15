@@ -775,13 +775,33 @@ void main() {
       expect(find.text('Optimize'), findsOneWidget);
     });
 
+    testWidgets('no GPS fix yet: no made-up position is sent', (tester) async {
+      await tester.pumpWidget(app(o: overrides(position: null)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Optimize'));
+      await tester.pumpAndSettle();
+      verify(() => tripRepo.optimizeRoute(tripId: 'trip-001', position: null))
+          .called(1);
+      expect(find.text('Suggested Stop Order'), findsOneWidget);
+    });
+
+    testWidgets('a server message (e.g. no stops left) is shown as it is',
+        (tester) async {
+      when(() => tripRepo.optimizeRoute(
+              tripId: any(named: 'tripId'), position: any(named: 'position')))
+          .thenAnswer((_) async => throw const ApiError(
+              status: 400, message: 'No stops left to optimize'));
+      await tapOptimize(tester);
+      expect(find.text('No stops left to optimize'), findsOneWidget);
+      expect(find.text('Suggested Stop Order'), findsNothing);
+    });
+
     testWidgets('a failure shows the message and no sheet', (tester) async {
       when(() => tripRepo.optimizeRoute(
               tripId: any(named: 'tripId'), position: any(named: 'position')))
           .thenAnswer((_) async => throw const NetworkException());
       await tapOptimize(tester);
-      expect(find.text('Could not optimize this route right now.'),
-          findsOneWidget);
+      expect(find.textContaining('No internet connection'), findsOneWidget);
       expect(find.text('Suggested Stop Order'), findsNothing);
     });
 

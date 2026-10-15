@@ -2985,6 +2985,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Alert'**
   String get tripAlertOther;
+
+  /// No description provided for @tripOptimizePartialMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Maps can show only the next 10 stops. Optimize again after them.'**
+  String get tripOptimizePartialMaps;
 }
 
 class _AppLocalizationsDelegate

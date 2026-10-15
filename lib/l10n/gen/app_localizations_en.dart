@@ -1692,4 +1692,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripAlertOther => 'Alert';
+
+  @override
+  String get tripOptimizePartialMaps =>
+      'Google Maps can show only the next 10 stops. Optimize again after them.';
 }

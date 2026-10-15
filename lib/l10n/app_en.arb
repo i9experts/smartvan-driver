@@ -1008,5 +1008,6 @@
   "tripAlertOverspeed": "Overspeeding",
   "tripAlertTrafficDelay": "Traffic delay",
   "tripAlertTrackingLost": "Tracking lost",
-  "tripAlertOther": "Alert"
+  "tripAlertOther": "Alert",
+  "tripOptimizePartialMaps": "Google Maps can show only the next 10 stops. Optimize again after them."
 }

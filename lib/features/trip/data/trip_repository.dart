@@ -86,17 +86,23 @@ class TripRepository {
         },
       );
 
-  /// `POST /trips/optimizeRoute` — the trip's stops in the best order from
-  /// [position], and what that saves against the planned order. Advisory
-  /// only; nothing about the trip changes. The backend wants `long`.
+  /// `POST /trips/optimizeRoute` — the stops still to visit in the best
+  /// order from [position], and what that saves against the current order.
+  /// The server saves the new order, so the route plan follows it. Without a
+  /// [position] (no GPS fix yet) the server starts from the van's last
+  /// recorded location. The backend wants `long`.
   Future<OptimizedRoute> optimizeRoute({
     required String tripId,
-    required GeoPoint position,
+    GeoPoint? position,
   }) =>
       _api.post(
         '/trips/optimizeRoute',
         (json) => OptimizedRoute.fromJson(asJsonMap(json)),
-        body: {'tripId': tripId, 'lat': position.lat, 'long': position.lng},
+        body: {
+          'tripId': tripId,
+          if (position != null) 'lat': position.lat,
+          if (position != null) 'long': position.lng,
+        },
       );
 
   /// Payload of the Socket.IO `updateLocation` event:

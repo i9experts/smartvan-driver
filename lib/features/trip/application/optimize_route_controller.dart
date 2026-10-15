@@ -30,7 +30,7 @@ class OptimizeRouteController extends _$OptimizeRouteController {
   /// Null when a request is already running.
   Future<OptimizeRouteResult?> optimize({
     required String tripId,
-    required GeoPoint position,
+    GeoPoint? position,
   }) async {
     if (state) return null;
     state = true;

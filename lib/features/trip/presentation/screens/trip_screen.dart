@@ -27,7 +27,6 @@ import '../../application/stop_icons.dart';
 import '../../application/trip_map_controller.dart';
 import '../../application/trip_tracking.dart';
 import '../../data/models/active_trip.dart';
-import '../../data/models/geo_point.dart';
 import '../../data/models/trip_type.dart';
 import '../widgets/kids_not_dropped_sheet.dart';
 import '../widgets/oem_guide_sheet.dart';
@@ -204,17 +203,17 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     final result =
         await ref.read(optimizeRouteControllerProvider.notifier).optimize(
               tripId: widget.tripId,
-              position: last ??
-                  GeoPoint(
-                      lat: _fallbackCenter.latitude,
-                      lng: _fallbackCenter.longitude),
+              position: last,
             );
     if (!mounted) return;
     switch (result) {
       case RouteOptimized(:final route):
+        // The server saved the new order: show it on the map right away.
+        ref.read(routePlanControllerProvider(widget.tripId).notifier).reload();
         await OptimizedRouteSheet.show(context, route);
-      case OptimizeRouteFailed():
-        AppSnack.error(context, l10n.tripOptimizeFailed);
+      case OptimizeRouteFailed(:final error):
+        AppSnack.error(
+            context, errorText(l10n, error, fallback: l10n.tripOptimizeFailed));
       case null:
         break;
     }

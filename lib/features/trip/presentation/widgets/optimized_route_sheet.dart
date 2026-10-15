@@ -158,6 +158,16 @@ class OptimizedRouteSheet extends ConsumerWidget {
                   20, 8, 20, 20 + sheetBottomInsetOf(context)),
               child: Column(
                 children: [
+                  if (googleMapsLinkIsPartial(route))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(l10n.tripOptimizePartialMaps,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF8A94A6),
+                              fontFamily: 'Poppins')),
+                    ),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(

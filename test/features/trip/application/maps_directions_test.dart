@@ -47,4 +47,43 @@ void main() {
     expect(
         googleMapsDirectionsUri(const OptimizedRoute(origin: origin)), isNull);
   });
+
+  OptimizedStop stop(int i) =>
+      OptimizedStop(sequence: i, lat: 20.0 + i, lng: 67.1);
+
+  test('a drop trip ends at its last stop: no separate destination point', () {
+    final stops = [stop(1), stop(2), stop(3)];
+    final route = OptimizedRoute(
+      origin: origin,
+      destination: const GeoPoint(lat: 23, lng: 67.1),
+      stops: stops,
+    );
+    final uri = googleMapsDirectionsUri(route)!;
+    expect(uri.queryParameters['destination'], '23.0,67.1');
+    expect(uri.queryParameters['waypoints'], '21.0,67.1|22.0,67.1');
+    expect(googleMapsLinkIsPartial(route), isFalse);
+  });
+
+  test('more stops than Google Maps takes: the link covers the next ten', () {
+    final route = OptimizedRoute(
+      origin: origin,
+      destination: destination,
+      stops: [for (var i = 1; i <= 12; i++) stop(i)],
+    );
+    final uri = googleMapsDirectionsUri(route)!;
+    expect(uri.queryParameters['waypoints']!.split('|'), hasLength(9));
+    expect(uri.queryParameters['destination'], '30.0,67.1');
+    expect(googleMapsLinkIsPartial(route), isTrue);
+  });
+
+  test('exactly ten points still fit', () {
+    final route = OptimizedRoute(
+      origin: origin,
+      destination: destination,
+      stops: [for (var i = 1; i <= 9; i++) stop(i)],
+    );
+    expect(googleMapsLinkIsPartial(route), isFalse);
+    final uri = googleMapsDirectionsUri(route)!;
+    expect(uri.queryParameters['destination'], '24.95,67.2');
+  });
 }

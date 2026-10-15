@@ -7,7 +7,7 @@ part of 'optimize_route_controller.dart';
 // **************************************************************************
 
 String _$optimizeRouteControllerHash() =>
-    r'8b95a6be9313117910557960621fa377fe731715';
+    r'f710e6d2e67984222d9475f2324046a21df54fe5';
 
 /// Asks the backend for the best stop order. State is true while a request
 /// is in flight.

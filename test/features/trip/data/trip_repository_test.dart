@@ -60,6 +60,17 @@ void main() {
       expect(r.durationSavedMinutes, 8);
     });
 
+    test('without a GPS fix no position is sent (the server uses its own)',
+        () async {
+      env.adapter.onPost(
+        '/trips/optimizeRoute',
+        (s) => s.reply(201, fixture('trip/optimize_route.json')),
+        data: {'tripId': 'trip-001'},
+      );
+      final r = await repo.optimizeRoute(tripId: 'trip-001');
+      expect(r.stops, hasLength(3));
+    });
+
     test('an error from the server is thrown', () async {
       env.adapter.onPost(
           '/trips/optimizeRoute',
