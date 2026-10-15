@@ -2272,12 +2272,6 @@ abstract class AppLocalizations {
   /// **'SOS sent'**
   String get sosSentTitle;
 
-  /// No description provided for @sosSentBody.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =0{The school has your location.} =1{The school has your location. 1 parent notified.} other{The school has your location. {count} parents notified.}}'**
-  String sosSentBody(int count);
-
   /// No description provided for @sosAlreadyTitle.
   ///
   /// In en, this message translates to:
@@ -2775,6 +2769,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open Google Maps.'**
   String get tripOpenMapsFailed;
+
+  /// No description provided for @sosSentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS sent. School and parents are being notified.'**
+  String get sosSentMessage;
 }
 
 class _AppLocalizationsDelegate

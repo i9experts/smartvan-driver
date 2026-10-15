@@ -749,14 +749,6 @@
   "sosNoLocationTitle": "Could not get your location",
   "sosNoLocationBody": "Turn on GPS and try again, or call for help directly.",
   "sosSentTitle": "SOS sent",
-  "sosSentBody": "{count, plural, =0{The school has your location.} =1{The school has your location. 1 parent notified.} other{The school has your location. {count} parents notified.}}",
-  "@sosSentBody": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "sosAlreadyTitle": "SOS already sent",
   "sosFailedTitle": "SOS could not be sent",
   "sosFailedBody": "{message}\nCall for help directly:",
@@ -946,5 +938,6 @@
   "tripOptimizeOpenMaps": "Open in Google Maps",
   "tripOptimizeOwnOrder": "I'll use my own order",
   "tripOptimizeFailed": "Could not optimize this route right now.",
-  "tripOpenMapsFailed": "Could not open Google Maps."
+  "tripOpenMapsFailed": "Could not open Google Maps.",
+  "sosSentMessage": "SOS sent. School and parents are being notified."
 }

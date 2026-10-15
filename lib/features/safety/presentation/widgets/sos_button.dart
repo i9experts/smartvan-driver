@@ -53,8 +53,8 @@ class _SosButtonState extends ConsumerState<SosButton>
     switch (outcome) {
       case SosNoLocation():
         _showResult(false, l10n.sosNoLocationTitle, l10n.sosNoLocationBody);
-      case SosSent(:final parentsNotified):
-        _showResult(true, l10n.sosSentTitle, l10n.sosSentBody(parentsNotified));
+      case SosSent():
+        _showResult(true, l10n.sosSentTitle, l10n.sosSentMessage);
       case SosRateLimited(:final error):
         _showResult(true, l10n.sosAlreadyTitle, errorText(l10n, error));
       case SosFailed(:final error):

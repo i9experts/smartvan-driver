@@ -1278,18 +1278,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sosSentTitle => 'SOS sent';
 
   @override
-  String sosSentBody(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'The school has your location. $count parents notified.',
-      one: 'The school has your location. 1 parent notified.',
-      zero: 'The school has your location.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get sosAlreadyTitle => 'SOS already sent';
 
   @override
@@ -1582,4 +1570,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tripOpenMapsFailed => 'Could not open Google Maps.';
+
+  @override
+  String get sosSentMessage =>
+      'SOS sent. School and parents are being notified.';
 }

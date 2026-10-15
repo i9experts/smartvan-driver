@@ -123,7 +123,7 @@ void main() {
           position: const GeoPoint(lat: 24.8607, lng: 67.0011),
           message: null)).called(1);
       expect(find.text('SOS sent'), findsOneWidget);
-      expect(find.text('The school has your location. 4 parents notified.'),
+      expect(find.text('SOS sent. School and parents are being notified.'),
           findsOneWidget);
       expect(find.text('Police'), findsOneWidget);
       expect(find.text('1122'), findsOneWidget);
