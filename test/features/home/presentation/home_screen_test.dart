@@ -20,6 +20,9 @@ import 'package:smartvan_driver/features/trip/data/models/trip.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip_status.dart';
 import 'package:smartvan_driver/features/trip/data/models/trip_type.dart';
 import 'package:smartvan_driver/features/trip/data/trip_repository.dart';
+import 'package:smartvan_driver/features/trip_history/data/models/completed_trip.dart';
+import 'package:smartvan_driver/features/trip_history/data/models/completed_trips_page.dart';
+import 'package:smartvan_driver/features/trip_history/data/trip_history_repository.dart';
 
 import '../../../support/fake_sync_queue.dart';
 import '../../../support/fake_tracking.dart';
@@ -35,12 +38,15 @@ class _RatingRepo extends Mock implements RatingRepository {}
 
 class _ChecklistRepo extends Mock implements ChecklistRepository {}
 
+class _HistoryRepo extends Mock implements TripHistoryRepository {}
+
 void main() {
   late _TripRepo trips;
   late _ProfileRepo profile;
   late _ChatRepo chat;
   late _RatingRepo rating;
   late _ChecklistRepo checklist;
+  late _HistoryRepo history;
   late TrackingProbe probe;
 
   // 8:30 in the morning, local time.
@@ -69,6 +75,20 @@ void main() {
     when(() => rating.mySummary()).thenAnswer((_) async => const RatingSummary(
         avgRating: 4.6, ratingCount: 12, completedTripCount: 87));
     checklist = _ChecklistRepo();
+    history = _HistoryRepo();
+    when(() => history.completed(
+            scope: HistoryScope.today, limit: any(named: 'limit')))
+        .thenAnswer((_) async => CompletedTripsPage(items: [
+              CompletedTrip(
+                id: 'h-1',
+                routeName: 'Gulshan Morning',
+                tripType: TripType.pick,
+                startedAt: now.subtract(const Duration(minutes: 41)),
+                endedAt: now,
+                durationSeconds: 2460,
+                studentCount: 12,
+              ),
+            ]));
     probe = TrackingProbe();
     when(() => trips.assignedRoutes())
         .thenAnswer((_) async => [morning, afternoon]);
@@ -112,6 +132,7 @@ void main() {
           chatRepositoryProvider.overrideWithValue(chat),
           ratingRepositoryProvider.overrideWithValue(rating),
           checklistRepositoryProvider.overrideWithValue(checklist),
+          tripHistoryRepositoryProvider.overrideWithValue(history),
           syncQueueProvider.overrideWithValue(FakeSyncQueue()),
           clockProvider.overrideWithValue(() => now),
           tripTrackingProvider
@@ -134,8 +155,9 @@ void main() {
     expect(find.text('Sample School - Morning'), findsOneWidget);
     expect(find.text('8:00 AM'), findsOneWidget);
     expect(find.text('Grade 3'), findsOneWidget);
-    expect(find.text('2 trips'), findsOneWidget);
-    expect(find.text('Completed'), findsWidgets);
+    expect(find.text("Today's completed trips"), findsOneWidget);
+    expect(find.text('Gulshan Morning'), findsOneWidget);
+    expect(find.text('12 students'), findsOneWidget);
   });
 
   testWidgets('the rating card shows the average, review count and trips',
@@ -168,7 +190,8 @@ void main() {
     expect(find.text('No ratings yet'), findsOneWidget);
     expect(find.text('—'), findsWidgets);
     expect(find.text('0'), findsWidgets);
-    expect(find.text('2 trips'), findsOneWidget); // the rest of Home is fine
+    expect(
+        find.text("Today's completed trips"), findsOneWidget); // rest is fine
   });
 
   testWidgets(
@@ -340,7 +363,7 @@ void main() {
     expect(find.text('Start Trip'), findsOneWidget);
   });
 
-  testWidgets('a driver with no van sees "No Trip Today"', (tester) async {
+  testWidgets('a driver with no van sees no routes', (tester) async {
     useTallView(tester);
     when(() => trips.assignedRoutes()).thenAnswer((_) async =>
         throw const ApiError(status: 400, message: 'Van not found'));
@@ -348,24 +371,8 @@ void main() {
     await tester.pumpWidget(app());
     await tester.pumpAndSettle();
 
-    expect(find.text('No Trip Today'), findsOneWidget);
     expect(find.text('My Route Today'), findsNothing);
     expect(find.text('Start Trip'), findsNothing);
-  });
-
-  testWidgets('View Trip opens the trip and Back returns home', (tester) async {
-    useTallView(tester);
-    await tester.pumpWidget(app());
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('View Trip'));
-    await tester.pumpAndSettle();
-    expect(find.text('Trip t-1'), findsOneWidget);
-
-    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
-    nav.pop();
-    await tester.pumpAndSettle();
-    expect(find.text('Good Morning,'), findsOneWidget);
   });
 
   testWidgets('tracking stops when the server has no running trip',
@@ -392,6 +399,7 @@ void main() {
         profileRepositoryProvider.overrideWithValue(profile),
         chatRepositoryProvider.overrideWithValue(chat),
         checklistRepositoryProvider.overrideWithValue(checklist),
+        tripHistoryRepositoryProvider.overrideWithValue(history),
         syncQueueProvider.overrideWithValue(FakeSyncQueue()),
         clockProvider.overrideWithValue(() => now),
         tripTrackingProvider

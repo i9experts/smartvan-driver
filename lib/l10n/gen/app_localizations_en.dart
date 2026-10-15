@@ -1390,14 +1390,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeMyRouteToday => 'My Route Today';
 
   @override
-  String get homeTodaysTrips => 'Today\'s Trips';
-
-  @override
-  String homeTripsCount(int count) {
-    return '$count trips';
-  }
-
-  @override
   String get homeRouteFallback => 'Route';
 
   @override
@@ -1452,37 +1444,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeUnknownKid => 'Unknown';
-
-  @override
-  String get homeEmptyTitle => 'No Trip Today';
-
-  @override
-  String get homeEmptyBody =>
-      'No active trips have been assigned\nto you today. Check back later.';
-
-  @override
-  String get homeEmptyNotified => 'You\'ll be notified when assigned';
-
-  @override
-  String get homeTripFallback => 'School Trip';
-
-  @override
-  String get homeTripDropOff => 'Drop Off';
-
-  @override
-  String get homeTripPickUp => 'Pick Up';
-
-  @override
-  String get homeTripActive => 'Active';
-
-  @override
-  String get homeTripCompleted => 'Completed';
-
-  @override
-  String get homeTripStarting => 'Starting';
-
-  @override
-  String get homeViewTrip => 'View Trip';
 
   @override
   String get homeStartFailed => 'Failed to start trip. Please try again.';

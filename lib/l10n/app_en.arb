@@ -819,15 +819,6 @@
     }
   },
   "homeMyRouteToday": "My Route Today",
-  "homeTodaysTrips": "Today's Trips",
-  "homeTripsCount": "{count} trips",
-  "@homeTripsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "homeRouteFallback": "Route",
   "homeRouteInProgress": "In Progress",
   "homeRouteNotStarted": "Not Started",
@@ -865,16 +856,6 @@
   "homeTripAlreadyCompleted": "Today's trip for this route is already completed.",
   "homeTripAlreadyStarted": "This trip has already started. Open it with Continue Trip.",
   "homeUnknownKid": "Unknown",
-  "homeEmptyTitle": "No Trip Today",
-  "homeEmptyBody": "No active trips have been assigned\nto you today. Check back later.",
-  "homeEmptyNotified": "You'll be notified when assigned",
-  "homeTripFallback": "School Trip",
-  "homeTripDropOff": "Drop Off",
-  "homeTripPickUp": "Pick Up",
-  "homeTripActive": "Active",
-  "homeTripCompleted": "Completed",
-  "homeTripStarting": "Starting",
-  "homeViewTrip": "View Trip",
   "homeStartFailed": "Failed to start trip. Please try again.",
   "homeChecklistFirst": "Please complete today's van check first.",
   "homeTripResumed": "Your ongoing trip was resumed — location sharing is on.",

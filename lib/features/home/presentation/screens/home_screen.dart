@@ -15,17 +15,16 @@ import '../../../profile/application/driver_profile_provider.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../rating/application/rating_providers.dart';
 import '../../../rating/data/models/rating_summary.dart';
+import '../../../trip_history/application/trip_history_providers.dart';
+import '../../../trip_history/presentation/widgets/today_completed_section.dart';
 import '../../../trip/data/models/active_trip.dart';
 import '../../../trip/data/models/assigned_route.dart';
-import '../../../trip/data/models/trip.dart';
 import '../../application/doc_expiry.dart';
 import '../../application/home_controller.dart';
 import '../../application/start_trip_controller.dart';
 import '../widgets/home_banners.dart';
-import '../widgets/home_empty_state.dart';
 import '../widgets/home_header.dart';
 import '../widgets/route_card.dart';
-import '../widgets/trip_card.dart';
 
 /// The driver's landing screen: the bottom-nav shell (Home / Alerts /
 /// Profile) with today's routes and trips on the Home tab.
@@ -74,6 +73,7 @@ class _HomeTab extends ConsumerWidget {
     ref.invalidate(chatUnreadProvider);
     ref.invalidate(driverProfileProvider);
     ref.invalidate(ratingSummaryProvider);
+    ref.invalidate(todayCompletedTripsProvider);
     await ref.read(homeControllerProvider.notifier).refresh();
   }
 
@@ -123,7 +123,6 @@ class _HomeTab extends ConsumerWidget {
     final startingRoute = ref.watch(startTripControllerProvider);
     final now = ref.watch(clockProvider)();
     final routes = state?.routes ?? const <AssignedRoute>[];
-    final trips = state?.trips ?? const <Trip>[];
 
     Future<void> openMessages() async {
       await context.push(AppRoutes.chats);
@@ -187,45 +186,9 @@ class _HomeTab extends ConsumerWidget {
             ),
           ),
         const SizedBox(height: 24),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _SectionTitle(l10n.homeTodaysTrips),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1B3B69).withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(l10n.homeTripsCount(trips.length),
-                        style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF1B3B69),
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Poppins')),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              if (!home.hasValue)
-                const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF1B3B69)))
-              else if (trips.isEmpty)
-                const HomeEmptyState()
-              else
-                for (final trip in trips)
-                  TripCard(
-                    trip: trip,
-                    onView: () => _openTrip(context, ActiveTrip.fromTrip(trip)),
-                  ),
-            ],
-          ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: TodayCompletedSection(),
         ),
         const SizedBox(height: 24),
       ],

@@ -2464,18 +2464,6 @@ abstract class AppLocalizations {
   /// **'My Route Today'**
   String get homeMyRouteToday;
 
-  /// No description provided for @homeTodaysTrips.
-  ///
-  /// In en, this message translates to:
-  /// **'Today\'s Trips'**
-  String get homeTodaysTrips;
-
-  /// No description provided for @homeTripsCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} trips'**
-  String homeTripsCount(int count);
-
   /// No description provided for @homeRouteFallback.
   ///
   /// In en, this message translates to:
@@ -2571,66 +2559,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown'**
   String get homeUnknownKid;
-
-  /// No description provided for @homeEmptyTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'No Trip Today'**
-  String get homeEmptyTitle;
-
-  /// No description provided for @homeEmptyBody.
-  ///
-  /// In en, this message translates to:
-  /// **'No active trips have been assigned\nto you today. Check back later.'**
-  String get homeEmptyBody;
-
-  /// No description provided for @homeEmptyNotified.
-  ///
-  /// In en, this message translates to:
-  /// **'You\'ll be notified when assigned'**
-  String get homeEmptyNotified;
-
-  /// No description provided for @homeTripFallback.
-  ///
-  /// In en, this message translates to:
-  /// **'School Trip'**
-  String get homeTripFallback;
-
-  /// No description provided for @homeTripDropOff.
-  ///
-  /// In en, this message translates to:
-  /// **'Drop Off'**
-  String get homeTripDropOff;
-
-  /// No description provided for @homeTripPickUp.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick Up'**
-  String get homeTripPickUp;
-
-  /// No description provided for @homeTripActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Active'**
-  String get homeTripActive;
-
-  /// No description provided for @homeTripCompleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Completed'**
-  String get homeTripCompleted;
-
-  /// No description provided for @homeTripStarting.
-  ///
-  /// In en, this message translates to:
-  /// **'Starting'**
-  String get homeTripStarting;
-
-  /// No description provided for @homeViewTrip.
-  ///
-  /// In en, this message translates to:
-  /// **'View Trip'**
-  String get homeViewTrip;
 
   /// No description provided for @homeStartFailed.
   ///
