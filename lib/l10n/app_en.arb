@@ -939,5 +939,93 @@
   "tripOptimizeOwnOrder": "I'll use my own order",
   "tripOptimizeFailed": "Could not optimize this route right now.",
   "tripOpenMapsFailed": "Could not open Google Maps.",
-  "sosSentMessage": "SOS sent. School and parents are being notified."
+  "sosSentMessage": "SOS sent. School and parents are being notified.",
+  "homeTodayCompletedTitle": "Today's completed trips",
+  "homeViewAll": "View all",
+  "homeNoTripsCompletedToday": "No trips completed today",
+  "historyTitle": "Trip history",
+  "historyFilterAll": "All",
+  "historyFilterPick": "Pick up",
+  "historyFilterDrop": "Drop off",
+  "historyToday": "Today",
+  "historyYesterday": "Yesterday",
+  "historyEmptyTitle": "No completed trips yet",
+  "historyEmptyBody": "Trips you finish will show up here.",
+  "historyEmptyFilter": "No trips of this type loaded yet.",
+  "historyLoadFailed": "Could not load your trips.",
+  "historyLoadMoreFailed": "Could not load more trips.",
+  "tripStudentsCount": "{count, plural, =1{1 student} other{{count} students}}",
+  "@tripStudentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tripDurationMinutes": "{minutes} min",
+  "@tripDurationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "tripDurationHoursMinutes": "{hours} h {minutes} min",
+  "@tripDurationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "tripTimeRange": "{start} – {end}",
+  "@tripTimeRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "tripDistanceKm": "{km} km",
+  "@tripDistanceKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "tripNameFallback": "School trip",
+  "tripDetailsTitle": "Trip details",
+  "tripDetailsLoadFailed": "Could not load this trip.",
+  "tripDetailsRouteUnavailable": "Route not available for this trip",
+  "tripDetailsSummary": "Summary",
+  "tripDetailsRoute": "Route",
+  "tripDetailsType": "Type",
+  "tripDetailsDate": "Date",
+  "tripDetailsStarted": "Started",
+  "tripDetailsEnded": "Ended",
+  "tripDetailsDuration": "Duration",
+  "tripDetailsDistance": "Distance",
+  "tripDetailsStudents": "Students",
+  "tripDetailsNoStudents": "No students on this trip",
+  "tripDetailsAlerts": "Alerts during this trip",
+  "tripDetailsNoAlerts": "No alerts during this trip",
+  "tripDetailsMarkerStart": "Start",
+  "tripDetailsMarkerEnd": "End",
+  "tripStudentPicked": "Picked up",
+  "tripStudentDropped": "Dropped off",
+  "tripStudentAbsent": "Absent",
+  "tripStudentNoShow": "No-show",
+  "tripStudentPending": "Pending",
+  "tripAlertSos": "SOS",
+  "tripAlertOverspeed": "Overspeeding",
+  "tripAlertTrafficDelay": "Traffic delay",
+  "tripAlertTrackingLost": "Tracking lost",
+  "tripAlertOther": "Alert"
 }

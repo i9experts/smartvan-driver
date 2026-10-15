@@ -2775,6 +2775,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'SOS sent. School and parents are being notified.'**
   String get sosSentMessage;
+
+  /// No description provided for @homeTodayCompletedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s completed trips'**
+  String get homeTodayCompletedTitle;
+
+  /// No description provided for @homeViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get homeViewAll;
+
+  /// No description provided for @homeNoTripsCompletedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips completed today'**
+  String get homeNoTripsCompletedToday;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip history'**
+  String get historyTitle;
+
+  /// No description provided for @historyFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get historyFilterAll;
+
+  /// No description provided for @historyFilterPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up'**
+  String get historyFilterPick;
+
+  /// No description provided for @historyFilterDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop off'**
+  String get historyFilterDrop;
+
+  /// No description provided for @historyToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get historyToday;
+
+  /// No description provided for @historyYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get historyYesterday;
+
+  /// No description provided for @historyEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed trips yet'**
+  String get historyEmptyTitle;
+
+  /// No description provided for @historyEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips you finish will show up here.'**
+  String get historyEmptyBody;
+
+  /// No description provided for @historyEmptyFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips of this type loaded yet.'**
+  String get historyEmptyFilter;
+
+  /// No description provided for @historyLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your trips.'**
+  String get historyLoadFailed;
+
+  /// No description provided for @historyLoadMoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load more trips.'**
+  String get historyLoadMoreFailed;
+
+  /// No description provided for @tripStudentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 student} other{{count} students}}'**
+  String tripStudentsCount(int count);
+
+  /// No description provided for @tripDurationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String tripDurationMinutes(int minutes);
+
+  /// No description provided for @tripDurationHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String tripDurationHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @tripTimeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String tripTimeRange(String start, String end);
+
+  /// No description provided for @tripDistanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String tripDistanceKm(String km);
+
+  /// No description provided for @tripNameFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'School trip'**
+  String get tripNameFallback;
+
+  /// No description provided for @tripDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip details'**
+  String get tripDetailsTitle;
+
+  /// No description provided for @tripDetailsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load this trip.'**
+  String get tripDetailsLoadFailed;
+
+  /// No description provided for @tripDetailsRouteUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Route not available for this trip'**
+  String get tripDetailsRouteUnavailable;
+
+  /// No description provided for @tripDetailsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get tripDetailsSummary;
+
+  /// No description provided for @tripDetailsRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get tripDetailsRoute;
+
+  /// No description provided for @tripDetailsType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get tripDetailsType;
+
+  /// No description provided for @tripDetailsDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get tripDetailsDate;
+
+  /// No description provided for @tripDetailsStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get tripDetailsStarted;
+
+  /// No description provided for @tripDetailsEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get tripDetailsEnded;
+
+  /// No description provided for @tripDetailsDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get tripDetailsDuration;
+
+  /// No description provided for @tripDetailsDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get tripDetailsDistance;
+
+  /// No description provided for @tripDetailsStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get tripDetailsStudents;
+
+  /// No description provided for @tripDetailsNoStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'No students on this trip'**
+  String get tripDetailsNoStudents;
+
+  /// No description provided for @tripDetailsAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts during this trip'**
+  String get tripDetailsAlerts;
+
+  /// No description provided for @tripDetailsNoAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts during this trip'**
+  String get tripDetailsNoAlerts;
+
+  /// No description provided for @tripDetailsMarkerStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get tripDetailsMarkerStart;
+
+  /// No description provided for @tripDetailsMarkerEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get tripDetailsMarkerEnd;
+
+  /// No description provided for @tripStudentPicked.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get tripStudentPicked;
+
+  /// No description provided for @tripStudentDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped off'**
+  String get tripStudentDropped;
+
+  /// No description provided for @tripStudentAbsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get tripStudentAbsent;
+
+  /// No description provided for @tripStudentNoShow.
+  ///
+  /// In en, this message translates to:
+  /// **'No-show'**
+  String get tripStudentNoShow;
+
+  /// No description provided for @tripStudentPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get tripStudentPending;
+
+  /// No description provided for @tripAlertSos.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS'**
+  String get tripAlertSos;
+
+  /// No description provided for @tripAlertOverspeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Overspeeding'**
+  String get tripAlertOverspeed;
+
+  /// No description provided for @tripAlertTrafficDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Traffic delay'**
+  String get tripAlertTrafficDelay;
+
+  /// No description provided for @tripAlertTrackingLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking lost'**
+  String get tripAlertTrackingLost;
+
+  /// No description provided for @tripAlertOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get tripAlertOther;
 }
 
 class _AppLocalizationsDelegate

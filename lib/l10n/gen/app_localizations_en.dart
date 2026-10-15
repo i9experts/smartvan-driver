@@ -1574,4 +1574,161 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sosSentMessage =>
       'SOS sent. School and parents are being notified.';
+
+  @override
+  String get homeTodayCompletedTitle => 'Today\'s completed trips';
+
+  @override
+  String get homeViewAll => 'View all';
+
+  @override
+  String get homeNoTripsCompletedToday => 'No trips completed today';
+
+  @override
+  String get historyTitle => 'Trip history';
+
+  @override
+  String get historyFilterAll => 'All';
+
+  @override
+  String get historyFilterPick => 'Pick up';
+
+  @override
+  String get historyFilterDrop => 'Drop off';
+
+  @override
+  String get historyToday => 'Today';
+
+  @override
+  String get historyYesterday => 'Yesterday';
+
+  @override
+  String get historyEmptyTitle => 'No completed trips yet';
+
+  @override
+  String get historyEmptyBody => 'Trips you finish will show up here.';
+
+  @override
+  String get historyEmptyFilter => 'No trips of this type loaded yet.';
+
+  @override
+  String get historyLoadFailed => 'Could not load your trips.';
+
+  @override
+  String get historyLoadMoreFailed => 'Could not load more trips.';
+
+  @override
+  String tripStudentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '1 student',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tripDurationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String tripDurationHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String tripTimeRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String tripDistanceKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get tripNameFallback => 'School trip';
+
+  @override
+  String get tripDetailsTitle => 'Trip details';
+
+  @override
+  String get tripDetailsLoadFailed => 'Could not load this trip.';
+
+  @override
+  String get tripDetailsRouteUnavailable => 'Route not available for this trip';
+
+  @override
+  String get tripDetailsSummary => 'Summary';
+
+  @override
+  String get tripDetailsRoute => 'Route';
+
+  @override
+  String get tripDetailsType => 'Type';
+
+  @override
+  String get tripDetailsDate => 'Date';
+
+  @override
+  String get tripDetailsStarted => 'Started';
+
+  @override
+  String get tripDetailsEnded => 'Ended';
+
+  @override
+  String get tripDetailsDuration => 'Duration';
+
+  @override
+  String get tripDetailsDistance => 'Distance';
+
+  @override
+  String get tripDetailsStudents => 'Students';
+
+  @override
+  String get tripDetailsNoStudents => 'No students on this trip';
+
+  @override
+  String get tripDetailsAlerts => 'Alerts during this trip';
+
+  @override
+  String get tripDetailsNoAlerts => 'No alerts during this trip';
+
+  @override
+  String get tripDetailsMarkerStart => 'Start';
+
+  @override
+  String get tripDetailsMarkerEnd => 'End';
+
+  @override
+  String get tripStudentPicked => 'Picked up';
+
+  @override
+  String get tripStudentDropped => 'Dropped off';
+
+  @override
+  String get tripStudentAbsent => 'Absent';
+
+  @override
+  String get tripStudentNoShow => 'No-show';
+
+  @override
+  String get tripStudentPending => 'Pending';
+
+  @override
+  String get tripAlertSos => 'SOS';
+
+  @override
+  String get tripAlertOverspeed => 'Overspeeding';
+
+  @override
+  String get tripAlertTrafficDelay => 'Traffic delay';
+
+  @override
+  String get tripAlertTrackingLost => 'Tracking lost';
+
+  @override
+  String get tripAlertOther => 'Alert';
 }

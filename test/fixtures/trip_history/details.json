@@ -1,0 +1,44 @@
+{
+  "success": true,
+  "data": {
+    "id": "trip-1",
+    "routeName": "Gulshan Morning",
+    "tripType": "pick",
+    "date": "2026-10-15",
+    "startedAt": "2026-10-15T02:00:04.000Z",
+    "endedAt": "2026-10-15T02:41:10.000Z",
+    "durationSeconds": 2466,
+    "distanceMeters": 11840,
+    "studentCount": 3,
+    "pickedCount": 1,
+    "droppedCount": 0,
+    "absentCount": 1,
+    "noShowCount": 1,
+    "stops": [
+      {
+        "order": 1,
+        "placeName": "House 12, Block 5",
+        "lat": 24.9,
+        "lng": 67.1,
+        "students": [
+          { "kidId": "k1", "name": "Ayesha Test", "status": "picked", "at": "2026-10-15T02:10:00.000Z" }
+        ]
+      },
+      {
+        "order": 2,
+        "placeName": "House 4, Block 7",
+        "lat": 24.91,
+        "lng": 67.12,
+        "students": [
+          { "kidId": "k2", "name": "Bilal Test", "status": "absent" },
+          { "kidId": "k3", "name": "Sana Test", "status": "no_show", "at": "2026-10-15T02:20:00.000Z" }
+        ]
+      }
+    ],
+    "alerts": [
+      { "type": "overspeed", "title": "Overspeeding", "message": "Van went 82 km/h", "at": "2026-10-15T02:15:00.000Z" },
+      { "type": "sos", "title": "Driver SOS", "message": "Emergency", "at": "2026-10-15T02:30:00.000Z" }
+    ],
+    "school": { "name": "City School", "lat": 24.86, "lng": 67.0 }
+  }
+}

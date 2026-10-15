@@ -5,6 +5,8 @@ import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/trip/presentation/screens/trip_screen.dart';
 import '../features/passengers/presentation/screens/passengers_screen.dart';
+import '../features/trip_history/presentation/screens/trip_details_screen.dart';
+import '../features/trip_history/presentation/screens/trip_history_screen.dart';
 import '../features/passengers/presentation/screens/kid_profile_screen.dart';
 import '../features/alerts/data/models/alert.dart';
 import '../features/passengers/data/models/passenger.dart';
@@ -47,6 +49,15 @@ GoRouter buildRouter() => GoRouter(
             tripId: state.pathParameters['tripId']!,
             trip: state.extra is ActiveTrip ? state.extra as ActiveTrip : null,
           ),
+        ),
+        GoRoute(
+          path: AppRoutes.tripHistory,
+          builder: (context, state) => const TripHistoryScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.tripHistoryDetails,
+          builder: (context, state) =>
+              TripDetailsScreen(tripId: state.pathParameters['tripId']!),
         ),
         GoRoute(
           path: AppRoutes.passengers,

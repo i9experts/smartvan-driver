@@ -34,6 +34,12 @@ class AppRoutes {
   static String rateTripOf(String tripId) =>
       '/rate-trip/${Uri.encodeComponent(tripId)}';
 
+  /// Finished trips (paginated) and one finished trip with its trail.
+  static const tripHistory = '/trips/history';
+  static const tripHistoryDetails = '/trips/history/:tripId';
+  static String tripHistoryDetailsOf(String tripId) =>
+      '/trips/history/${Uri.encodeComponent(tripId)}';
+
   static const passengers = '/passengers/:tripId';
   static String passengersOf(String tripId) =>
       '/passengers/${Uri.encodeComponent(tripId)}';
