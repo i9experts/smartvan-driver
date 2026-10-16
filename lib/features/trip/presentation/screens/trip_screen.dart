@@ -19,6 +19,7 @@ import '../../../passengers/application/passengers_controller.dart';
 import '../../../profile/application/driver_profile_provider.dart';
 import '../../../rating/application/rating_providers.dart';
 import '../../../safety/presentation/widgets/sos_button.dart';
+import '../../application/tracking_replaced.dart';
 import '../../application/active_trip_provider.dart';
 import '../../application/battery_guard.dart';
 import '../../application/end_trip_controller.dart';
@@ -110,6 +111,32 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     if (guide == null || !mounted) return;
     await OemGuideSheet.show(
         context, guide, () => guard.openSettingsFor(guide));
+  }
+
+  /// Another phone logged in as this driver took the trip over: this one has
+  /// stopped tracking, so tell the driver and leave the screen.
+  Future<void> _showReplaced() async {
+    final l10n = context.l10n;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(l10n.trackingReplacedTitle,
+            style: const TextStyle(
+                fontFamily: 'Poppins', fontWeight: FontWeight.bold)),
+        content: Text(l10n.trackingReplacedBody,
+            style: const TextStyle(fontFamily: 'Poppins')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.trackingReplacedOk),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    ref.read(trackingReplacedProvider.notifier).state = false;
+    context.go(AppRoutes.home);
   }
 
   Future<void> _endTrip() async {
@@ -256,6 +283,9 @@ class _TripScreenState extends ConsumerState<TripScreen> {
         : planMarkers(plan, icons: stopIcons, schoolTitle: l10n.tripMapSchool);
     final lines = mapLines(plan: plan, trail: trail);
 
+    ref.listen(trackingReplacedProvider, (_, replaced) {
+      if (replaced) _showReplaced();
+    });
     ref.listen(passengersControllerProvider(widget.tripId), (_, next) {
       if (next.hasError && !next.hasValue) {
         AppSnack.error(

@@ -150,6 +150,7 @@ class _HomeTab extends ConsumerWidget {
           onLogout: () => showLogoutDialog(context, ref),
         ),
         const SizedBox(height: 24),
+        const TrackingReplacedBanner(),
         ActiveTripBanner(onOpen: (trip) => _openTrip(context, trip)),
         if (routes.isNotEmpty)
           ChecklistCard(

@@ -8,6 +8,8 @@ import '../../../core/providers/core_providers.dart';
 import '../../../core/storage/token_store.dart';
 import '../../../core/tracking/gps_signal.dart';
 import '../../../core/tracking/tracked_point.dart';
+import '../../../core/tracking/tracking_session.dart';
+import '../../../core/tracking/tracking_uploader.dart';
 import '../../passengers/data/models/kid_absence_event.dart';
 import '../data/active_trip_store.dart';
 import '../data/models/active_trip.dart';
@@ -16,6 +18,7 @@ import '../data/trip_repository.dart';
 import 'always_location.dart';
 import 'kid_absence_events.dart';
 import 'tracking_backend.dart';
+import 'tracking_replaced.dart';
 import 'tracking_state.dart';
 
 part 'trip_tracking.g.dart';
@@ -44,6 +47,8 @@ class TripTracking extends _$TripTracking {
   io.Socket? _socket;
   StreamSubscription<TrackedPoint>? _fixSub;
   StreamSubscription<void>? _overSub;
+  StreamSubscription<void>? _replacedSub;
+  TrackingSession? _session;
   Timer? _signalTimer;
   DateTime? _trackingStartedAt;
   DateTime? _lastRealFixAt;
@@ -86,11 +91,23 @@ class TripTracking extends _$TripTracking {
       return permission;
     }
 
+    ref.read(trackingReplacedProvider.notifier).state = false;
     state = TripTrackingState(
         trip: trip,
         isTracking: true,
         backgroundLocationLimited: !await _hasAlwaysLocation());
     await ref.read(activeTripStoreProvider).save(trip);
+    // This phone takes the trip over: any other phone tracking it as this
+    // driver is told to stop. Best effort — if it fails now the uploader
+    // claims on its first successful request, and until then no ids are sent.
+    var requested = TrackingSession.create(await ref.read(deviceIdProvider)());
+    try {
+      await ref.read(tripRepositoryProvider).claimTrackingSession(id, requested);
+      requested = requested.asClaimed;
+    } catch (e) {
+      debugPrint('[Tracking] could not claim the trip yet: $e');
+    }
+    _session = requested;
     await _connectSocket(id);
 
     // The backend finds the van, uploads (live, and later from its buffer)
@@ -98,6 +115,8 @@ class TripTracking extends _$TripTracking {
     // only go to the screen and the live socket relay.
     await _fixSub?.cancel();
     await _overSub?.cancel();
+    await _replacedSub?.cancel();
+    _replacedSub = _backend.sessionReplaced.listen((_) => _onSessionReplaced());
     _fixSub = _backend.fixes.listen(_onFix);
     _overSub = _backend.tripOver.listen((_) {
       // The trip was ended elsewhere (admin panel / another device): stop GPS
@@ -105,7 +124,9 @@ class TripTracking extends _$TripTracking {
       debugPrint('[Tracking] server says trip is over — stopping');
       stop();
     });
-    await _backend.start(id);
+    // The session the backend really tracks under (a service that kept
+    // running keeps its own); the live socket must use the same one.
+    _session = await _backend.start(id, requested);
     _trackingStartedAt = ref.read(clockProvider)();
     _lastRealFixAt = null;
     _lastAccuracy = null;
@@ -196,6 +217,10 @@ class TripTracking extends _$TripTracking {
             position,
             speedMetersPerSecond: point.speed,
             heading: point.heading,
+            accuracy: point.accuracy,
+            // Only a session the server knows; an unclaimed id would look
+            // like a stranger's to it.
+            session: _session?.claimed == true ? _session!.fields : null,
           ));
     }
   }
@@ -256,9 +281,30 @@ class TripTracking extends _$TripTracking {
         (e) => debugPrint('[Tracking] socket connect error: $e'));
     // socket_io_client 2.x reports a rejected handshake (bad token) as
     // `error`, not `connect_error`.
-    socket.on('error', (e) => debugPrint('[Tracking] socket error: $e'));
+    socket.on('error', (e) {
+      debugPrint('[Tracking] socket error: $e');
+      if (e is Map && e['code'] == TrackingUploader.sessionReplacedCode) {
+        _onSessionReplaced();
+      }
+    });
+    // The server tells the trip room when a phone took the trip over; the
+    // one that lost it stops.
+    socket.on('trackingSessionReplaced', (data) {
+      if (data is Map && data['replacedSessionId'] == _session?.sessionId) {
+        _onSessionReplaced();
+      }
+    });
     socket.connect();
     _socket = socket;
+  }
+
+  /// The trip is tracked from another phone now (the driver continued it
+  /// there): stop here and let the driver know.
+  Future<void> _onSessionReplaced() async {
+    if (!state.isTracking) return;
+    debugPrint('[Tracking] trip continued on another device — stopping');
+    ref.read(trackingReplacedProvider.notifier).state = true;
+    await stop();
   }
 
   /// A parent marked (or un-marked) a kid absent for today while the trip is
@@ -305,6 +351,9 @@ class TripTracking extends _$TripTracking {
     _fixSub = null;
     await _overSub?.cancel();
     _overSub = null;
+    await _replacedSub?.cancel();
+    _replacedSub = null;
+    _session = null;
     await _backend.stop();
     _socket?.disconnect();
     _socket?.dispose();

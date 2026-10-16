@@ -46,6 +46,7 @@ class TrackedPoint {
         'lng': lng,
         'time': time.toUtc().toIso8601String(),
         if (speed != null && speed! >= 0) 'speed': speed,
+        if (accuracy != null && accuracy! >= 0) 'accuracy': accuracy,
       };
 
   /// What goes over the app <-> service channel and into storage.

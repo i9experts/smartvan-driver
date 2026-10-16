@@ -5,6 +5,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/tracking/location_buffer.dart';
 import '../../../core/tracking/tracked_point.dart';
 import '../../../core/tracking/tracking_engine.dart';
+import '../../../core/tracking/tracking_session.dart';
 import '../../../core/tracking/tracking_uploader.dart';
 import 'tracking_backend.dart';
 
@@ -38,6 +39,7 @@ class InAppTrackingBackend implements TrackingBackend {
 
   final _fixes = StreamController<TrackedPoint>.broadcast();
   final _over = StreamController<void>.broadcast();
+  final _replaced = StreamController<void>.broadcast();
   TrackingEngine? _engine;
 
   @override
@@ -47,7 +49,10 @@ class InAppTrackingBackend implements TrackingBackend {
   Stream<void> get tripOver => _over.stream;
 
   @override
-  Future<void> start(String tripId) async {
+  Stream<void> get sessionReplaced => _replaced.stream;
+
+  @override
+  Future<TrackingSession> start(String tripId, TrackingSession session) async {
     await stop();
     await _enableBackgroundMode();
     await _location.changeSettings(
@@ -61,6 +66,8 @@ class InAppTrackingBackend implements TrackingBackend {
       buffer: await _openBuffer(),
       clock: _clock,
       onTripOver: () => _over.add(null),
+      session: session,
+      onSessionReplaced: () => _replaced.add(null),
     );
     final engine = TrackingEngine(
       positions: _location.onLocationChanged
@@ -74,6 +81,7 @@ class InAppTrackingBackend implements TrackingBackend {
     );
     _engine = engine;
     await engine.start();
+    return session;
   }
 
   @override
@@ -93,6 +101,7 @@ class InAppTrackingBackend implements TrackingBackend {
     await stop();
     await _fixes.close();
     await _over.close();
+    await _replaced.close();
   }
 
   TrackedPoint _toPoint(loc.LocationData fix) => TrackedPoint(

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/json_helpers.dart';
 import '../../../core/network/network_providers.dart';
+import '../../../core/tracking/tracking_session.dart';
 import 'models/assigned_route.dart';
 import 'models/geo_point.dart';
 import 'models/optimized_route.dart';
@@ -114,6 +115,8 @@ class TripRepository {
     GeoPoint position, {
     double? speedMetersPerSecond,
     double? heading,
+    double? accuracy,
+    Map<String, String>? session,
   }) =>
       {
         'tripId': tripId,
@@ -121,7 +124,16 @@ class TripRepository {
         if (speedMetersPerSecond != null && speedMetersPerSecond >= 0)
           'speed': speedMetersPerSecond,
         if (heading != null && heading >= 0) 'heading': heading,
+        if (accuracy != null && accuracy >= 0) 'accuracy': accuracy,
+        ...?session,
       };
+
+  /// `POST /trips/:id/tracking-session` — "this phone tracks this trip now".
+  /// Replaces any other phone's session; that phone is told to stop.
+  Future<void> claimTrackingSession(
+          String tripId, TrackingSession session) =>
+      _api.post<void>('/trips/$tripId/tracking-session', (_) {},
+          body: session.fields);
 }
 
 final tripRepositoryProvider = Provider<TripRepository>(

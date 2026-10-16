@@ -6,8 +6,10 @@ import 'package:smartvan_driver/core/config/app_config.dart';
 import 'package:smartvan_driver/core/network/app_exception.dart';
 import 'package:smartvan_driver/core/providers/core_providers.dart';
 import 'package:smartvan_driver/core/storage/token_store.dart';
+import 'package:smartvan_driver/core/tracking/tracking_session.dart';
 import 'package:smartvan_driver/features/trip/application/always_location.dart';
 import 'package:smartvan_driver/features/trip/application/kid_absence_events.dart';
+import 'package:smartvan_driver/features/trip/application/tracking_replaced.dart';
 import 'package:smartvan_driver/features/trip/application/trip_tracking.dart';
 import 'package:smartvan_driver/features/trip/application/tracking_backend.dart';
 import 'package:smartvan_driver/features/trip/data/active_trip_store.dart';
@@ -63,7 +65,11 @@ void main() {
       routeTitle: 'Sample School - Morning',
       type: TripType.pick);
 
-  setUpAll(() => registerFallbackValue(const GeoPoint(lat: 0, lng: 0)));
+  setUpAll(() {
+    registerFallbackValue(const GeoPoint(lat: 0, lng: 0));
+    registerFallbackValue(
+        const TrackingSession(sessionId: 's', deviceId: 'd'));
+  });
 
   setUp(() {
     location = FakeLocation();
@@ -77,6 +83,8 @@ void main() {
     now = DateTime(2026, 10, 6, 8, 0);
     socketsCreated = [];
     when(() => tokens.read()).thenAnswer((_) async => 'fake-jwt');
+    when(() => repo.claimTrackingSession(any(), any()))
+        .thenAnswer((_) async {});
     when(() => repo.endTrip(
           tripId: any(named: 'tripId'),
           position: any(named: 'position'),
@@ -95,6 +103,7 @@ void main() {
       syncQueueProvider.overrideWithValue(queue),
       tripRepositoryProvider.overrideWithValue(repo),
       activeTripStoreProvider.overrideWithValue(store),
+      deviceIdProvider.overrideWithValue(() async => 'device-1'),
       tokenStorageProvider.overrideWithValue(tokens),
       clockProvider.overrideWithValue(() => now),
       appConfigProvider.overrideWithValue(const AppConfig(
@@ -205,6 +214,8 @@ void main() {
             'location': {'lat': 24.8607, 'lng': 67.0011},
             'speed': 8.0,
             'heading': 90.0,
+            'sessionId': backend.sessions.single.sessionId,
+            'deviceId': 'device-1',
           })).called(1);
     });
 
@@ -226,6 +237,8 @@ void main() {
             'tripId': 'trip-001',
             'location': {'lat': 1.0, 'lng': 2.0},
             'speed': 0.0,
+            'sessionId': backend.sessions.single.sessionId,
+            'deviceId': 'device-1',
           })).called(1);
     });
 
@@ -487,5 +500,88 @@ void main() {
         overrides: [activeTripStoreProvider.overrideWithValue(store)]);
     addTearDown(fresh.dispose);
     expect(fresh.read(activeTripStoreProvider).read(), trip);
+  });
+
+  group('tracking session', () {
+    test('starting claims the trip and hands the claimed session to the backend',
+        () async {
+      await tracking().start(trip);
+      final claimed = verify(() => repo.claimTrackingSession('trip-001', captureAny()))
+          .captured
+          .single as TrackingSession;
+      expect(claimed.deviceId, 'device-1');
+      expect(backend.sessions.single.sessionId, claimed.sessionId);
+      expect(backend.sessions.single.claimed, isTrue);
+    });
+
+    test('a claim that fails does not stop tracking; ids stay off the socket until it is claimed',
+        () async {
+      when(() => repo.claimTrackingSession(any(), any()))
+          .thenThrow(const NetworkException());
+      expect(await tracking().start(trip), TrackingStartResult.started);
+      expect(backend.sessions.single.claimed, isFalse);
+      socket.serverConnects();
+      backend.emit(1, 2, speed: 3);
+      await pumpEventQueue();
+      verify(() => socket.emit('updateLocation', {
+            'tripId': 'trip-001',
+            'location': {'lat': 1.0, 'lng': 2.0},
+            'speed': 3.0,
+          })).called(1);
+    });
+
+    test('a service that kept running keeps its own session, also on the socket',
+        () async {
+      const own = TrackingSession(sessionId: 'kept', deviceId: 'device-1', claimed: true);
+      backend.answerWith = own;
+      await tracking().start(trip);
+      socket.serverConnects();
+      backend.emit(1, 2, speed: 3);
+      await pumpEventQueue();
+      verify(() => socket.emit('updateLocation', {
+            'tripId': 'trip-001',
+            'location': {'lat': 1.0, 'lng': 2.0},
+            'speed': 3.0,
+            'sessionId': 'kept',
+            'deviceId': 'device-1',
+          })).called(1);
+    });
+
+    test('another phone taking over stops tracking and raises the notice', () async {
+      await tracking().start(trip);
+      expect(container.read(trackingReplacedProvider), isFalse);
+      backend.anotherPhoneTakesOver();
+      await pumpEventQueue();
+      expect(state().isTracking, isFalse);
+      expect(backend.stops, greaterThan(0));
+      expect(container.read(trackingReplacedProvider), isTrue);
+      expect(store.saved, isNull);
+    });
+
+    test('the socket error TRACKING_SESSION_REPLACED does the same', () async {
+      await tracking().start(trip);
+      socket.serverSends('error', {'code': 'TRACKING_SESSION_REPLACED', 'msg': 'x'});
+      await pumpEventQueue();
+      expect(state().isTracking, isFalse);
+      expect(container.read(trackingReplacedProvider), isTrue);
+    });
+
+    test('trackingSessionReplaced for this session stops; for another one it is ignored', () async {
+      await tracking().start(trip);
+      socket.serverSends('trackingSessionReplaced', {'replacedSessionId': 'someone-else'});
+      await pumpEventQueue();
+      expect(state().isTracking, isTrue);
+      socket.serverSends('trackingSessionReplaced',
+          {'replacedSessionId': backend.sessions.single.sessionId});
+      await pumpEventQueue();
+      expect(state().isTracking, isFalse);
+      expect(container.read(trackingReplacedProvider), isTrue);
+    });
+
+    test('starting again clears the notice', () async {
+      container.read(trackingReplacedProvider.notifier).state = true;
+      await tracking().start(trip);
+      expect(container.read(trackingReplacedProvider), isFalse);
+    });
   });
 }

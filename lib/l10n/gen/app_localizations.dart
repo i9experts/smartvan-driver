@@ -1942,6 +1942,24 @@ abstract class AppLocalizations {
   /// **'Student not found'**
   String get kidProfileNotFound;
 
+  /// No description provided for @trackingReplacedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip continued on another device'**
+  String get trackingReplacedTitle;
+
+  /// No description provided for @trackingReplacedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone stopped sharing the van\'s location because you continued the trip on another device.'**
+  String get trackingReplacedBody;
+
+  /// No description provided for @trackingReplacedOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get trackingReplacedOk;
+
   /// No description provided for @tripDefaultName.
   ///
   /// In en, this message translates to:

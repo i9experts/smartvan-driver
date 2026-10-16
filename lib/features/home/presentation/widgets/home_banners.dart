@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../checklist/application/checklist_providers.dart';
 import '../../../trip/application/trip_tracking.dart';
+import '../../../trip/application/tracking_replaced.dart';
 import '../../../trip/data/models/active_trip.dart';
 import '../../application/doc_expiry.dart';
 
@@ -177,5 +178,58 @@ class DocExpiryBanner extends StatelessWidget {
     if (d.days < 0) return l10n.homeDocExpired(doc);
     if (d.days == 0) return l10n.homeDocExpiresToday(doc);
     return l10n.homeDocExpiresIn(doc, d.days);
+  }
+}
+
+
+/// Shown after another phone logged in as this driver took the running trip
+/// over; this phone stopped tracking.
+class TrackingReplacedBanner extends ConsumerWidget {
+  const TrackingReplacedBanner({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.watch(trackingReplacedProvider)) return const SizedBox.shrink();
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Material(
+        color: const Color(0xFFFEC610),
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+          child: Row(
+            children: [
+              const Icon(Icons.devices_other, color: Color(0xFF1B3B69)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.trackingReplacedTitle,
+                        style: const TextStyle(
+                            color: Color(0xFF1B3B69),
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins')),
+                    Text(l10n.trackingReplacedBody,
+                        style: const TextStyle(
+                            color: Color(0xFF1B3B69),
+                            fontSize: 12,
+                            fontFamily: 'Poppins')),
+                  ],
+                ),
+              ),
+              TextButton(
+                onPressed: () =>
+                    ref.read(trackingReplacedProvider.notifier).state = false,
+                child: Text(l10n.trackingReplacedOk,
+                    style: const TextStyle(
+                        color: Color(0xFF1B3B69), fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

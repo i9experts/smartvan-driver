@@ -15,6 +15,7 @@ import '../../../core/storage/token_store.dart';
 import '../../../core/tracking/location_buffer.dart';
 import '../../../core/tracking/tracked_point.dart';
 import '../../../core/tracking/tracking_engine.dart';
+import '../../../core/tracking/tracking_session.dart';
 import '../../../core/tracking/tracking_uploader.dart';
 
 /// The Android foreground service that tracks the trip: it has its own Dart
@@ -30,6 +31,11 @@ import '../../../core/tracking/tracking_uploader.dart';
 /// works when Android restarts it without the app.
 abstract final class TrackingService {
   static const tripIdKey = 'tracking_trip_id';
+  static const sessionIdKey = 'tracking_session_id';
+  static const deviceIdKey = 'tracking_device_id';
+  static const sessionClaimedKey = 'tracking_session_claimed';
+  static const stableDeviceIdKey = 'tracking_device_stable_id';
+  static const sessionReplacedEvent = 'tracking.sessionReplaced';
   static const stopEvent = 'tracking.stop';
   static const fixEvent = 'tracking.fix';
   static const tripOverEvent = 'tracking.tripOver';
@@ -125,12 +131,32 @@ Future<void> trackingServiceMain(ServiceInstance service) async {
     await service.stopSelf();
   }
 
+  // The session this trip is tracked under (written by the app at start); a
+  // service Android restarts keeps it, and does not claim the trip again.
+  const storage = TrackingService.storage;
+  final sessionId = await storage.read(key: TrackingService.sessionIdKey);
+  final deviceId = await storage.read(key: TrackingService.deviceIdKey);
+  final session = sessionId == null || sessionId.isEmpty || deviceId == null
+      ? null
+      : TrackingSession(
+          sessionId: sessionId,
+          deviceId: deviceId,
+          claimed:
+              await storage.read(key: TrackingService.sessionClaimedKey) == '1');
+
   final uploader = TrackingUploader(
     tripId: tripId,
     api: ApiClient(dio),
     buffer: await HiveLocationBuffer.open(),
     onTripOver: () {
       service.invoke(TrackingService.tripOverEvent);
+      unawaited(shutDown());
+    },
+    session: session,
+    onSessionClaimed: () => unawaited(
+        storage.write(key: TrackingService.sessionClaimedKey, value: '1')),
+    onSessionReplaced: () {
+      service.invoke(TrackingService.sessionReplacedEvent);
       unawaited(shutDown());
     },
   );

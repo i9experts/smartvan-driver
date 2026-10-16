@@ -5,6 +5,7 @@ import '../../../core/network/network_providers.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../core/tracking/location_buffer.dart';
 import '../../../core/tracking/tracked_point.dart';
+import '../../../core/tracking/tracking_session.dart';
 import 'in_app_tracking_backend.dart';
 import 'service_tracking_backend.dart';
 
@@ -19,7 +20,14 @@ abstract interface class TrackingBackend {
   /// The server says this trip is not ongoing any more.
   Stream<void> get tripOver;
 
-  Future<void> start(String tripId);
+  /// Another phone logged in as this driver took the trip over: stop.
+  Stream<void> get sessionReplaced;
+
+  /// Starts tracking [tripId] as [session] and returns the session actually
+  /// in use: an Android service that kept running for this trip (the app was
+  /// swiped away and reopened) keeps its own, so the phone never replaces
+  /// itself.
+  Future<TrackingSession> start(String tripId, TrackingSession session);
 
   Future<void> stop();
 

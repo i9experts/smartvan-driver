@@ -1066,6 +1066,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kidProfileNotFound => 'Student not found';
 
   @override
+  String get trackingReplacedTitle => 'Trip continued on another device';
+
+  @override
+  String get trackingReplacedBody =>
+      'This phone stopped sharing the van\'s location because you continued the trip on another device.';
+
+  @override
+  String get trackingReplacedOk => 'OK';
+
+  @override
   String get tripDefaultName => 'Morning Trip';
 
   @override
